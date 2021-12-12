@@ -15,4 +15,3 @@ linkedin_username: simon-bracegirdle
 rss: rss
 plugins:
   - jekyll-feed
-  - jekyll-seo-tag
