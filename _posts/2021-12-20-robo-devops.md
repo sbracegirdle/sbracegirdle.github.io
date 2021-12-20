@@ -1,4 +1,3 @@
-
 ---
 layout: post
 title: Applying DevOps Principles to Robotics
