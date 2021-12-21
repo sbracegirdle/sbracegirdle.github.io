@@ -1,0 +1,29 @@
+---
+layout: default
+---
+
+<div class="max-w-screen-lg mx-2 lg:mx-auto grid grid-cols-8 gap-8">
+  <div>
+    <a
+      class="text-flickr-dark hover:text-flickr-light focus:text-flickr-default"
+      href="/"
+      >🠔 Back</a
+    >
+  </div>
+  <h1 class="my-8 text-4xl font-bold">{{ page.title }}</h1>
+  <div class="my-6 flex flex-row items-center text-xs">
+    <div class="mr-1 text-gray-500">{{ page.date }}</div>
+    <div class="mr-1">/</div>
+    <div class="text-gray-400">by {{ page.author }}</div>
+  </div>
+
+  {{ content }}
+
+  <div class="mt-10">
+    <a
+      class="text-flickr-dark hover:text-flickr-light focus:text-flickr-default"
+      href="/"
+      >🠔 Back</a
+    >
+  </div>
+</div>

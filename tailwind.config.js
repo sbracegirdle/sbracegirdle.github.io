@@ -1,5 +1,5 @@
 module.exports = {
-  content: ["./_layouts/**/*.html"],
+  content: ["./**/*.html"],
   theme: {
     fontSize: {
       "2xs": "0.75rem",

@@ -1,17 +1,8 @@
 domain: letsbuild.cloud
 url: https://letsbuild.cloud
 author: Simon Bracegirdle
-theme: minima
 title: Let's Build
 description: Cloud and software development content
-minima:
-  social_links:
-    twitter: bracegirdle_me
-    github: sbracegirdle
-    linkedin: simon-bracegirdle
-twitter_username: bracegirdle_me
-github_username: sbracegirdle
-linkedin_username: simon-bracegirdle
 rss: rss
 plugins:
   - jekyll-feed

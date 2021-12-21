@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  p {
+    @apply my-6 font-sans text-gray-700 leading-8 text-base;
+  }
+
+  h2 {
+    @apply my-6 text-2xl font-bold;
+  }
+
+  a {
+    @apply text-flickr-dark hover:text-flickr-light focus:text-flickr-default;
+  }
+}
