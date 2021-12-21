@@ -11,6 +11,14 @@
     @apply my-6 text-2xl font-bold;
   }
 
+  h3 {
+    @apply my-5 text-xl font-bold;
+  }
+
+  h4 {
+    @apply my-4 text-lg font-bold;
+  }
+
   a {
     @apply text-flickr-dark hover:text-flickr-light focus:text-flickr-default;
   }
