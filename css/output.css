@@ -440,6 +440,20 @@ h2 {
   font-weight: 700;
 }
 
+h3 {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+h4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
 a {
   --tw-text-opacity: 1;
   color: rgb(199 18 105 / var(--tw-text-opacity));
