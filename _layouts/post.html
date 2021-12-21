@@ -11,14 +11,14 @@ layout: default
     >
   </div>
   <h1 class="my-8 text-4xl font-bold">{{ page.title }}</h1>
-  <div class="my-6 flex flex-row items-center text-xs">
+  <div class="my-2 flex flex-row items-center text-xs">
     <div class="mr-1 text-gray-500">{{ page.date | date_to_long_string }}</div>
     <div class="mr-1">/</div>
     <div class="text-gray-400">by {{ page.author }}</div>
   </div>
   {% if page.canonicalurl %}
-  <div class="my-6 flex flex-row items-center text-xs">
-    <a href="page.canonicalurl" rel="noreferrer" target="_blank"
+  <div class="my-2 flex flex-row items-center text-xs">
+    <a href="{{page.canonicalurl}}" rel="noreferrer" target="_blank"
       >First posted on {{page.canonicalsite}}</a
     >
   </div>
