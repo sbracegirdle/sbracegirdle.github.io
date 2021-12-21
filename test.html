@@ -1,0 +1,35 @@
+---
+layout: letsbuild
+title: Home
+---
+
+<div class="col-span-8 my-4">
+  <span class="text-2xl font-bold"
+    >Welcome to <em class="text-flickr-darker">Let's Build!</em></span
+  ><span class="text-2xl my-2 text-gray-400 italic">
+    I believe that the best way to learn is through building and
+    experimentation. For that reason I've created this site to share my own
+    experiences with building on the cloud.</span
+  >
+</div>
+<div class="col-span-8 px-0 text-2xs uppercase border-b py-1 w-full md:w-1/4">
+  Latest posts
+</div>
+{% for post in site.posts %}
+<div class="col-span-8 my-2 hello">
+  <div class="text-gray-500">{{ post.date }}</div>
+  <div>
+    <a
+      class="
+        text-flickr-dark
+        hover:text-flickr-light
+        focus:text-flickr-default
+        text-xl
+      "
+      href="{{ post.url }}"
+      >{{ post.title }}</a
+    >
+  </div>
+  <div class="text-lg">{{ post.description }}</div>
+</div>
+{% endfor %}
