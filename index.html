@@ -14,7 +14,7 @@ layout: page
 </div>
 {% for post in site.posts %}
 <div class="col-span-8 my-2 hello">
-  <div class="text-gray-500">{{ post.date }}</div>
+  <div class="text-gray-500">{{ post.date | date_to_long_string }}</div>
   <div>
     <a
       class="
