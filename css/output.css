@@ -469,19 +469,6 @@ a:focus {
   color: rgb(240 35 133 / var(--tw-text-opacity));
 }
 
-pre {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  overflow-y: auto;
-  border-radius: 0.25rem;
-  --tw-bg-opacity: 1;
-  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
 *, ::before, ::after {
   --tw-border-opacity: 1;
   border-color: rgb(229 231 235 / var(--tw-border-opacity));
