@@ -469,7 +469,7 @@ a:focus {
   color: rgb(240 35 133 / var(--tw-text-opacity));
 }
 
-code {
+pre {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
   overflow-y: auto;
