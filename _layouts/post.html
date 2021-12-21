@@ -16,8 +16,13 @@ layout: default
     <div class="mr-1">/</div>
     <div class="text-gray-400">by {{ page.author }}</div>
   </div>
-
-  {{ content }}
+  {% if page.canonicalurl %}
+  <div class="my-6 flex flex-row items-center text-xs">
+    <a href="page.canonicalurl" rel="noreferrer" target="_blank"
+      >First posted on {{page.canonicalsite}}</a
+    >
+  </div>
+  {% endif %} {{ content }}
 
   <div class="mt-10">
     <a

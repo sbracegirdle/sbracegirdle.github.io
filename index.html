@@ -28,5 +28,12 @@ layout: page
     >
   </div>
   <div class="text-lg">{{ post.description }}</div>
+  {% if page.canonicalurl %}
+  <div class="my-2 flex flex-row items-center text-xs">
+    <a href="page.canonicalurl" rel="noreferrer" target="_blank"
+      >First posted on {{page.canonicalsite}}</a
+    >
+  </div>
+  {% endif %}
 </div>
 {% endfor %}
