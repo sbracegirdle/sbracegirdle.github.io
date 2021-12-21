@@ -23,7 +23,7 @@
     @apply text-flickr-dark hover:text-flickr-light focus:text-flickr-default;
   }
 
-  pre {
-    @apply my-6 overflow-y-auto bg-gray-100 py-2 px-4 rounded;
+  code {
+    @apply block my-6 overflow-y-auto bg-gray-100 py-2 px-4 rounded;
   }
 }
