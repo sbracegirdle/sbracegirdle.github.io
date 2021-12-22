@@ -8,8 +8,10 @@ https://letsbuild.cloud
 Checklist
 
 - [] Syntax highlighting
-- [] Benchmark site
+- [] Lighthouse scan site
 - [] Link-tree-like site for bracegirdle.me.
+- [] Site metrics
+- [] OG Images for posts
 
 - [x] Add OG tags
 - [x] Add/remove about page
