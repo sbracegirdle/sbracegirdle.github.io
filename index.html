@@ -14,8 +14,7 @@ title: Blog
   Latest posts
 </div>
 {% for post in site.posts %}
-<div class="my-2 hello">
-  <div class="text-gray-500">{{ post.date | date_to_long_string }}</div>
+<div class="my-4">
   <div>
     <a
       class="
@@ -28,7 +27,7 @@ title: Blog
       >{{ post.title }}</a
     >
   </div>
-  <div class="text-lg">{{ post.description }}</div>
+  <div class="my-2 text-gray-500">{{ post.date | date_to_long_string }}</div>
   {% if post.canonicalurl %}
   <div class="my-2 flex flex-row items-center text-xs">
     <a href="{{post.canonicalurl}}" rel="noreferrer" target="_blank"
@@ -36,5 +35,6 @@ title: Blog
     >
   </div>
   {% endif %}
+  <div class="text-lg">{{ post.description }}</div>
 </div>
 {% endfor %}
