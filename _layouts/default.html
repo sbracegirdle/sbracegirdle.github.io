@@ -6,6 +6,7 @@
       name="keywords"
       content="cloud,devops,development,web,aws,gcp,azure,tdd,testing,software,serverless,containers,lambda,kubernetes,javascript,typescript,css,html"
     />
+    <meta name="url" content="{{ site.url }}{{ page.url }}" />
     <meta
       name="description"
       content="{{ page.description | default: 'Cloud and software development content' }}"
@@ -14,7 +15,8 @@
     <meta name="copyright" content="Simon Bracegirdle" />
     <meta name="robots" content="index,follow" />
 
-    <meta name="og:title" content="LetsBuild.cloud — {{ page.title }}" />
+    <meta name="og:url" content="{{ site.url }}{{ page.url }}" />
+    <meta name="og:title" content="{{ page.title }}" />
     <meta name="og:type" content="website" />
     <meta name="og:site_name" content="LetsBuild.cloud" />
     <meta
