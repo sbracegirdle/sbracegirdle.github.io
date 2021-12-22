@@ -7,12 +7,13 @@ https://letsbuild.cloud
 
 Checklist
 
-- [] Replace / fix menu button on mobile
 - [] Add OG tags
-- [] Add/remove about page
 - [] Syntax highlighting
 - [] Benchmark site
 - [] Link-tree-like site for bracegirdle.me.
+
+- [x] Add/remove about page
+- [x] Replace / fix menu button on mobile
 
 ## Installation and pre-requisites
 
