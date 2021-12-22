@@ -10,11 +10,11 @@ title: Blog
     Cloud and software development content.</span
   >
 </div>
-<div class="px-0 text-2xs uppercase border-b py-1 w-full md:w-1/4">
+<div class="my-8 px-0 text-2xs uppercase border-b py-1 w-full md:w-1/4">
   Latest posts
 </div>
 {% for post in site.posts %}
-<div class="my-4">
+<div class="my-8">
   <div>
     <a
       class="
@@ -29,7 +29,7 @@ title: Blog
   </div>
   <div class="my-2 text-gray-500">{{ post.date | date_to_long_string }}</div>
   {% if post.canonicalurl %}
-  <div class="my-2 flex flex-row items-center text-xs">
+  <div class="flex flex-row items-center text-xs">
     <a href="{{post.canonicalurl}}" rel="noreferrer" target="_blank"
       >First posted on {{post.canonicalsite}}</a
     >
