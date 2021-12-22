@@ -7,11 +7,11 @@ https://letsbuild.cloud
 
 Checklist
 
-- [] Add OG tags
 - [] Syntax highlighting
 - [] Benchmark site
 - [] Link-tree-like site for bracegirdle.me.
 
+- [x] Add OG tags
 - [x] Add/remove about page
 - [x] Replace / fix menu button on mobile
 
