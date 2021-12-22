@@ -20,6 +20,20 @@
     {% endif %}
   </head>
   <body>
+    <script type="text/javascript">
+      window.addEventListener('load', (event) => {
+        const menuButton = document.querySelector("#menu-button");
+        const menuItems = document.querySelector("#menu-items");
+
+        menuButton.onclick = () => {
+          menuItems.classList.toggle("hidden");
+          menuItems.classList.toggle("flex");
+
+          menuButton.classList.toggle("text-gray-500");
+          menuButton.classList.toggle("text-black");
+        };
+      }
+    </script>
     <main class="font-sans">
       <nav
         class="
@@ -37,7 +51,10 @@
       >
         <div class="max-w-screen-lg mx-auto">
           <div class="md:hidden flex flex-row items-center">
-            <button class="py-2 text-black hover:text-flickr-default">
+            <button
+              id="menu-button"
+              class="py-2 text-black hover:text-flickr-default"
+            >
               <svg
                 stroke="currentColor"
                 fill="currentColor"
@@ -58,6 +75,7 @@
             </div>
           </div>
           <ul
+            id="menu-items"
             class="
               hidden
               md:flex
@@ -96,7 +114,7 @@
                 text-gray-400
               "
             >
-              <a href="/about">About</a>
+              <a href="/about.html">About</a>
             </li>
             <li class="flex-1"></li>
             <li>
