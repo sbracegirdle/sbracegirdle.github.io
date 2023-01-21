@@ -7,11 +7,11 @@ https://letsbuild.cloud
 
 Checklist
 
-- [] Syntax highlighting
-- [] Lighthouse scan site
-- [] Link-tree-like site for bracegirdle.me.
-- [] Site metrics
-- [] OG Images for posts
+- [ ] Syntax highlighting
+- [ ] Lighthouse scan site
+- [ ] Link-tree-like site for bracegirdle.me.
+- [ ] Site metrics
+- [ ] OG Images for posts
 
 - [x] Add OG tags
 - [x] Add/remove about page
@@ -31,6 +31,15 @@ Generate new CSS:
 
 ```sh
 npx tailwindcss -i css/input.css -o css/output.css
+```
+
+## How to run locally
+
+Use docker compose to run the image locally for testing purposes:
+
+```sh
+docker-compose up
+docker-compose down
 ```
 
 ## How to deploy
