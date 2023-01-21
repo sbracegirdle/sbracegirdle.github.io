@@ -441,11 +441,19 @@ ol {
   margin-bottom: 1.5rem;
   list-style-position: inside;
   list-style-type: decimal;
+  font-family: Lato, sans-serif;
+  font-size: 1.2rem;
+  --tw-text-opacity: 1;
+  color: rgb(55 65 81 / var(--tw-text-opacity));
 }
 
 li {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+  font-family: Lato, sans-serif;
+  font-size: 1.2rem;
+  --tw-text-opacity: 1;
+  color: rgb(55 65 81 / var(--tw-text-opacity));
 }
 
 h2 {
@@ -736,6 +744,10 @@ pre.highlight {
 
 .resize {
   resize: both;
+}
+
+.list-inside {
+  list-style-position: inside;
 }
 
 .list-disc {
