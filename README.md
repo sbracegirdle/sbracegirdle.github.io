@@ -1,21 +1,9 @@
 
 # Let's Build
 
-Source code for:
+Source code for Simon's personal blog:
 
 https://letsbuild.cloud
-
-Checklist
-
-- [ ] Syntax highlighting
-- [ ] Lighthouse scan site
-- [ ] Link-tree-like site for bracegirdle.me.
-- [ ] Site metrics
-- [ ] OG Images for posts
-
-- [x] Add OG tags
-- [x] Add/remove about page
-- [x] Replace / fix menu button on mobile
 
 ## Installation and pre-requisites
 
