@@ -8,6 +8,7 @@ description:
   Do you give a cursory review and slap the trusty "LGMT!" on pull requests? Read this to find out how you could bring more rigour to your team's code review practices and improve the software delivered.
 canonicalurl: https://mechanicalrock.github.io/2022/03/08/dont-lgtm-code-reviews.html
 canonicalsite: The Mechanical Rock Blog
+image: team1
 ---
 
 A lot of development teams are doing code reviews these days, it's become the industry norm. But are they done well? The idea of the lazy code review — "LGTM, ship it" — has [become a widespread meme](https://knowyourmeme.com/memes/lgtm), and it's funny because there's an element of truth in it that we've experienced ourselves.
