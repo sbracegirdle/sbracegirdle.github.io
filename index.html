@@ -15,6 +15,18 @@ title: Blog
 </div>
 {% for post in site.posts %}
 <div class="my-8">
+  <!-- Image to the left of each post -->
+  <div class="float-left mr-4">
+    <a href="{{ post.url }}"
+      ><img
+        class="rounded-lg"
+        src="img/{{ post.image }}.jpg"
+        alt="{{ post.title }}"
+        width="200"
+        height="200"
+    /></a>
+  </div>
+
   <div>
     <a class="font-bold text-black text-xl" href="{{ post.url }}"
       >{{ post.title }}</a

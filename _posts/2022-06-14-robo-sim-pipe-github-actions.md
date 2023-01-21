@@ -8,6 +8,7 @@ description:
   Creating A Robotics Simulation Pipeline With GitHub Actions And ROS
 canonicalurl: https://formant.io/news-and-blog/2022/06/14/development/creating-a-robotics-simulation-pipeline-with-github-actions-and-ros/
 canonicalsite: formant.io
+image: robot2
 ---
 
 # Creating a robotics simulation pipeline with GitHub Actions and ROS
