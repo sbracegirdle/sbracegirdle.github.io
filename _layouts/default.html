@@ -19,6 +19,9 @@
     <meta name="og:title" content="{{ page.title }}" />
     <meta name="og:type" content="website" />
     <meta name="og:site_name" content="LetsBuild.cloud" />
+    {% if page.image %}
+    <meta name="og:image" content="{{ site.url }}/img/{{ page.image }}.jpg" />
+    {% endif %}
     <meta
       name="og:description"
       content="{{ page.description | default: 'Cloud and software development content' }}"
