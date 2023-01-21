@@ -3,6 +3,18 @@ layout: default
 ---
 
 <div class="max-w-screen-md mx-auto px-2 lg:px-0">
+  <!-- Splash image sits behind content -->
+  <div class="relative">
+    <img
+      class="w-full h-64 object-cover rounded-lg"
+      src="img/{{ page.image }}.jpg"
+      alt="{{ page.title }}"
+    />
+    <div
+      class="absolute top-0 left-0 w-full h-64 bg-gradient-to-t from-flickr-light to-transparent"
+    ></div>
+  </div>
+
   <div>
     <a
       class="text-flickr-dark hover:text-flickr-light focus:text-flickr-default"

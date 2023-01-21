@@ -8,6 +8,7 @@ description:
   How can you accelerate your robotics development without compromising on quality and safety? DevOps gives us the DORA metrics, which can help serve as a guide for choosing tools to integrate into our delivery pipeline.
 canonicalurl: https://mechanicalrock.github.io/2021/12/20/robot-devops.html
 canonicalsite: The Mechanical Rock Blog
+image: robot3
 ---
 
 The robotics industry continues to evolve as shown by the [growing adoption of commercial quadruped robots](https://trends.google.com/trends/explore?date=all&q=boston%20dynamics). As interest in the field grows so does the number of teams building their own robotics software.
