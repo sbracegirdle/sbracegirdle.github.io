@@ -14,32 +14,32 @@ title: Blog
   Latest posts
 </div>
 {% for post in site.posts %}
-<div class="my-8">
+<div class="my-8 flex flex-col md:flex-row">
   <!-- Image to the left of each post -->
-  <div class="float-left mr-4">
+  <div class="mb-4 md:mr-4 md:mb-0">
     <a href="{{ post.url }}"
       ><img
-        class="rounded-lg"
-        src="img/{{ post.image }}.jpg"
+        class="rounded-lg w-80"
+        src="/img/{{ post.image }}.jpg"
         alt="{{ post.title }}"
-        width="200"
-        height="200"
     /></a>
   </div>
 
-  <div>
-    <a class="font-bold text-black text-xl" href="{{ post.url }}"
-      >{{ post.title }}</a
-    >
+  <div class="flex-1">
+    <div>
+      <a class="font-bold text-black text-xl" href="{{ post.url }}"
+        >{{ post.title }}</a
+      >
+    </div>
+    <div class="my-2 text-gray-500">{{ post.date | date_to_long_string }}</div>
+    {% if post.canonicalurl %}
+    <div class="flex flex-row items-center text-xs">
+      <a href="{{post.canonicalurl}}" rel="noreferrer" target="_blank"
+        >First posted on {{post.canonicalsite}}</a
+      >
+    </div>
+    {% endif %}
+    <div class="text-lg">{{ post.description }}</div>
   </div>
-  <div class="my-2 text-gray-500">{{ post.date | date_to_long_string }}</div>
-  {% if post.canonicalurl %}
-  <div class="flex flex-row items-center text-xs">
-    <a href="{{post.canonicalurl}}" rel="noreferrer" target="_blank"
-      >First posted on {{post.canonicalsite}}</a
-    >
-  </div>
-  {% endif %}
-  <div class="text-lg">{{ post.description }}</div>
 </div>
 {% endfor %}
