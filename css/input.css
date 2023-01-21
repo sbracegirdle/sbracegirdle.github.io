@@ -12,11 +12,11 @@
   }
 
   ol {
-    @apply my-6 list-decimal list-inside;
+    @apply my-6 list-decimal list-inside font-sans text-gray-700 text-base;
   }
 
   li {
-    @apply my-2;
+    @apply my-2 font-sans text-gray-700 text-base;
   }
 
   h2 {
