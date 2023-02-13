@@ -46,3 +46,11 @@ Copy image and resize as thumbnail:
 cp img/mypost.jpg img/mypost-thumb.jpg
 mogrify -resize 400x img/mypost-thumb.jpg
 ```
+
+Install mogrify on Mac:
+
+```sh
+brew install imagemagick
+```
+
+Would be nice to be able to get the Author's name for attribution, but the URL above doesn't seem to provide it in response headers.
