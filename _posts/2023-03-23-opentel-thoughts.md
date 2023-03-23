@@ -24,24 +24,25 @@ To start with OpenTelemetry you would add [instrumentation](https://opentelemetr
 
 You may also decide to run a [OpenTelemetry Collector](https://github.com/open-telemetry/opentelemetry-collector), which is a separate process that can add processing such as batching and sampling, to help prepare, filter, and massage your data before sending it to your monitoring and observability back-end. A common configuration is to deploy the collector as a side car container on the same host as your application. They would then communicate over OTLP, the OpenTelemetry protocol over HTTP or gRPC.
 
+With that context in place, let's take a look at the limitations and challenges with OpenTelemetry.
+
 ## Limitations and challenges
 
 <!-- > What are some limitations or challenges developers might encounter when using OpenTelemetry, and how can they overcome these obstacles? -->
 
-The biggest issue for me so far is that some tooling isn't yet mature and has some rough edges. For instance, I encountered a strange issue with exporting logs with the DataDog exporter, and ended up debugging the problem myself and submitting a PR to the contrib repository. It's notable that this is also a benefit of the ecosystem — that the community can contribute fixes and improvements to the project — so with that in mind I think in time the community will achieve a stable and reliable tool, but there's some challenges as it stands today in 2023.
+The biggest issue for me so far is that some tooling isn't yet mature and has some rough edges. For instance, I encountered a strange issue with exporting logs with the DataDog exporter, and ended up debugging the problem myself and submitting a PR to the contrib repository. It's notable that this is also a benefit of the ecosystem — that the community can contribute fixes and improvements to the project — so I think over time the community will achieve a stable and reliable tool, but there's some challenges as it stands today in 2023.
 
 To illustrate this further, if you browse through the [Collector contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib) repository , you'll notice components in the ecosystem are in beta or alpha state. These components are evolving fast, with breaking changes occurring. This can create difficulties in maintaining up-to-date dependencies on the ecosystem.
 
 <!-- > With these limitations in mind, what strategies would you recommend for developers looking to stay on top of updates and improvements? -->
 
-With that in mind, it's wise to set a regular cadence for applying updates, and ensuring you set time aside for working through any major changes that impact you.
+To mange that it's wise to set a regular cadence for applying updates, and setting time aside for working through any major changes that impact you.
 
 Another challenge is that adding instrumentation to new services can be a bit more work than using libraries from specific vendors. Those vendors have had time to optimise their on-boarding and developer experience, and an incentive driven by their nature of being profit making businesses, so it makes sense. I think once you have deployed OpenTelemetry to at least one service in your environment, you'll have established a pattern that makes it easier to copy to other services, plus the generative text tools available these days can help to cut down on boilerplate.
 
 For example, setting up the infrastructure for the OpenTelemetry Collector can be a bit of added work. First you need to choose a distribution for the collector, such as the contrib distribution, one from a vendor such as AWS, or by [building one yourself with the builder tool](https://opentelemetry.io/docs/collector/custom-collector/). Then you need to add a YML configuration for your collector, which defines how to receive, process and export telemetry data. Then you need to build an image for the collector that embeds your configuration and publish it to a container repository in your ecosystem. Then we deploy the collector along side the application, which we configure to pipe telemetry data to the collector via OTLP, which then forwards the data on to a backend.
 
 This is a lot of steps and moving parts, and I'm sure it's daunting for newcomers, but once you've stepped through the process and familiarised with it, I don't think it's too arduous or complex.
-
 
 ## Highlights and strengths
 
@@ -82,7 +83,7 @@ Another powerful feature of OpenTelemetry is the ability to test locally, and to
 
 The OpenTelemetry project has collaboration and community involvement at its core. Being an open-source project, it encourages developers and organizations to actively participate in its growth and development. The project maintains a strong presence on GitHub, where developers can contribute to the codebase, report issues, and suggest improvements under the Apache license Version 2.0, which is permissive license that allows commercial use.
 
-The community's involvement has led to the development of integrations, exporters, and instrumentation libraries for a range of programming languages and platforms. Examples of community-driven contributions include the development of OpenTelemetry SDKs for languages like Java, Python, Go, JavaScript, and more, as well as exporters for popular backends like Jaeger, Prometheus, Zipkin, and DataDog. The community also contributes to documentation, tutorials, and sharing best practices to help other developers adopt OpenTelemetry.
+The community's involvement has led to the development of integrations, exporters, and instrumentation libraries for a range of programming languages and platforms. Examples of community-driven contributions include the development of OpenTelemetry SDKs for languages like Java, Python, Go, JavaScript, also exporters for popular backends like Jaeger, Prometheus, Zipkin, and DataDog. The community also contributes to documentation, tutorials, and sharing best practices to help other developers adopt OpenTelemetry.
 
 ## Conclusion
 
