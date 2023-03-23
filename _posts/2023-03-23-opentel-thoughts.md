@@ -30,7 +30,7 @@ With that context in place, let's take a look at the limitations and challenges 
 
 <!-- > What are some limitations or challenges developers might encounter when using OpenTelemetry, and how can they overcome these obstacles? -->
 
-The biggest issue for me so far is that some tooling isn't yet mature and has some rough edges. For instance, I encountered a strange issue with exporting logs with the DataDog exporter, and ended up debugging the problem myself and submitting a PR to the contrib repository. It's notable that this is also a benefit of the ecosystem — that the community can contribute fixes and improvements to the project — so I think over time the community will achieve a stable and reliable tool, but there's some challenges as it stands today in 2023.
+The biggest issue for me so far is that some tooling isn't yet mature and has some rough edges. For instance, I encountered a strange issue with exporting logs with the DataDog exporter, and ended up debugging the problem myself and submitting a PR to the [contrib repository](https://github.com/open-telemetry/opentelemetry-collector-contrib). It's notable that this is also a benefit of the ecosystem — that the community can contribute fixes and improvements to the project — so I think over time the community will achieve a stable and reliable tool, but there's some challenges as it stands today in 2023.
 
 To illustrate this further, if you browse through the [Collector contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib) repository , you'll notice components in the ecosystem are in beta or alpha state. These components are evolving fast, with breaking changes occurring. This can create difficulties in maintaining up-to-date dependencies on the ecosystem.
 
