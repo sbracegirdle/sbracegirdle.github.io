@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Ship the thing — what's getting in the way?
-date: 2023-05-18
+date: 2023-05-17
 tags: waste lean devops systems stoicism
 author: Simon Bracegirdle
 description: What's stopping us from shipping the thing? Are there friction points or waste getting in the way?
@@ -24,7 +24,7 @@ Going even further back, Marcus Aurelius of the Stoics made this astounding stat
 
 What things get in our way? Sometimes it's obvious — we'll experience some friction or frustration that needs fixing up. But other times it's not obvious. That's why it can be valuable to set time aside to reflect on or map out the tools, systems and processes that we use and analyse where the pain points are.
 
-This is starting to sound a lot like systems thinking — a method for looking at systems, such as organisations, software teams, or CI/CD pipelines, as a whole and breaking them down into sub-systems and components. Deming wrote about this in 1986, but the ideas go even further back.
+This is starting to sound a lot like systems thinking — a method for looking at systems, such as organisations, software teams, or CI/CD pipelines, as a whole and breaking them down into sub-systems and components. [Deming](https://en.wikipedia.org/wiki/W._Edwards_Deming) wrote about this in 1980's.
 
 The other way that we can get slowed down is when we've adapted to the inefficiency of tool or system. I'm calling this "learned waste" — waste that we don't even realise is there because everyone's been doing it this way for so long they forget that there's better ways to work. I suspect there's cases where the entire industry has learned waste on certain tools and methods.
 
@@ -46,4 +46,6 @@ Do we need slow CI? This is a common one. If we make code changes throughout the
 
 Is our language, library or framework choice fit for purpose? Is there a lot of boilerplate or overhead that will slow down the building of features? Does the framework tend to lead to verbose or complex code that's harder to work with? Again, a lot has been said about the Ruby on Rails/Laravel vs React debate, but I think both are valid (or poor) choices depending on context.
 
-In summary, we've all got friction points holding us back in our context. Let's use our intuition, but also don't — consider using systems thinking and other analytical methods for finding the pain points in our ecosystem. The impediments should become "the way," work hard to remove them, but with the goal of enabling us to *ship the thing*.
+There can be waste on a personal level too. I know personally that social media and collaboration tools can be a distraction, so I try to close or block them as much as possible during periods of focused work. I find having breaks from the computer, going for walks, or talking through the problem with others helpful for tackling tricky issues that I'm stuck with.
+
+In summary, we've all got friction points and waste holding us back in our context. Let's use our intuition, but also don't — consider using systems thinking and other analytical methods for finding the pain points in our ecosystem. The impediments should become "the way," work hard to remove them, but with the goal of enabling us to *ship the thing*.
