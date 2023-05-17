@@ -34,7 +34,7 @@ Do we need that overcomplicated or overabstracted architecture? A lot has been s
 
 If we don't have any users yet, or have less than X engineers, then a complicated microservices architecture with 30+ repositories, 20 data stores and 10000 lines of AWS CloudFormation code should be a massive red flag. But if we're Google and we need to handle 10 quadrillion requests per second, then the opposite could be true.
 
-What's the simplest possible architecture that's fit for purpose and has the least friction in our context? Earlier in the product lifecycle we need to focus on shipping fast. Build the "dream architecture" later when we're actually making money with real users and need to handle more than one request a minute.
+What's the simplest possible architecture that's fit for purpose and has the least friction in our context? Earlier in the product lifecycle we need to focus on shipping fast. Build the "dream architecture" later when we're actually making money with real users and need to handle large numbers of requests per minute.
 
 Do we need those bugs? When we're building a prototype, a personal project or an early stage product bugs are acceptable, because we don't know if the thing is going to survive at all. But for established teams bugs slow us down and frustrate users. There's well documented ways to increase code quality if you find yourself in this situation.
 
