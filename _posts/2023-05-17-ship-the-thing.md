@@ -36,7 +36,7 @@ If we don't have any users yet, or have less than X engineers, then a complicate
 
 What's the simplest possible architecture that's fit for purpose and has the least friction in our context? Earlier in the product lifecycle we need to focus on shipping fast. Build the "dream architecture" later when we're actually making money with real users and need to handle large numbers of requests per minute.
 
-Do we need those bugs? When we're building a prototype, a personal project or an early stage product bugs are acceptable, because we don't know if the thing is going to survive at all. But for established teams bugs slow us down and frustrate users. There's well documented ways to increase code quality if you find yourself in this situation.
+Do we need those bugs? When we're building a prototype, a personal project or an early stage product, bugs are acceptable because we don't know if the thing is going to survive at all. But for established teams bugs slow us down and frustrate users. There's well documented ways to increase code quality if you find yourself in this situation.
 
 I'm a proponent for writing tests, but again it depends on the context. A mature product with real users needs to be stable and reliable, and the half-dozen team of engineers need to be able to make regular changes with confidence they won't break the system — tests are paramount for this team. We can do this by writing tests either first (TDD), or after. I don't have time for dogma, I want to know what's going to help us ship and continue to ship.
 
