@@ -15,15 +15,15 @@
     <meta name="copyright" content="Simon Bracegirdle" />
     <meta name="robots" content="index,follow" />
 
-    <meta name="og:url" content="{{ site.url }}{{ page.url }}" />
-    <meta name="og:title" content="{{ page.title }}" />
-    <meta name="og:type" content="website" />
-    <meta name="og:site_name" content="LetsBuild.cloud" />
+    <meta property="og:url" content="{{ site.url }}{{ page.url }}" />
+    <meta property="og:title" content="{{ page.title }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LetsBuild.cloud" />
     {% if page.image %}
-    <meta name="og:image" content="{{ site.url }}/img/{{ page.image }}.jpg" />
+    <meta property="og:image" content="{{ site.url }}/img/{{ page.image }}.jpg" />
     {% endif %}
     <meta
-      name="og:description"
+    property="og:description"
       content="{{ page.description | default: 'Cloud and software development content' }}"
     />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
