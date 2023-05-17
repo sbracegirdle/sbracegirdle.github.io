@@ -40,7 +40,7 @@ Do we need those bugs? When we're building a prototype, a personal project or an
 
 I'm a proponent for writing tests, but again it depends on the context. A mature product with real users needs to be stable and reliable, and the half-dozen team of engineers need to be able to make regular changes with confidence they won't break the system — tests are paramount for this team. We can do this by writing tests either first (TDD), or after. I don't have time for dogma, I want to know what's going to help us ship and continue to ship.
 
-It's worth noting that even if we're building a prototype, code written without tests can make writing tests harder later. This is why people will advocate for discarding a prototype and re-writing it once we know this is going to be a real product with real users. Context matters, remove the barrier that's slowing you down.
+It's worth noting that even if we're building a prototype, code written without tests can make writing tests harder later. This is why people will advocate for discarding a prototype and re-writing it once we know this is going to be a real product with real users. Context matters, remove the barrier or burden that's slowing you down.
 
 Do we need slow CI? This is a common one. If we make code changes throughout the day and need to wait 20 minutes for each code change to build, test, and deploy, how much do we think that's going to add up to over time? It takes some simple math to realise it's worth spending time optimising this process.
 
