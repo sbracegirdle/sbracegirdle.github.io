@@ -8,8 +8,6 @@ description: Explore a useful mnemonic for remembering the essential information
 image: important-logs
 ---
 
-# Remembering the important bits to log
-
 Logging can be a mixed bag, I've seen it done well and not well, and I've been guilty of both myself. Even though it's one of the tools to achieve observability, I still think it's important for engineering teams operating products and services.
 
 When there's not enough logs, or other kinds of observability telemetry, then it can be difficult to understand what's going on inside a system, which can be painful when trying to debug an issue. If our database connections are failing and we didn't log the error, it might take us longer to understand what's happening.
