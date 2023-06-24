@@ -19,6 +19,10 @@
     @apply my-2 font-sans text-gray-700 text-base;
   }
 
+  h1 {
+    @apply my-6 text-4xl font-bold;
+  }
+
   h2 {
     @apply my-6 text-2xl font-bold;
   }
