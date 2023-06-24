@@ -1,4 +1,5 @@
 ---
+import { Image } from '@astrojs/image/components';
 import { postFileToUrl } from "../util";
 
 import Page from "../layouts/Page.astro";
@@ -32,9 +33,10 @@ const latest = allPosts
       <div class="my-8 flex flex-col md:flex-row">
         <div class="mb-4 md:mr-4 md:mb-0">
           <a href={post.url}>
-            <img
+            <Image
               class="rounded-lg w-80"
-              src={`/img/${post.frontmatter.image}.jpg`}
+              src={import(`../img/${post.frontmatter.image}.jpg`)}
+              width={320}
               alt={post.frontmatter.title}
             />
           </a>
