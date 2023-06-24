@@ -3,7 +3,7 @@ import "../styles/base.css";
 import "@fontsource/lato";
 import "@fontsource/merriweather";
 
-const { title: pageTitle, url, frontmatter } = Astro.props;
+const { title: pageTitle, frontmatter } = Astro.props;
 
 const {
 	title: frontmatterTitle,
@@ -16,7 +16,7 @@ const title = frontmatterTitle || pageTitle;
 ---
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<meta
@@ -76,6 +76,7 @@ const title = frontmatterTitle || pageTitle;
 						<button
 							id="menu-button"
 							class="py-2 text-black hover:text-flickr-default"
+							aria-label="Menu"
 						>
 							<svg
 								stroke="currentColor"
@@ -93,7 +94,7 @@ const title = frontmatterTitle || pageTitle;
 						</button>
 						<div class="flex-1"></div>
 						<div class="px-2">
-							<img src="/img/logo3_h.svg" style="height: 26px" />
+							<img src="/img/logo3_h.svg" style="height: 26px" alt="LetsBuild.cloud logo"/>
 						</div>
 					</div>
 					<div
@@ -103,7 +104,7 @@ const title = frontmatterTitle || pageTitle;
 						<div class="mr-4 hidden md:block">
 							<a aria-current="page" class="" href="/"
 								><div class="px-2">
-									<img src="/img/logo3_h.svg" style="height: 26px" />
+									<img src="/img/logo3_h.svg" style="height: 26px" alt="LetsBuild.cloud logo"/>
 								</div></a
 							>
 						</div>
