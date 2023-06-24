@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: ../layouts/Post.astro
 title: Ship the thing — what's getting in the way?
 date: 2023-05-17
 tags: waste lean devops systems stoicism

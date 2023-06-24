@@ -1,0 +1,25 @@
+---
+import { postFileToUrl } from "../util";
+
+// glob posts
+export async function getStaticPaths() {
+  const allPosts = await Astro.glob("../posts/*.md");
+  const paths = allPosts.map((post) => {
+    const path = postFileToUrl(post.file);
+
+    return {
+      params: {
+        path,
+      },
+      props: {
+        post,
+      },
+    };
+  });
+  return paths;
+}
+
+const { post } = Astro.props;
+---
+
+<post.Content />

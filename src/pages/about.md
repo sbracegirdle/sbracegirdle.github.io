@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: ../layouts/Page.astro
 title: About
 ---
 

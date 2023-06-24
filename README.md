@@ -1,4 +1,3 @@
-
 # Let's Build
 
 Source code for Simon's personal blog:
@@ -7,28 +6,24 @@ https://letsbuild.cloud
 
 ## Installation and pre-requisites
 
-Install tailwind globally:
+Install Astro and all dependencies.
 
 ```sh
-npm i -g tailwindcss
+npm ci
 ```
 
-## How to build
+## 🧞 Commands
 
-Generate new CSS:
+All commands are run from the root of the project, from a terminal:
 
-```sh
-npx tailwindcss -i css/input.css -o css/output.css
-```
-
-## How to run locally
-
-Use docker compose to run the image locally for testing purposes:
-
-```sh
-docker-compose up
-docker-compose down
-```
+| Command                   | Action                                           |
+| :------------------------ | :----------------------------------------------- |
+| `npm install`             | Installs dependencies                            |
+| `npm run dev`             | Starts local dev server at `localhost:3000`      |
+| `npm run build`           | Build your production site to `./dist/`          |
+| `npm run preview`         | Preview your build locally, before deploying     |
+| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
+| `npm run astro -- --help` | Get help using the Astro CLI                     |
 
 ## How to deploy
 

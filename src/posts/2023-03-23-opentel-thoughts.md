@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: ../layouts/Post.astro
 title: OpenTelemetry and the future of monitoring and observability
 date: 2023-03-23
 tags: aws fargate ecs openelemetry observability monitoring traces sidecar container

@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: ../layouts/Post.astro
 title: Creating A Robotics Simulation Pipeline With GitHub Actions And ROS
 date: 2022-06-14
 tags: devops ci cd cloudformation infrastructure-as-code aws cdk

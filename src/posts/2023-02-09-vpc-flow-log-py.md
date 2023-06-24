@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: ../layouts/Post.astro
 title: Analysing AWS VPC Flow logs with Python and Pandas
 date: 2023-02-09
 tags: aws vpc python pandas data analysis
