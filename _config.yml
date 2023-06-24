@@ -1,8 +1,0 @@
-domain: letsbuild.cloud
-url: https://letsbuild.cloud
-author: Simon Bracegirdle
-title: Let's Build
-description: Cloud and software development content
-rss: rss
-plugins:
-  - jekyll-feed

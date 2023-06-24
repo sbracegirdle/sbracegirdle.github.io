@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: ../layouts/Post.astro
 title: Doesn't look good to me — a requiem for thorough code reviews
 date: 2022-03-08
 tags: devops ci cd cloudformation infrastructure-as-code aws cdk
