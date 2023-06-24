@@ -1,0 +1,72 @@
+---
+import { postFileToUrl } from "../util";
+
+import Page from "../layouts/Page.astro";
+const allPosts = await Astro.glob("../posts/*.md");
+const latest = allPosts
+  .sort((a, b) => {
+    const aDate = new Date(a.frontmatter.date) as any;
+    const bDate = new Date(b.frontmatter.date) as any;
+    return bDate - aDate;
+  })
+  .slice(0, 5)
+  .map((post) => ({
+    ...post,
+    url: postFileToUrl(post.file),
+  }));
+---
+
+<Page title="Blog">
+  <div class="my-4">
+    <span class="text-2xl font-bold"
+      >Welcome to <em class="text-flickr-darker">Let's Build!</em></span
+    ><span class="text-2xl my-2 text-gray-400 italic">
+      Cloud and software development.</span
+    >
+  </div>
+  <div class="my-8 px-0 text-2xs uppercase border-b py-1 w-full md:w-1/4">
+    Latest posts
+  </div>
+  {
+    latest.map((post) => (
+      <div class="my-8 flex flex-col md:flex-row">
+        <div class="mb-4 md:mr-4 md:mb-0">
+          <a href={post.url}>
+            <img
+              class="rounded-lg w-80"
+              src={`/img/${post.frontmatter.image}.jpg`}
+              alt={post.frontmatter.title}
+            />
+          </a>
+        </div>
+
+        <div class="flex-1">
+          <div>
+            <a class="font-bold text-black text-xl" href={post.url}>
+              {post.frontmatter.title}
+            </a>
+          </div>
+          <div class="my-2 text-gray-500">
+            {new Date(post.frontmatter.date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </div>
+          {post.frontmatter.canonicalurl && (
+            <div class="flex flex-row items-center text-xs">
+              <a
+                href={post.frontmatter.canonicalurl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                First posted on {post.frontmatter.canonicalsite}
+              </a>
+            </div>
+          )}
+          <div class="text-lg">{post.frontmatter.description}</div>
+        </div>
+      </div>
+    ))
+  }
+</Page>

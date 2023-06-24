@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: ../layouts/Post.astro
 title: Remembering the important bits to log
 date: 2023-05-18
 tags: logs devops observability monitoring software
