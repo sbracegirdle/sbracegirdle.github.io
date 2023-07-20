@@ -10,6 +10,6 @@ export const postFileToUrl = (file: string) => {
     return match.replace(/-/g, "/");
   });
 
-  path = path.replace(/\.md$/, ".html");
+  path = path.replace(/\.md$/, "");
   return path;
 };

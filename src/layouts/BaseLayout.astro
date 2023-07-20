@@ -49,6 +49,11 @@ const title = frontmatterTitle || pageTitle;
     <title>LetsBuild.cloud — {title}</title>
     {canonicalurl && <link rel="canonical" href={canonicalurl} />}
 
+    <!-- Re-direct if pathname ends with legacy .html or .html/ (forward slash) -->
+    {
+      Astro?.url?.pathname?.endsWith(".html") || Astro?.url?.pathname?.endsWith(".html/")
+      ? <meta http-equiv="refresh" content={ `0; url=${ Astro.url.pathname.replace(/\.html\/?$/, "")}` } /> : ""
+    }
     <script is:inline src="/js/prism.js"></script>
     <link href="/css/prism.css" rel="stylesheet" />
   </head>
