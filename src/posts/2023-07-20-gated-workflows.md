@@ -12,10 +12,10 @@ Gated workflows are where there's a manual hand-over or approval step that must 
 
 This was the normal way to build software until the [agile manifesto](https://agilemanifesto.org/) came along, which promoted a different set of principles:
 
-> **Individuals and interactions** over processes and tools
-> **Working software** over comprehensive documentation
-> **Customer collaboration** over contract negotiation
-> **Responding to change** over following a plan
+> - **Individuals and interactions** over processes and tools
+> - **Working software** over comprehensive documentation
+> - **Customer collaboration** over contract negotiation
+> - **Responding to change** over following a plan
 
 This is a big contrast to waterfall — you can't entirely do design before development if you need to **respond to change**, for example changing the design after the first iteration because you thought of a more user friendly approach.
 
