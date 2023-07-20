@@ -42,4 +42,12 @@
   pre {
     @apply block my-6 overflow-y-auto bg-gray-100 py-2 px-4 rounded;
   }
+
+  blockquote {
+    @apply my-6 border-l-4 border-gray-300 italic pl-4 flex flex-col text-gray-500;
+  }
+
+  blockquote p, blockquote li {
+    @apply text-gray-500;
+  }
 }
