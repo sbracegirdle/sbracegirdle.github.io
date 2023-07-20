@@ -32,7 +32,7 @@ Commit and push, it will deploy automatically via GitHub Pages.
 ## Download image from unsplash
 
 ```sh
-curl -L "https://source.unsplash.com/1600x900/?team,collaborate" > img/team1.jpg
+curl -L "https://source.unsplash.com/1600x900/?team,collaborate" > src/img/team1.jpg
 ```
 
 Copy image and resize as thumbnail:
