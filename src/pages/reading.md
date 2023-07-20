@@ -5,21 +5,27 @@ title: Reading list
 
 # Reading list
 
-When I step away from my computer, one of my favorite ways to unwind is by sitting down and reading, or listening to, a good book. Reading opens my mind to new ideas, perspectives, and narratives that stretch my understanding of the world and, often enough, offer valuable insights I can apply back in the realm of code. 
+I do enjoy sitting down and reading, or listening to, a good book. I like to get new ideas, perspectives, and narratives that stretch my understanding. 
 
-Below are some summaries of books I'm currently reading or have finished recently.
+Below are some summaries of books I'm reading or have finished.
 
-## Currently reading
+## Current reads
 
 ### A Philosophy of Software Design — John Ousterhout
 
 A book about software design concerns such as decomposition, modularity, and naming. It's a short book, but it's packed with useful information and advice. I'm enjoying it so far.
 
-### Origins: How Earth's History Shaped Human History — Lewis Dartnell
+### The Bands of Mourning (Mistborn, #6) — Brandon Sanderson
 
-A book about the history of the Earth and how it has shaped human history. I'm only a few chapters in, but it's been fascinating so far.
+The next book in the post-trilogy Mistborn series, also known as the Wax and Wayne books. I wasn't enjoying them as much as the original Mistborn series initially, but I'm starting to get into them now.
 
 ## Recent reads
+
+### Origins: How Earth's History Shaped Human History — Lewis Dartnell
+
+4/5
+
+A book about the history of the Earth and how it has shaped human history. It gave a good overview of the origin of humans through to the development of civilisation.
 
 ### Shadows of Self (Mistborn, #5) — Brandon Sanderson
 
