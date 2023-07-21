@@ -1,4 +1,5 @@
 ---
+import { getImage } from "@astrojs/image";
 import "../styles/base.css";
 import "@fontsource/lato";
 import "@fontsource/merriweather";
@@ -11,6 +12,16 @@ const {
   image,
   canonicalurl,
 } = frontmatter || {};
+
+let imageSrc = null;
+
+if (image) {
+  const { src } = await getImage({
+    src: import(`../img/${image}.jpg`),
+    alt: 'My hero image',
+  });
+  imageSrc = src;
+}
 
 const title = frontmatterTitle || pageTitle;
 ---
@@ -36,7 +47,7 @@ const title = frontmatterTitle || pageTitle;
     <meta property="og:title" content={title} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="LetsBuild.cloud" />
-    {image && <meta property="og:image" content={`/img/${image}.jpg`} />}
+    {imageSrc && <meta property="og:image" content={imageSrc} />}
     <meta
       property="og:description"
       content={description || "Cloud and software development content"}
