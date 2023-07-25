@@ -72,18 +72,16 @@ const title = frontmatterTitle || pageTitle;
   </head>
   <body>
     <script type="text/javascript">
-      window.addEventListener("load", (event) => {
+      function toggleMenu() {
+        console.log("toggleMenu");
+        const menuItems = document.querySelector("#menu-items");
+        menuItems.classList.toggle("hidden");
+        menuItems.classList.toggle("flex");
+
         const menuButton = document.querySelector("#menu-button");
-
-        menuButton.onclick = () => {
-          const menuItems = document.querySelector("#menu-items");
-          menuItems.classList.toggle("hidden");
-          menuItems.classList.toggle("flex");
-
-          menuButton.classList.toggle("text-gray-500");
-          menuButton.classList.toggle("text-black");
-        };
-      });
+        menuButton.classList.toggle("text-gray-500");
+        menuButton.classList.toggle("text-black");
+      }
     </script>
     <main class="font-sans">
       <nav
@@ -95,6 +93,7 @@ const title = frontmatterTitle || pageTitle;
               id="menu-button"
               class="py-2 text-black hover:text-flickr-default"
               aria-label="Menu"
+              onclick="toggleMenu()"
             >
               <svg
                 stroke="currentColor"
