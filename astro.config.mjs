@@ -11,4 +11,7 @@ export default defineConfig({
     }),
     image(),
   ],
+  experimental: {
+    viewTransitions: true,
+  },
 });
