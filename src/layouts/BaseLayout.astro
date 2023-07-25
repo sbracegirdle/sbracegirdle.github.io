@@ -74,9 +74,9 @@ const title = frontmatterTitle || pageTitle;
     <script type="text/javascript">
       window.addEventListener("load", (event) => {
         const menuButton = document.querySelector("#menu-button");
-        const menuItems = document.querySelector("#menu-items");
 
         menuButton.onclick = () => {
+          const menuItems = document.querySelector("#menu-items");
           menuItems.classList.toggle("hidden");
           menuItems.classList.toggle("flex");
 
@@ -112,11 +112,12 @@ const title = frontmatterTitle || pageTitle;
             </button>
             <div class="flex-1"></div>
             <div class="px-2">
-              <img
+              <a aria-current="page" class="" href="/"
+                ><img
                 src="/img/logo3_h.svg"
                 style="height: 26px"
                 alt="LetsBuild.cloud logo"
-              />
+              /></a>
             </div>
           </div>
           <div
