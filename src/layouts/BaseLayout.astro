@@ -3,6 +3,7 @@ import { getImage } from "@astrojs/image";
 import "../styles/base.css";
 import "@fontsource/lato";
 import "@fontsource/merriweather";
+import { ViewTransitions } from 'astro:transitions';
 
 const { title: pageTitle, frontmatter } = Astro.props;
 
@@ -58,6 +59,7 @@ const title = frontmatterTitle || pageTitle;
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <title>LetsBuild.cloud — {title}</title>
+    <ViewTransitions />
     {canonicalurl && <link rel="canonical" href={canonicalurl} />}
 
     <!-- Re-direct if pathname ends with legacy .html or .html/ (forward slash) -->
