@@ -2,18 +2,13 @@
 layout: ../layouts/Post.astro
 title: React anti-patterns that lead to unnecessary complexity
 date: 2024-02-23
-tags:
-  - software
-  - react
-  - complexity
-  - testing
-  - front-end
+tags: software react complexity testing front-end
 author: Simon Bracegirdle
 description: Where we look at common React anti-patterns such as unnecessary use of useEffect, unnecessary state, premature memoisation, and large inline functions.
 image: headache
 ---
 
-As extoled by the legend of the craft, [Grug](https://grugbrain.dev), complexity can be the bane of your existence as a software developer. Unnecessary complexity leads to code that is hard to understand and reason about, and makes it easy to introduce bugs.
+As called out by the legend of the craft, [Grug](https://grugbrain.dev), complexity can be the bane of your existence as a software developer. Unnecessary complexity leads to code that is hard to understand and reason about, and makes it easy to introduce bugs.
 
 I have been doing React long enough to know that it's not exempt from having complex, hard to read code. Whether it's old school Redux, class components, or newer hooks and server components, complexity can creep it at any point if we're not careful.
 
