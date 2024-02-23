@@ -10,7 +10,7 @@ image: headache
 
 As called out by the legend of the craft, [Grug](https://grugbrain.dev), complexity can be the bane of your existence as a software developer. Unnecessary complexity leads to code that is hard to understand and reason about, and makes it easy to introduce bugs.
 
-I have been doing React long enough to know that it's not exempt from having complex, hard to read code. Whether it's old school Redux, class components, or newer hooks and server components, complexity can creep it at any point if we're not careful.
+I have been doing React long enough to know that it's not exempt from having complex, hard to read code. Whether it's old school Redux, class components, or newer hooks and server components, complexity can creep in at any point if we're not careful.
 
 What patterns can we look out for that might flag that a problem is ahead? In this post i'll cover what I think are some common anti-patterns and indicators that your React code might be more complex than it needs to be.
 
