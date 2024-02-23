@@ -86,11 +86,11 @@ function BetterComponent() {
 }
 ```
 
-This time we still have state to hold the user's edited values, but we do not copy the back-end data into state. We can combine the back-end data with the user state in the render body. This is also easier to test because our function no longer has less effects. If the back-end query is re-run, we retain our unsaved edited values, removing a critical bug.
+This time we still have state to hold the user's edited values, but we do not copy the back-end data into state. We can combine the back-end data with the user state in the render body. This is also easier to test because our function has less effects. If the back-end query is re-run, we retain our unsaved edited values, removing a critical bug.
 
 My recommendation here is to avoid `useEffect` as much as possible. In general, don't use it to set derived state, and don't use it do mapping. Instead of using it to fetch back-end data, look at a robust query library that provides hooks like React Query, SWR, or Apollo client.
 
-Sometimes `useEffect` is necessary, but consider it a last resort when all other options aren't possible.
+Sometimes `useEffect` is necessary, but consider it a last resort when other options aren't possible. 
 
 
 ### Extreme variant — effect chain hell
@@ -141,12 +141,12 @@ function ThisIsHell({ propA, propB }) {
 
 The above is a contrived example, but respresents a real world problem. Each of the effects are partially dependent on each other to create spaghetti code that is difficult to follow. Code like this is going to be impossible to understand, hard to test, and riddled with bugs.
 
-I think this can be the result of overcomplicating the problem space in our head, which is easy to do when we're solving a non-trivial problem. A useful idea here might be to take a step away from the code, return to it fresh and look for alternative designs that lead to simpler code.
+I think this can be the result of overcomplicating the problem space in our head, which is easy to do when we're solving a non-trivial problem. A useful idea here might be to take a step away from the code, return to it fresh and look for alternative designs that lead to simpler code — can we break up the components in a way that avoids the effects? Can we move logic from front-end to back-end that avoids the problem? Can we simplify the data model somehow?
 
 
 ## Anti-pattern 2 — Unnecessary state
 
-State is an important concept in React, allowing us to track values entered by the user before we're ready to send them to the back-end for persistence. But, a common issue is that it gets overused. Let's look at an example of that:
+State is an important concept in React, allowing us to hold values entered by the user before we're ready to send them to the back-end for persistence. But, a common issue is accidental misuse. Let's look at an example of that:
 
 ```jsx
 function UnnecessaryState() {
@@ -174,7 +174,7 @@ function UnnecessaryState() {
 }
 ```
 
-Here we have two state values, which change when the user updates the two number inputs. We also have a sum state, which update when either of the two values change. Then we show the sum below the two inputs.
+Here we have two state values, which change when the user updates the two number inputs. We also have a sum state, which updates when either of the two values change. Then we show the sum below the two inputs.
 
 But, we don't need to put `sum` in state at all, since we can calculate it in on the fly in our render:
 
@@ -201,7 +201,7 @@ function SumInBody() {
 }
 ```
 
-Again this is a contrived example, but as components get complex it's easy for this pattern to creep into code and cause issues. For example, what if we add a third number value, and forget to update the `sum` state in that change handler. Putting data in state unnecessarily opens up our code for bugs when it gets modified later on.
+Again this is a contrived example, but as components get complex it's easy for this pattern to creep into code and cause issues. For example, what if we add a third number value, and forget to update the `sum` state in that change handler. Putting data in state unnecessarily opens up our code for bugs, especially if another engineer needs to make changes later on.
 
 In general we don't need to put derived data in state, we should prefer to use simple inline statements, or move the mapping logic into a separate function that we call from our component:
 
@@ -217,15 +217,13 @@ function sum(value1, value2) {
 
 `sum` is now easier to test since it's a pure function that returns a value based on some input, without any side effects.
 
-In the worst case scenario, we can memoise `sum`, but as we'll discuss in the next section, we should be hesitant to do that.
+If we're concerned about performance, we can memoise `sum` to make it efficient, but as we'll discuss in the next section, we should be hesitant to do that.
 
-## Side note — prefer state in URL
+### Side note — prefer state in URL
 
-When you do need to use state for holding values the user has entered, it's often a good idea to hold that value in the URL query parameters, instead of plain `useState`. The reason for this is the user can then share the link with colleagues, friends, or your technical support in case they encounter an issue.
+When you do need to use state for holding values the user has entered, it's often a good idea to hold that value in the URL query parameters, instead of using plain `useState`. The reason for this is the user can then share the link with colleagues, friends, or your technical support in case they encounter an issue. The URL they share conveniently holds the state of their page, which someone else can then reproduce.
 
-An example of this could be to hold the `searchTerm` in the URL, after the user has typed in a search bar.
-
-One useful library in React is `use-query-params`, which provides some useful hooks:
+An example of this could be to hold the `searchTerm` in the URL, after the user has typed in a search query. The code below achieves that by using the React library `use-query-params`, which provides some useful hooks for putting state in query parameters:
 
 ```jsx
 function MySearchComponent() {
@@ -246,7 +244,7 @@ function MySearchComponent() {
 
 Memoisation is a powerful tool that builds on the idea of caching to prevent re-runs of a function unless a given set of dependencies change. If they don't change then react returns a cached value instead, potentially saving computation.
 
-But, I think we are overrusing this tool in the React community — we should start by putting the computation in the component body — we can add memoisation later when it's needed.
+But, I think we are overrusing this tool in the React community — we should start by putting the computation in the component body, we can add memoisation later when it's needed.
 
 Let's look at an example of premature memoisation:
 
@@ -256,8 +254,8 @@ function PrematureMemo() {
 
   const myData = useMemo(() => 
     data?.data?.map(item => ({
-    ...item,
-    value: item.value * 2,
+      ...item,
+      value: item.value * 2,
     }))
   , [data]);
 
@@ -297,18 +295,18 @@ function SimpleMapping() {
 
 The biggest change here is that we have removed the memo, and do the mapping in the render body instead.
 
-Some might ask; "But that's not efficient, it'll be re-calculated on each render!". But, an O(n) mapping operation isn't necessarily computationally significant. In this context, we're talking about a handful of entries, which even slower devices can compute fast.
+Some might ask; "But that's not efficient, it'll be re-calculated on each render!". But, an [O(n)](https://en.wikipedia.org/wiki/Big_O_notation) mapping operation isn't necessarily computationally significant, it depends on `n`! In this context, we're talking about a handful of entries, which even slower devices can compute fast.
 
-The other assumption is that rendering is happening all the time, which it generally isn't unless either state changes, props change, or the parent is re-rendered. The rendering lifecycle of React already acts a kind of memoisation, and we should leverage that before adding another layer.
+The other assumption is that rendering is happening all the time, but that depends on whether state changes, props change, or if the parent is re-rendered. The rendering lifecycle of React already acts a kind of memoisation, and we should leverage that before adding another layer.
 
 By adding memoisation prematurely we could be adding a lot of unnecessary noise to our code, or even bugs if we don't get our dependency array right (like if we forgot `[data]` in the first example). Instead, observe real world performance, and only when performance is unsatisfactory should we look at optimisation.
 
-That isn't to say we should write inefficient code by default — but don't assume any kind of loop or mapping is going to be slow.
+That isn't to say we should write inefficient code by default — but don't assume any kind of loop or mapping is going to be slow, unless you have a high degree of confidence.
 
 
 ## Anti-pattern 4 — Lots of large inline functions
 
-This one is more of a readability problem as components get larger. Having a lot of inline functions can make a mess of your function, making it hard to follow the logic and trace the key data flow. Let's look at the following:
+This one is more of a readability problem as components get larger, rather than something that can directly cause bugs. Having a lot of inline functions can make a mess of your component, making it hard to follow the logic and trace the data flow. Let's look at the following:
 
 ```jsx
 const LargeInlineFunction = () => {
@@ -339,9 +337,9 @@ const LargeInlineFunction = () => {
 };
 ```
 
-This particular example isn't too bad because it's a small component, but if you can imagine a component hundreds of lines long, with half a dozen large inline functions, it'll be hard to read and follow, more so when you add state and effects into the mix.
+This particular example isn't too bad because it's a small component, but if you can imagine a component hundreds of lines long, with half a dozen large inline functions, it'll be hard to read and follow — more so if you add state and effects into the mix.
 
-It's also hard to write tests for those functions liek this since they're buried inside the component, we'd need to mock out a bunch of things to get the code to trigger.
+It's also hard to write tests for functions like this since they're buried inside the component. We'd need to mock out a bunch of things to get the code to trigger.
 
 As a habit, I find moving these out into separate functions a good idea:
 
@@ -387,11 +385,11 @@ This means we can now write tests for `transformData`, without the hassle of moc
 
 ## Conclusion
 
-Simplicity is a virtue in software development, and unnecessary complexity is going to be a impediment. In this post we've had a look at anti-patterns that can be a cause of this in my experience.
+Simplicity is a virtue in software development, and unnecessary complexity is going to be a impediment. In this post we've had a look at React anti-patterns that can be painful in my experience.
 
-We explored the pitfalls of overusing `useEffect`, we discussed the unnecessary state usage, and encouraged developers to calculate derived data in the render body or use separate functions for mapping logic.
+We explored the pitfalls of overusing `useEffect`, we discussed the unnecessary state usage, and encouraged developers to calculate derived data in the render body or use separate pure functions.
 
-By avoiding these anti-patterns, I hope it puts you on the path of simpler, more readable, and more maintable React code.
+By avoiding these anti-patterns, I hope it puts you on the path of simpler, more readable, and more maintainable React code.
 
 I'd be keen to hear from you if you have any thoughts on patterns that help or cause harm in your experience.
 
