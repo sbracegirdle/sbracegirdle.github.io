@@ -4,6 +4,8 @@ Source code for Simon's personal blog:
 
 https://letsbuild.cloud
 
+See [style.md](style.md) for an explanation of my general writing style.
+
 ## Installation and pre-requisites
 
 Install Astro and all dependencies.

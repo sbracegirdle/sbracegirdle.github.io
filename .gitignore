@@ -5,3 +5,4 @@ _site/
 .vscode/
 dist/
 node_modules/
+.obsidian/
