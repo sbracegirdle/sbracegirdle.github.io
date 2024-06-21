@@ -11,11 +11,15 @@ const { title, date, author, canonicalurl, canonicalsite, image, tags } =
 
 <BaseLayout title={title} url={url} frontmatter={frontmatter}>
   <div class="relative h-48 sm:h-96 overflow-hidden mb-4 -mt-8">
-    <Image
-      class="absolute top-0 left-0 w-full w-full h-48 sm:h-96 object-cover"
-      src={import(`../img/${image}.jpg`)}
-      alt={title}
-    />
+    {
+      image && (
+        <Image
+          class="absolute top-0 left-0 w-full w-full h-48 sm:h-96 object-cover"
+          src={import(`../img/${image}.jpg`)}
+          alt={title}
+        />
+      )
+    }
     <div
       class="absolute top-0 left-0 w-full h-48 md:h-96 bg-gradient-to-t from-white to-transparent"
     >

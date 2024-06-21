@@ -34,16 +34,18 @@ const latest = allPosts
   {
     latest.map((post) => (
       <div class="my-8 flex flex-col md:flex-row">
-        <div class="mb-4 md:mr-4 md:mb-0">
-          <a href={post.url}>
-            <Image
-              class="rounded-lg w-80"
-              src={import(`../img/${post.frontmatter.image}.jpg`)}
-              width={320}
-              alt={post.frontmatter.title}
-            />
-          </a>
-        </div>
+        {post.frontmatter.image && (
+          <div class="mb-4 md:mr-4 md:mb-0">
+            <a href={post.url}>
+              <Image
+                class="rounded-lg w-80"
+                src={import(`../img/${post.frontmatter.image}.jpg`)}
+                width={320}
+                alt={post.frontmatter.title}
+              />
+            </a>
+          </div>
+        )}
 
         <div class="flex-1">
           <div>
