@@ -1,53 +1,75 @@
-# Let's Build
+# Simple Static Site Generator
 
-Source code for Simon's personal blog:
+A Go-based static site generator that converts Markdown files to HTML.
 
-https://letsbuild.cloud
+## Features
 
-See [style.md](style.md) for an explanation of my general writing style.
+- Processes markdown files to HTML
+- Uses a customizable HTML template
+- Supports frontmatter for metadata
+- Generates HTML files in a build directory
 
-## Installation and pre-requisites
+## Setup
 
-Install Astro and all dependencies.
+1. Install dependencies:
+   ```
+   go mod download
+   ```
 
-```sh
-npm ci
+2. Build the project:
+   ```
+   go build -o ssg
+   ```
+
+3. Run the generator:
+   ```
+   ./ssg
+   ```
+
+## Local Development
+
+To test the site locally before deploying, use the included scripts:
+
+### On macOS/Linux:
+
+```bash
+# Make the script executable
+chmod +x ./local-serve.sh
+
+# Basic usage (serves on port 8080)
+./local-serve.sh
+
+# Custom port
+./local-serve.sh --port 3000
+
+# Watch mode (requires fswatch)
+./local-serve.sh --watch
 ```
 
-## 🧞 Commands
+## Project Structure
 
-All commands are run from the root of the project, from a terminal:
+- `content/` - Markdown files for your site
+- `build/` - Generated HTML output
+- `template.html` - HTML template for the site
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:3000`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Template Syntax
 
-## How to deploy
+The template uses simple placeholders:
+- `{{title}}`: Will be replaced with the title from frontmatter (or filename if not specified)
+- `{{content}}`: Will be replaced with the HTML converted from markdown
 
-Commit and push, it will deploy automatically via GitHub Pages.
+## Markdown Frontmatter
 
-## Download image from unsplash
+You can add metadata to your markdown files using YAML frontmatter:
 
-```sh
-curl -L "https://source.unsplash.com/1600x900/?team,collaborate" > src/img/team1.jpg
+```markdown
+---
+title: My Page Title
+---
+
+Content goes here...
 ```
 
-Copy image and resize as thumbnail:
+## Deployment
 
-```sh
-cp img/mypost.jpg img/mypost-thumb.jpg
-mogrify -resize 400x img/mypost-thumb.jpg
-```
-
-Install mogrify on Mac:
-
-```sh
-brew install imagemagick
-```
-
-Would be nice to be able to get the Author's name for attribution, but the URL above doesn't seem to provide it in response headers.
+This site is automatically deployed to GitHub Pages when changes are pushed to the main branch.
