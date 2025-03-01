@@ -24,7 +24,7 @@ This is also a good idea if you're continuing to build other changes on top of t
 
 ## Step 1. Squashing
 
-Experienced git users will be familiar with this, and it's the first step in the process for combining commits that aren't of valid in the history.
+Experienced git users will be familiar with this, and it's the first step in the process for combining commits that aren't of value in the history.
 
 Returning to the example before, if we want to squash the last four commits, we start with:
 
@@ -92,5 +92,5 @@ git push --force
 
 ## Summary
 
-Working with git rebase is difficult and complex to understand, but it's a powerful tool and can help make ciommit history more readable and reviewable for others.
+Working with git rebase is difficult and complex to understand, but it's a powerful tool and can help make commit history more readable and reviewable for others.
 
