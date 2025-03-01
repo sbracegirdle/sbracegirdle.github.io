@@ -142,7 +142,7 @@ func generateIndex(posts []*BlogPost, template string, buildDir string) error {
 
 	// Generate HTML for the list of posts
 	var contentBuilder strings.Builder
-	contentBuilder.WriteString("<p>Hi! I'm <em>Simon</em>, a Consultant and Software Engineer from Perth, Western Australia. I work for <a href=\"https://govconnex.com/\">GovConnex</a>, and in the past worked for <a href=\"https://mechanicalrock.io\">Mechanical Rock</a> and <a href=\"https://seqta.com.au\">SEQTA Software</a>.</p>")
+	contentBuilder.WriteString("<p>Hi! I'm <a href=\"https://github.com/sbracegirdle\" rel=\"author\"><em>Simon</em></a>, a Consultant and Software Engineer from Perth, Western Australia. I work for <a href=\"https://govconnex.com/\">GovConnex</a>, and in the past worked for <a href=\"https://mechanicalrock.io\">Mechanical Rock</a> and <a href=\"https://seqta.com.au\">SEQTA Software</a>.</p>")
 	contentBuilder.WriteString("<p>I've been developing software and helping teams with their practices and products for over 15 years. During that time I've built an interest in writing, learning, and solving challenging problems. This blog is a place for me to share my thoughts, experiences, and learnings.</p>")
 	contentBuilder.WriteString("<h2>Latest posts</h2>")
 
