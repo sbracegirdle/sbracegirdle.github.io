@@ -5,46 +5,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{title}}</title>
     <style>
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      :root {
+        /* ── Colour palette (light) ───────────────────────────── */
+        --color-bg: #fbfaf7;
+        --color-text: #2e2c28;
+        --color-muted: #6b6862;
+        --color-accent: #0f766e;
+        --color-accent-hover: #115e57;
+        --color-code-bg: #f3f1ea;
+        --color-border: #e6e3da;
+
+        /* ── Font families ────────────────────────────────────── */
+        --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Charter,
+          Georgia, "Times New Roman", serif;
+        --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Helvetica, Arial, sans-serif;
-        line-height: 1.6;
-        max-width: 800px;
+        --font-mono: "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas,
+          monospace;
+
+        /* ── Type scale ───────────────────────────────────────── */
+        --text-xs: 0.8rem;
+        --text-sm: 0.95rem;
+        --text-base: 1rem;
+        --text-lg: 1.35rem;
+        --text-xl: 1.65rem;
+        --text-2xl: 2.1rem;
+
+        /* ── Line height & tracking ───────────────────────────── */
+        --leading-tight: 1.25;
+        --leading-normal: 1.7;
+        --tracking-tight: -0.01em;
+
+        /* ── Font weights ─────────────────────────────────────── */
+        --weight-normal: 400;
+        --weight-medium: 500;
+        --weight-bold: 700;
+
+        /* ── Spacing scale ────────────────────────────────────── */
+        --space-1: 0.25rem;
+        --space-2: 0.5rem;
+        --space-3: 1rem;
+        --space-4: 1.5rem;
+        --space-5: 2.5rem;
+        --space-6: 3.5rem;
+
+        /* ── Layout, borders, radii, motion ───────────────────── */
+        --layout-width: 720px;
+        --layout-pad-y: 3rem;
+        --layout-pad-x: 1.5rem;
+        --border-width: 1px;
+        --radius: 4px;
+        --transition: 0.15s ease;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #16181d;
+          --color-text: #d8d4cc;
+          --color-muted: #8f8c85;
+          --color-accent: #4db6a4;
+          --color-accent-hover: #6fcbba;
+          --color-code-bg: #1f2329;
+          --color-border: #2b2f37;
+        }
+      }
+
+      body {
+        font-family: var(--font-sans);
+        font-size: var(--text-base);
+        line-height: var(--leading-normal);
+        max-width: var(--layout-width);
         margin: 0 auto;
-        padding: 2rem;
-        color: #333;
+        padding: var(--layout-pad-y) var(--layout-pad-x);
+        color: var(--color-text);
+        background-color: var(--color-bg);
+        -webkit-font-smoothing: antialiased;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--font-serif);
+        line-height: var(--leading-tight);
+        letter-spacing: var(--tracking-tight);
+      }
+      h1 {
+        margin: var(--space-2) 0 var(--space-4);
+        font-size: var(--text-2xl);
+      }
+      h2 {
+        font-size: var(--text-xl);
+      }
+      h3 {
+        font-size: var(--text-lg);
       }
       a {
-        color: #0366d6;
+        color: var(--color-accent);
+        text-decoration: none;
+        border-bottom: var(--border-width) solid transparent;
+        transition: border-color var(--transition), color var(--transition);
+      }
+      a:hover {
+        color: var(--color-accent-hover);
+        border-bottom-color: currentColor;
       }
       pre,
       code {
-        background-color: #f6f8fa;
-        border-radius: 3px;
-        padding: 0.2em 0.4em;
+        font-family: var(--font-mono);
+        background-color: var(--color-code-bg);
+        border-radius: var(--radius);
+        padding: 0.15em 0.4em;
+        font-size: 0.9em;
       }
       pre code {
         padding: 0;
+        background: none;
       }
       pre {
-        padding: 16px;
+        padding: var(--space-3);
         overflow: auto;
+        border: var(--border-width) solid var(--color-border);
       }
 
+      header {
+        margin-bottom: var(--space-5);
+      }
       .site-title {
-        font-size: 1rem;
-        font-weight: 500;
+        font-size: var(--text-sm);
+        font-weight: var(--weight-medium);
+        color: var(--color-muted);
         text-decoration: none;
-        display: block;
-        margin-bottom: 0.5rem;
+        display: inline-block;
+        border-bottom: none;
+      }
+      .site-title:hover {
+        color: var(--color-accent);
+      }
+      .site-title::before {
+        content: "❯";
+        color: var(--color-accent);
+        margin-right: var(--space-2);
+        font-family: var(--font-mono);
       }
 
       footer {
-        margin-top: 2rem;
-        padding-top: 1rem;
-        border-top: 1px solid #eaecef;
-        font-size: 0.8rem;
-        color: #666;
+        margin-top: var(--space-6);
+        padding-top: var(--space-4);
+        border-top: var(--border-width) solid var(--color-border);
+        font-size: var(--text-xs);
+        color: var(--color-muted);
+      }
+      footer a {
+        color: var(--color-muted);
+      }
+      footer a:hover {
+        color: var(--color-accent);
       }
     </style>
   </head>
