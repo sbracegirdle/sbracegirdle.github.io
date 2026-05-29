@@ -11,13 +11,14 @@ NC='\033[0m' # No Color
 
 # Default port
 PORT=8080
-WATCH=false
+WATCH=true
 
 # Parse command line arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -p|--port) PORT="$2"; shift ;;
         -w|--watch) WATCH=true ;;
+        -W|--no-watch) WATCH=false ;;
         *) echo "Unknown parameter: $1"; exit 1 ;;
     esac
     shift
