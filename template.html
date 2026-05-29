@@ -160,6 +160,55 @@
       footer a:hover {
         color: var(--color-accent);
       }
+
+      .reading {
+        margin: 0 0 var(--space-5);
+      }
+      .shelf {
+        margin-top: var(--space-3);
+      }
+      .shelf-label {
+        font-family: var(--font-sans);
+        font-size: var(--text-xs);
+        font-weight: var(--weight-medium);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--color-muted);
+        margin: 0 0 var(--space-2);
+      }
+      .book-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-4);
+      }
+      .book {
+        display: flex;
+        gap: var(--space-2);
+        align-items: flex-start;
+        max-width: 240px;
+      }
+      .book-cover {
+        width: 56px;
+        height: auto;
+        flex-shrink: 0;
+        border-radius: var(--radius);
+        border: var(--border-width) solid var(--color-border);
+      }
+      .book-meta {
+        display: flex;
+        flex-direction: column;
+        font-size: var(--text-xs);
+        line-height: var(--leading-tight);
+      }
+      .book-title {
+        font-weight: var(--weight-medium);
+      }
+      .book-author {
+        color: var(--color-muted);
+      }
     </style>
   </head>
   <body>

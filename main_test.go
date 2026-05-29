@@ -426,7 +426,7 @@ func TestGenerateIndex(t *testing.T) {
 	}
 
 	// Generate index
-	err := generateIndex(blogPosts, testTemplate, buildDir)
+	err := generateIndex(blogPosts, testTemplate, buildDir, nil)
 	if err != nil {
 		t.Fatalf("Error generating index: %v", err)
 	}
@@ -472,6 +472,158 @@ func TestGenerateIndex(t *testing.T) {
 	}
 }
 
+// sampleGoodreadsRSS mirrors the structure of a real Goodreads shelf feed,
+// trimmed to the fields we parse. Kept inline so the parser test never touches
+// the network.
+const sampleGoodreadsRSS = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Simon's bookshelf: currently-reading</title>
+    <item>
+      <title><![CDATA[Oathbringer (The Stormlight Archive, #3)]]></title>
+      <book_id>34002132</book_id>
+      <book_image_url><![CDATA[https://example.com/small.jpg]]></book_image_url>
+      <book_large_image_url><![CDATA[https://example.com/large.jpg]]></book_large_image_url>
+      <author_name>Brandon Sanderson</author_name>
+    </item>
+    <item>
+      <title><![CDATA[A Book Without A Large Cover]]></title>
+      <book_id>999</book_id>
+      <book_image_url><![CDATA[https://example.com/only-small.jpg]]></book_image_url>
+      <book_large_image_url></book_large_image_url>
+      <author_name>Some Author</author_name>
+    </item>
+  </channel>
+</rss>`
+
+// TestParseShelf verifies the Goodreads RSS parsing without any network access.
+func TestParseShelf(t *testing.T) {
+	books, err := parseShelf([]byte(sampleGoodreadsRSS))
+	if err != nil {
+		t.Fatalf("parseShelf returned error: %v", err)
+	}
+
+	if len(books) != 2 {
+		t.Fatalf("expected 2 books, got %d", len(books))
+	}
+
+	first := books[0]
+	if first.Title != "Oathbringer (The Stormlight Archive, #3)" {
+		t.Errorf("unexpected title: %q", first.Title)
+	}
+	if first.Author != "Brandon Sanderson" {
+		t.Errorf("unexpected author: %q", first.Author)
+	}
+	if first.ImageURL != "https://example.com/large.jpg" {
+		t.Errorf("expected large cover to be preferred, got %q", first.ImageURL)
+	}
+	if first.Link != "https://www.goodreads.com/book/show/34002132" {
+		t.Errorf("expected canonical book link, got %q", first.Link)
+	}
+
+	// Second book has no large cover, so the parser should fall back to the
+	// thumbnail.
+	if books[1].ImageURL != "https://example.com/only-small.jpg" {
+		t.Errorf("expected fallback to small cover, got %q", books[1].ImageURL)
+	}
+}
+
+// TestParseShelfEmpty ensures an empty (but valid) feed yields no books and no error.
+func TestParseShelfEmpty(t *testing.T) {
+	books, err := parseShelf([]byte(`<rss><channel></channel></rss>`))
+	if err != nil {
+		t.Fatalf("parseShelf returned error: %v", err)
+	}
+	if len(books) != 0 {
+		t.Errorf("expected no books, got %d", len(books))
+	}
+}
+
+// TestRenderReadingSection checks that labelled shelves render into the index
+// and that no books at all produces no section.
+func TestRenderReadingSection(t *testing.T) {
+	if got := renderReadingSection(nil); got != "" {
+		t.Errorf("expected empty string for no shelves, got %q", got)
+	}
+	if got := renderReadingSection([]ShelfBooks{{Label: "Want to read"}}); got != "" {
+		t.Errorf("expected empty string when every shelf is empty, got %q", got)
+	}
+
+	shelves := []ShelfBooks{
+		{
+			Label: "Currently reading",
+			Books: []Book{{
+				Title:    "Oathbringer",
+				Author:   "Brandon Sanderson",
+				Link:     "https://www.goodreads.com/book/show/34002132",
+				ImageURL: "https://example.com/large.jpg",
+			}},
+		},
+		{
+			Label: "Want to read",
+			Books: []Book{{Title: "Wind and Truth", Author: "Brandon Sanderson"}},
+		},
+	}
+	html := renderReadingSection(shelves)
+
+	for _, want := range []string{
+		"What I'm reading",
+		"Currently reading",
+		"Want to read",
+		"https://example.com/large.jpg",
+		"Oathbringer",
+		"Wind and Truth",
+		"https://www.goodreads.com/book/show/34002132",
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("rendered section missing %q\ngot: %s", want, html)
+		}
+	}
+
+	// Group order should be preserved: "Currently reading" before "Want to read".
+	if strings.Index(html, "Currently reading") > strings.Index(html, "Want to read") {
+		t.Error("shelf groups rendered out of order")
+	}
+}
+
+// TestGenerateIndexWithBooks confirms the reading section lands in the index
+// when books are supplied, ahead of the "Latest posts" heading.
+func TestGenerateIndexWithBooks(t *testing.T) {
+	testDir, cleanup := setupTestEnv(t)
+	defer cleanup()
+	buildDir := filepath.Join(testDir, "build")
+
+	date, _ := time.Parse("2006-01-02", "2023-01-15")
+	posts := []*BlogPost{{
+		Title:      "First Post",
+		Date:       date,
+		OutputFile: "2023-01-15-first-post.html",
+	}}
+	shelves := []ShelfBooks{{
+		Label: "Currently reading",
+		Books: []Book{{Title: "Oathbringer", Author: "Brandon Sanderson"}},
+	}}
+
+	if err := generateIndex(posts, testTemplate, buildDir, shelves); err != nil {
+		t.Fatalf("Error generating index: %v", err)
+	}
+
+	content, err := os.ReadFile(filepath.Join(buildDir, "index.html"))
+	if err != nil {
+		t.Fatalf("Error reading index file: %v", err)
+	}
+	body := string(content)
+
+	readingIdx := strings.Index(body, "What I'm reading")
+	postsIdx := strings.Index(body, "Latest posts")
+	if readingIdx == -1 {
+		t.Fatal("reading section not found in index")
+	}
+	if postsIdx == -1 || readingIdx > postsIdx {
+		t.Error("reading section should appear before the Latest posts heading")
+	}
+}
+
 // TestFullSiteGeneration tests the complete site generation process including index
 func TestFullSiteGeneration(t *testing.T) {
 	testDir, cleanup := setupTestEnv(t)
@@ -489,6 +641,7 @@ func TestFullSiteGeneration(t *testing.T) {
 		filepath.Join(testDir, "content"),
 		filepath.Join(testDir, "build"),
 		filepath.Join(testDir, "template.html"),
+		nil,
 	)
 	if err != nil {
 		t.Fatalf("Error generating site: %v", err)

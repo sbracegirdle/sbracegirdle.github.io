@@ -75,7 +75,7 @@ func BenchmarkGenerateSite(b *testing.B) {
 	// Run benchmark
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		err := generateSite(contentDir, buildDir, templatePath)
+		err := generateSite(contentDir, buildDir, templatePath, nil)
 		if err != nil {
 			b.Fatalf("Error generating site: %v", err)
 		}
