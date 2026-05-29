@@ -376,7 +376,7 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 
 	var contentBuilder strings.Builder
 	contentBuilder.WriteString("<p>Notes on building software, shipping it, and the engineering practices in between.</p>")
-	contentBuilder.WriteString("<p>Hi! I'm <a href=\"https://github.com/sbracegirdle\" rel=\"author\"><em>Simon</em></a>, a software engineer and consultant in Perth, Western Australia. I've spent 15 years building products and helping teams improve how they work — now at <a href=\"https://govconnex.com/\">GovConnex</a>, after <a href=\"https://mechanicalrock.io\">Mechanical Rock</a> and <a href=\"https://seqta.com.au\">SEQTA Software</a>.</p>")
+	contentBuilder.WriteString("<p>Hi! I'm <a href=\"https://github.com/sbracegirdle\" rel=\"author\"><em>Simon</em></a>, a software engineer and consultant in Perth, Western Australia. I've spent 20+ years building products and helping teams improve how they work — now at <a href=\"https://govconnex.com/\">GovConnex</a>, after <a href=\"https://mechanicalrock.io\">Mechanical Rock</a> and <a href=\"https://seqta.com.au\">SEQTA Software</a>.</p>")
 	contentBuilder.WriteString(renderReadingSection(shelves))
 	contentBuilder.WriteString("<h2>Latest posts</h2>")
 
