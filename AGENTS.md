@@ -11,10 +11,10 @@ index page listing all dated posts.
 
 ## Layout
 
-- `main.go` — the entire generator (markdown → HTML, frontmatter parsing, index generation)
+- `main.go` — the entire generator (markdown → HTML, frontmatter parsing, index generation, optional `--watch` serve with live reload)
 - `main_test.go`, `benchmark_test.go` — tests and benchmarks
 - `content/` — blog posts as Markdown, named `yyyy-mm-dd-title.md`
-- `template.html` — HTML template with `{{title}}` and `{{content}}` placeholders
+- `template.html` — HTML template with `{{title}}` (tab title), `{{heading}}` (visible h1), and `{{content}}` placeholders
 - `build/` — generated output (git-ignored, not committed)
 - `local-serve.sh` — local preview server (build + serve, optional `--watch`)
 - `style.md` — Simon's writing style guidelines (apply when writing/editing posts)
@@ -25,6 +25,7 @@ index page listing all dated posts.
 ```bash
 go build -o ssg ./main.go   # build the generator
 ./ssg                        # generate site into ./build
+./ssg --watch [--port N]     # native watch + serve with live reload (Goodreads cached for 10m)
 go test -v ./...             # run tests (CI runs this and fails on errors)
 go test -bench=. ./...       # run benchmarks
 ./local-serve.sh             # build + serve on :8080 (--port N, --watch)
@@ -50,10 +51,14 @@ by CSS custom properties declared on `:root`, grouped by concern:
 
 - **Colour** — `--color-bg`, `--color-text`, `--color-muted`, `--color-accent`,
   `--color-accent-hover`, `--color-code-bg`, `--color-border`. Overridden in the
-  `prefers-color-scheme: dark` block for dark mode.
+  `prefers-color-scheme: dark` block for dark mode. A set of seven gruvbox
+  accent tokens (`--c-red`, `--c-green`, `--c-yellow`, `--c-blue`, `--c-purple`,
+  `--c-aqua`, `--c-orange`) drive the divider, headings, list markers, and panel
+  borders — reused throughout for colour consistency.
 - **Fonts** — `--font-serif` (headings), `--font-sans` (body), `--font-mono`
-  (code). System-font stacks only; no external font requests.
-- **Type scale** — `--text-xs` … `--text-2xl`.
+  (code). All three resolve to the same monospace stack — the TUI aesthetic is
+  monospace throughout. System-font stacks only; no external font requests.
+- **Type scale** — `--text-xs` … `--text-2xl`. Tightened for monospace widths.
 - **Line height / tracking** — `--leading-tight`, `--leading-normal`,
   `--tracking-tight`.
 - **Weights** — `--weight-normal`, `--weight-medium`, `--weight-bold`.
@@ -62,9 +67,13 @@ by CSS custom properties declared on `:root`, grouped by concern:
   `--layout-pad-x`, `--border-width`, `--radius`, `--transition`.
 
 When adjusting the look, change the token on `:root` rather than hard-coding
-values in rules; dark mode only needs the `--color-*` tokens re-declared. Keep
-the design subtle and plain — serif headings, sans body, muted off-white
-background, soft teal accent.
+values in rules; dark mode only needs the `--color-*` tokens re-declared. The
+theme is a terminal (TUI) aesthetic: monospace everywhere, gruvbox-inspired
+accents on neutral light/dark surfaces (green accent in light, phosphor-green in
+dark), square corners
+(`--radius: 0`), a header title bar, a blinking block cursor on the site
+prompt (respects `prefers-reduced-motion`), and `›` markers on the post list.
+Keep it readable — long-form prose still needs generous line height.
 
 ## Deployment
 

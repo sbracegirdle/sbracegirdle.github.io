@@ -55,7 +55,8 @@ chmod +x ./local-serve.sh
 ## Template Syntax
 
 The template uses simple placeholders:
-- `{{title}}`: Will be replaced with the title from frontmatter (or filename if not specified)
+- `{{title}}`: Will be replaced with the title from frontmatter (or filename if not specified) — used in the `<title>` tag
+- `{{heading}}`: Will be replaced with the page heading — used in the visible `<h1>` (empty on the home page)
 - `{{content}}`: Will be replaced with the HTML converted from markdown
 
 ## Markdown Frontmatter

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"html"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/adrg/frontmatter"
@@ -104,6 +106,34 @@ func fetchFeaturedShelves(userID string) []ShelfBooks {
 		groups = append(groups, ShelfBooks{Label: s.label, Books: books})
 	}
 	return groups
+}
+
+// shelfTTL is how long a cached Goodreads fetch is reused during watch mode,
+// so repeated regenerations (one per file touch) don't hammer the public RSS
+// feed.
+const shelfTTL = 10 * time.Minute
+
+// shelfCache memoises the Goodreads shelves for shelfTTL. In watch mode the
+// same process regenerates the site many times; without this every file touch
+// would re-fetch every shelf.
+type shelfCache struct {
+	mu        sync.Mutex
+	shelves   []ShelfBooks
+	fetchedAt time.Time
+}
+
+// get returns the cached shelves if they are younger than ttl, otherwise it
+// re-fetches and caches them. A ttl <= 0 always fetches (used for one-shot
+// builds, preserving the original behaviour).
+func (c *shelfCache) get(userID string, ttl time.Duration) []ShelfBooks {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if ttl > 0 && time.Since(c.fetchedAt) < ttl {
+		return c.shelves
+	}
+	c.shelves = fetchFeaturedShelves(userID)
+	c.fetchedAt = time.Now()
+	return c.shelves
 }
 
 // fetchShelf retrieves a public Goodreads shelf as RSS at build time, sorted by
@@ -205,15 +235,12 @@ func renderReadingSection(groups []ShelfBooks) string {
 
 			openLink := book.Link != ""
 			if openLink {
-				b.WriteString(fmt.Sprintf("<a href=\"%s\">", html.EscapeString(book.Link)))
+				b.WriteString(fmt.Sprintf("<a href=\"%s\" class=\"book-link\">", html.EscapeString(book.Link)))
 			}
 			if book.ImageURL != "" {
 				b.WriteString(fmt.Sprintf(
 					"<img class=\"book-cover\" src=\"%s\" alt=\"Cover of %s\" loading=\"lazy\" />",
 					html.EscapeString(book.ImageURL), html.EscapeString(book.Title)))
-			}
-			if openLink {
-				b.WriteString("</a>")
 			}
 
 			b.WriteString("<div class=\"book-meta\">")
@@ -222,6 +249,9 @@ func renderReadingSection(groups []ShelfBooks) string {
 				b.WriteString(fmt.Sprintf("<span class=\"book-author\">%s</span>", html.EscapeString(book.Author)))
 			}
 			b.WriteString("</div>")
+			if openLink {
+				b.WriteString("</a>")
+			}
 
 			b.WriteString("</li>")
 		}
@@ -292,6 +322,7 @@ func processMarkdownFile(filePath, template string) (string, string, *BlogPost, 
 
 	// Replace template placeholders
 	output := strings.Replace(template, "{{title}}", title, -1)
+	output = strings.Replace(output, "{{heading}}", title, -1)
 	output = strings.Replace(output, "{{content}}", string(htmlContent), -1)
 
 	outputFilename := strings.TrimSuffix(filename, filepath.Ext(filename)) + ".html"
@@ -392,6 +423,7 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 
 	// Replace template placeholders
 	output := strings.Replace(template, "{{title}}", "Let's Build", -1)
+	output = strings.Replace(output, "{{heading}}", "", -1)
 	output = strings.Replace(output, "{{content}}", contentBuilder.String(), -1)
 
 	// Write the index file
@@ -410,11 +442,11 @@ func generateArchive(posts []*BlogPost, template string, buildDir string) error 
 	dated := datedPostsNewestFirst(posts)
 
 	var contentBuilder strings.Builder
-	contentBuilder.WriteString("<h1>All posts</h1>")
 	contentBuilder.WriteString(renderPostList(dated))
 	contentBuilder.WriteString("<p><a href=\"index.html\">&larr; Home</a></p>")
 
 	output := strings.Replace(template, "{{title}}", "All posts", -1)
+	output = strings.Replace(output, "{{heading}}", "All posts", -1)
 	output = strings.Replace(output, "{{content}}", contentBuilder.String(), -1)
 
 	outputPath := filepath.Join(buildDir, "posts.html")
@@ -505,20 +537,214 @@ func generateSite(contentDir, buildDir, templatePath string, shelves []ShelfBook
 	return nil
 }
 
+// livereloadScript is injected into served HTML in watch mode so the browser
+// refreshes automatically after each regeneration. It connects to the
+// /__livereload SSE endpoint and reloads on any message.
+const livereloadScript = `<script>(function(){var e=new EventSource("/__livereload");e.onmessage=function(){location.reload();};})();</script>`
+
+// sseHub fans out a reload signal to every connected browser. Clients connect
+// to /__livereload; when the watcher regenerates, notify() pushes a message
+// that triggers each browser to reload.
+type sseHub struct {
+	mu      sync.Mutex
+	clients map[chan struct{}]struct{}
+}
+
+func newSSEHub() *sseHub {
+	return &sseHub{clients: make(map[chan struct{}]struct{})}
+}
+
+func (h *sseHub) subscribe() chan struct{} {
+	ch := make(chan struct{}, 1)
+	h.mu.Lock()
+	h.clients[ch] = struct{}{}
+	h.mu.Unlock()
+	return ch
+}
+
+func (h *sseHub) unsubscribe(ch chan struct{}) {
+	h.mu.Lock()
+	delete(h.clients, ch)
+	h.mu.Unlock()
+}
+
+// notify pushes a non-blocking reload signal to every connected client. A slow
+// client that can't keep up is skipped rather than blocking the regenerator.
+func (h *sseHub) notify() {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	for ch := range h.clients {
+		select {
+		case ch <- struct{}{}:
+		default:
+		}
+	}
+}
+
+// sseHandler keeps the connection open and writes a "reload" data event
+// whenever the hub is notified. The connection is torn down when the client
+// disconnects (request context cancelled).
+func sseHandler(hub *sseHub) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+		ch := hub.subscribe()
+		defer hub.unsubscribe(ch)
+		// Send a comment to flush headers so the browser sees a 200 right away.
+		fmt.Fprintf(w, ": hello\n\n")
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
+		for {
+			select {
+			case <-ch:
+				fmt.Fprintf(w, "data: reload\n\n")
+				if f, ok := w.(http.Flusher); ok {
+					f.Flush()
+				}
+			case <-r.Context().Done():
+				return
+			}
+		}
+	}
+}
+
+// devHandler serves files from buildDir. HTML responses get the livereload
+// script appended so the browser auto-refreshes after a rebuild; everything
+// else falls through to http.ServeFile. Path traversal is guarded so a
+// crafted URL can't escape buildDir.
+func devHandler(buildDir string) http.HandlerFunc {
+	cleanBuildDir := filepath.Clean(buildDir)
+	return func(w http.ResponseWriter, r *http.Request) {
+		rel := filepath.Clean(strings.TrimLeft(r.URL.Path, "/"))
+		if rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+			http.NotFound(w, r)
+			return
+		}
+		full := filepath.Join(cleanBuildDir, rel)
+		if info, err := os.Stat(full); err == nil && info.IsDir() {
+			full = filepath.Join(full, "index.html")
+		}
+		if strings.HasSuffix(full, ".html") {
+			data, err := os.ReadFile(full)
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Write(data)
+			w.Write([]byte(livereloadScript))
+			return
+		}
+		http.ServeFile(w, r, full)
+	}
+}
+
+// snapshotFiles records the modtime of every file under the given roots (files
+// or directory trees). The poller compares snapshots to detect changes.
+func snapshotFiles(roots ...string) map[string]time.Time {
+	m := make(map[string]time.Time)
+	for _, root := range roots {
+		info, err := os.Stat(root)
+		if err != nil {
+			continue
+		}
+		if !info.IsDir() {
+			m[root] = info.ModTime()
+			continue
+		}
+		_ = filepath.Walk(root, func(p string, info os.FileInfo, err error) error {
+			if err != nil || info.IsDir() {
+				return nil
+			}
+			m[p] = info.ModTime()
+			return nil
+		})
+	}
+	return m
+}
+
+func modtimesEqual(a, b map[string]time.Time) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range a {
+		if w, ok := b[k]; !ok || !v.Equal(w) {
+			return false
+		}
+	}
+	return true
+}
+
+// runWatch generates the site once, then serves buildDir on port and
+// regenerates whenever a file under contentDir or templatePath changes. The
+// Goodreads shelves are fetched through cache with shelfTTL so repeated
+// regenerations don't re-hit the feed. Connected browsers auto-refresh via SSE.
+func runWatch(contentDir, buildDir, templatePath, userID, port string, cache *shelfCache) {
+	if err := generateSite(contentDir, buildDir, templatePath, cache.get(userID, shelfTTL)); err != nil {
+		log.Printf("initial generation error: %v", err)
+	}
+
+	hub := newSSEHub()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/__livereload", sseHandler(hub))
+	mux.HandleFunc("/", devHandler(buildDir))
+
+	srv := &http.Server{Addr: ":" + port, Handler: mux}
+	go func() {
+		log.Printf("serving http://localhost:%s (watch mode — live reload on)", port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("server error: %v", err)
+		}
+	}()
+
+	watchTargets := []string{contentDir, templatePath}
+	prev := snapshotFiles(watchTargets...)
+	ticker := time.NewTicker(800 * time.Millisecond)
+	defer ticker.Stop()
+	for range ticker.C {
+		cur := snapshotFiles(watchTargets...)
+		if modtimesEqual(prev, cur) {
+			continue
+		}
+		prev = cur
+		log.Println("change detected, regenerating…")
+		if err := generateSite(contentDir, buildDir, templatePath, cache.get(userID, shelfTTL)); err != nil {
+			log.Printf("regeneration error: %v", err)
+			continue
+		}
+		hub.notify()
+		log.Println("reloaded")
+	}
+}
+
 func main() {
+	watch := flag.Bool("watch", false, "watch for file changes, serve, and live-reload")
+	port := flag.String("port", "8080", "port for the dev server (watch mode)")
+	flag.Parse()
+
 	contentDir := filepath.Join(".", "content")
 	buildDir := filepath.Join(".", "build")
 	templatePath := filepath.Join(".", "template.html")
 
 	// Pull the "What I'm reading" shelves from public Goodreads RSS at build
 	// time. This is best-effort: any shelf that can't be fetched is logged and
-	// skipped rather than failing the build.
+	// skipped rather than failing the build. In watch mode the result is
+	// cached for shelfTTL so repeated regenerations don't hammer the feed.
 	userID := os.Getenv("GOODREADS_USER_ID")
 	if userID == "" {
 		userID = defaultGoodreadsUserID
 	}
-	shelves := fetchFeaturedShelves(userID)
+	cache := &shelfCache{}
 
+	if *watch {
+		runWatch(contentDir, buildDir, templatePath, userID, *port, cache)
+		return
+	}
+
+	// ttl <= 0 always fetches, preserving the original one-shot behaviour.
+	shelves := cache.get(userID, 0)
 	if err := generateSite(contentDir, buildDir, templatePath, shelves); err != nil {
 		log.Fatal(err)
 	}
