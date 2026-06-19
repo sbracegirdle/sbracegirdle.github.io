@@ -409,6 +409,10 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 	contentBuilder.WriteString("<p>Notes on building software, shipping it, and the engineering practices in between.</p>")
 	contentBuilder.WriteString("<p>Hi! I'm <a href=\"https://github.com/sbracegirdle\" rel=\"author\"><em>Simon</em></a>, a software engineer and consultant in Perth, Western Australia. I've spent 20+ years building products and helping teams improve how they work — now at <a href=\"https://govconnex.com/\">GovConnex</a>, after <a href=\"https://mechanicalrock.io\">Mechanical Rock</a> and <a href=\"https://seqta.com.au\">SEQTA Software</a>.</p>")
 	contentBuilder.WriteString(renderReadingSection(shelves))
+	contentBuilder.WriteString("<h2>Quick references</h2>")
+	contentBuilder.WriteString("<ul class=\"post-list\">")
+	contentBuilder.WriteString("<li><a href=\"rust-quick-reference.html\">Rust quick reference</a><p>A progressive tour of Rust — ownership, borrowing, traits, and cargo — styled like a TUI.</p></li>")
+	contentBuilder.WriteString("</ul>")
 	contentBuilder.WriteString("<h2>Latest posts</h2>")
 
 	latest := dated
@@ -458,6 +462,40 @@ func generateArchive(posts []*BlogPost, template string, buildDir string) error 
 	return nil
 }
 
+// copyStaticDir copies every file under staticDir into buildDir verbatim,
+// preserving relative paths and subdirectories. Files in static/ bypass the
+// markdown rendering pipeline entirely, so a standalone HTML resource (e.g. a
+// self-contained quick-reference page) can be served and linked from the site
+// without being wrapped in the post template. A missing staticDir is a no-op.
+// Generated pages are written after this runs, so a generated file always wins
+// on a name collision with a static one.
+func copyStaticDir(staticDir, buildDir string) error {
+	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
+		return nil
+	}
+	return filepath.Walk(staticDir, func(p string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		rel, err := filepath.Rel(staticDir, p)
+		if err != nil {
+			return err
+		}
+		dst := filepath.Join(buildDir, rel)
+		if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+			return err
+		}
+		data, err := os.ReadFile(p)
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(dst, data, 0644)
+	})
+}
+
 // generateSite processes all markdown files in the content directory
 func generateSite(contentDir, buildDir, templatePath string, shelves []ShelfBooks) error {
 	// Check if build directory exists, create if not
@@ -466,6 +504,13 @@ func generateSite(contentDir, buildDir, templatePath string, shelves []ShelfBook
 		if err != nil {
 			return fmt.Errorf("error creating build directory: %v", err)
 		}
+	}
+
+	// Copy standalone resources from static/ before generating posts, so any
+	// generated page takes precedence on a name collision.
+	staticDir := filepath.Join(".", "static")
+	if err := copyStaticDir(staticDir, buildDir); err != nil {
+		log.Printf("warning: could not copy static directory: %v", err)
 	}
 
 	// Get template
@@ -699,7 +744,8 @@ func runWatch(contentDir, buildDir, templatePath, userID, port string, cache *sh
 		}
 	}()
 
-	watchTargets := []string{contentDir, templatePath}
+	staticDir := filepath.Join(".", "static")
+	watchTargets := []string{contentDir, templatePath, staticDir}
 	prev := snapshotFiles(watchTargets...)
 	ticker := time.NewTicker(800 * time.Millisecond)
 	defer ticker.Stop()

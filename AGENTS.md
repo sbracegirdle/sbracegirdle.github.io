@@ -14,6 +14,7 @@ index page listing all dated posts.
 - `main.go` — the entire generator (markdown → HTML, frontmatter parsing, index generation, optional `--watch` serve with live reload)
 - `main_test.go`, `benchmark_test.go` — tests and benchmarks
 - `content/` — blog posts as Markdown, named `yyyy-mm-dd-title.md`
+- `static/` — standalone resources (e.g. self-contained HTML pages) copied verbatim into `build/` without going through the markdown/template pipeline; link to them from the homepage or posts
 - `template.html` — HTML template with `{{title}}` (tab title), `{{heading}}` (visible h1), and `{{content}}` placeholders
 - `build/` — generated output (git-ignored, not committed)
 - `local-serve.sh` — local preview server (build + serve, optional `--watch`)
@@ -43,6 +44,11 @@ go test -bench=. ./...       # run benchmarks
   and `gomarkdown/markdown`. Prefer the standard library.
 - When writing or editing post content, follow `style.md` (concise, approachable,
   informal, professional; avoid passive voice, weasel words, clichés).
+- Standalone, self-contained resources live in `static/` and are copied as-is
+  into `build/` (no rendering, no template wrapping). Use this for pages that
+  ship their own markup/styling and shouldn't be wrapped in the blog template.
+  Generated pages win on name collisions, so don't name a static file
+  `index.html` or after a post.
 
 ## Theme
 

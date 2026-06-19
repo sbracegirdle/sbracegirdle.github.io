@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rust quick reference · tui</title>
+<style>
+  :root{
+    --bg:#0D0D0D;
+    --bg-panel:#161616;
+    --bg-inset:#080808;
+    --border:#2A2A2A;
+    --border-dim:#1C1C1C;
+    --fg:#E6E6E6;
+    --fg-dim:#969696;
+    --fg-mute:#5E5E5E;
+    --accent:#E0533B;
+    --accent-soft:#E8826A;
+    --gold:#F0D090;
+    --tan:#E8B880;
+    --olive:#B8D090;
+    --ok:#B8D090;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+    line-height:1.5;
+    overflow:hidden;
+  }
+  ::selection{background:var(--accent);color:#fff}
+  .tui{display:flex;flex-direction:column;height:100vh}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;gap:14px;
+    padding:6px 12px;
+    border-bottom:1px solid var(--border);
+    background:var(--bg-panel);
+    flex:0 0 auto;
+  }
+  .topbar .crumb{color:var(--fg-dim);font-size:12px;letter-spacing:.08em}
+  .topbar .crumb b{color:var(--fg);font-weight:500}
+  .topbar .crumb .sep{color:var(--fg-mute);margin:0 6px}
+  .topbar .crumb .prompt{color:var(--accent);margin-right:6px}
+  .topbar .right{margin-left:auto;display:flex;gap:10px;align-items:center;color:var(--fg-mute);font-size:12px}
+  .topbar .right .dot{width:7px;height:7px;background:var(--ok);display:inline-block}
+  .topbar .right .pill{border:1px solid var(--border);padding:1px 7px;color:var(--fg-dim)}
+
+  /* ---------- middle ---------- */
+  .middle{flex:1 1 auto;display:flex;min-height:0}
+
+  /* sidebar */
+  .sidebar{
+    flex:0 0 208px;
+    border-right:1px solid var(--border);
+    background:var(--bg-panel);
+    display:flex;flex-direction:column;
+    min-height:0;
+  }
+  .side-head{
+    padding:8px 12px;border-bottom:1px solid var(--border-dim);
+    color:var(--fg-mute);font-size:11px;letter-spacing:.14em;
+    display:flex;justify-content:space-between;
+  }
+  .side-head .n{color:var(--accent-soft)}
+  .tree{overflow:auto;flex:1 1 auto;padding:6px 0}
+  .treenode{
+    display:flex;align-items:baseline;gap:6px;
+    padding:3px 12px;cursor:pointer;color:var(--fg-dim);
+    white-space:nowrap;font-size:13px;
+    border-left:2px solid transparent;
+  }
+  .treenode .cur{color:var(--fg-mute);width:10px;flex:0 0 auto}
+  .treenode .idx{color:var(--fg-mute);font-size:11px;width:18px;flex:0 0 auto;text-align:right}
+  .treenode .nm{overflow:hidden;text-overflow:ellipsis}
+  .treenode:hover{color:var(--fg);background:var(--bg-inset)}
+  .treenode.active{
+    color:var(--fg);background:var(--bg-inset);
+    border-left:2px solid var(--accent);
+  }
+  .treenode.active .cur{color:var(--accent)}
+  .treenode.active .idx{color:var(--gold)}
+  .side-foot{
+    padding:6px 12px;border-top:1px solid var(--border-dim);
+    color:var(--fg-mute);font-size:11px;display:flex;justify-content:space-between;
+  }
+
+  /* main */
+  .main{flex:1 1 auto;overflow:auto;padding:20px 22px 50px;min-width:0}
+  .main::-webkit-scrollbar,.tree::-webkit-scrollbar{width:10px;height:10px}
+  .main::-webkit-scrollbar-thumb,.tree::-webkit-scrollbar-thumb{background:var(--border)}
+  .main::-webkit-scrollbar-track,.tree::-webkit-scrollbar-track{background:var(--bg)}
+
+  /* magazine-style flowing columns — panels fill top-to-bottom then wrap */
+  .col{
+    columns:360px;
+    column-gap:22px;
+  }
+
+  /* hero (spans all columns) */
+  .hero{
+    column-span:all;
+    border:1px solid var(--border);background:linear-gradient(180deg,var(--bg-panel),var(--bg));
+    padding:26px 28px;margin:0 0 22px;position:relative;
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.12) 2px 3px);
+    mix-blend-mode:overlay;opacity:.5;
+  }
+  .hero-title{
+    margin:0;font-size:24px;font-weight:700;letter-spacing:.06em;color:var(--fg);
+  }
+  .hero-title .ac{color:var(--accent)}
+  .hero-sub{margin:6px 0 12px;color:var(--fg-dim);font-size:13px;letter-spacing:.04em}
+  .hero-sub .sep{color:var(--fg-mute);margin:0 8px}
+  .hero-hint{margin:0;color:var(--fg-mute);font-size:12px}
+  kbd{
+    font-family:inherit;font-size:11px;color:var(--fg);
+    background:var(--bg-inset);border:1px solid var(--border);
+    border-radius:3px;padding:1px 5px;margin:0 1px;
+  }
+
+  /* panels */
+  .panel{
+    position:relative;border:1px solid var(--border);
+    background:var(--bg-panel);padding:16px 18px 18px;
+    margin:0 0 22px;
+    break-inside:avoid;
+    -webkit-column-break-inside:avoid;
+    page-break-inside:avoid;
+  }
+  .panel-title{
+    position:absolute;top:-0.72em;left:16px;
+    background:var(--bg);padding:0 8px;font-size:12px;
+    color:var(--fg-dim);letter-spacing:.1em;
+  }
+  .panel-title .br{color:var(--accent)}
+  .panel-title .num{color:var(--fg-mute);margin-right:8px}
+  .lede{margin:0 0 10px;color:var(--fg-dim);font-size:12.5px}
+  .lede b{color:var(--fg);font-weight:500}
+  .lede code{color:var(--tan);background:var(--bg-inset);padding:1px 5px;border:1px solid var(--border-dim);font-size:12px}
+
+  /* code */
+  .code{
+    margin:0;background:var(--bg-inset);border:1px solid var(--border-dim);
+    padding:10px 0;overflow:auto;font-size:12.5px;line-height:1.55;
+  }
+  .code .cl{display:flex;white-space:pre}
+  .code .cl:hover{background:rgba(255,255,255,.02)}
+  .code .ln{
+    flex:0 0 38px;text-align:right;padding-right:12px;
+    color:var(--fg-mute);user-select:none;border-right:1px solid var(--border-dim);
+    margin-right:12px;
+  }
+  .code .cc{flex:1 1 auto;padding-right:14px}
+  .t-kw{color:var(--accent);font-weight:500}
+  .t-type{color:var(--tan)}
+  .t-str{color:var(--olive)}
+  .t-num{color:var(--accent-soft)}
+  .t-comment{color:var(--fg-mute);font-style:italic}
+  .t-macro{color:var(--gold)}
+  .t-lifetime{color:var(--accent-soft)}
+  .t-fn{color:#C8C8C8}
+  .t-punct{color:var(--fg-dim)}
+  .t-ident{color:var(--fg)}
+  .t-prompt{color:var(--accent);font-weight:500}
+  .t-flag{color:var(--gold)}
+
+  /* status bar */
+  .statusbar{
+    flex:0 0 auto;display:flex;align-items:center;gap:0;
+    border-top:1px solid var(--border);background:var(--bg-panel);
+    font-size:12px;color:var(--fg-dim);
+  }
+  .sb-seg{padding:5px 12px;border-right:1px solid var(--border-dim);white-space:nowrap}
+  .sb-seg.mode{color:var(--accent);font-weight:500;letter-spacing:.1em}
+  .sb-seg .k{color:var(--fg-mute)}
+  .sb-spacer{flex:1 1 auto}
+  .sb-seg.right{border-right:none;border-left:1px solid var(--border-dim)}
+
+  /* toast */
+  .toast{
+    position:fixed;bottom:42px;left:50%;transform:translateX(-50%) translateY(10px);
+    background:var(--bg-panel);border:1px solid var(--accent);
+    color:var(--fg);padding:7px 14px;font-size:12px;letter-spacing:.05em;
+    opacity:0;transition:opacity .15s,transform .15s;pointer-events:none;z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast .ac{color:var(--accent)}
+
+  @media (max-width:760px){
+    .sidebar{display:none}
+    .main{padding:16px 12px 50px}
+    .panel{padding:14px 14px 16px}
+    .hero{padding:22px 16px}
+    .hero-title{font-size:20px}
+    .col{columns:1}
+  }
+</style>
+</head>
+<body>
+<div class="tui">
+
+  <!-- top bar -->
+  <div class="topbar">
+    <div class="crumb"><span class="prompt">❯</span><b>rust</b><span class="sep">/</span>quick-reference</div>
+    <div class="right">
+      <span class="dot"></span>
+      <span class="pill">NORMAL</span>
+      <span>rustc 1.96.0</span>
+    </div>
+  </div>
+
+  <div class="middle">
+
+    <!-- sidebar / index -->
+    <nav class="sidebar" aria-label="index">
+      <div class="side-head"><span>INDEX</span><span class="n" id="sideCount">15</span></div>
+      <div class="tree" id="tree"></div>
+      <div class="side-foot"><span>§ quick-ref</span><span>utf-8</span></div>
+    </nav>
+
+    <!-- main -->
+    <main class="main" id="main">
+      <div class="col">
+
+        <!-- hero -->
+        <section class="hero" id="top">
+          <h1 class="hero-title"><span class="ac">rust</span> quick reference</h1>
+          <p class="hero-sub">a progressive tour<span class="sep">·</span>rustc 1.96.0<span class="sep">·</span>tui quick ref</p>
+          <p class="hero-hint">scroll with <kbd>j</kbd>/<kbd>k</kbd><span class="sep">·</span>jump with <kbd>1</kbd>–<kbd>9</kbd><span class="sep">·</span>top/bottom with <kbd>g</kbd>/<kbd>G</kbd><span class="sep">·</span>or click the index</p>
+        </section>
+
+        <!-- 01 -->
+        <section class="panel" id="s01">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">01</span>Hello World<span class="br">├</span></h2>
+          <p class="lede">Entry point is <code>fn main()</code>. <b>println!</b> is a <b>macro</b> (note the <code>!</code>) — it expands at compile time, it's not a regular function.</p>
+          <script type="text/rust">fn main() {
+    println!("Hello, world!");
+}</script>
+        </section>
+
+        <!-- 02 -->
+        <section class="panel" id="s02">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">02</span>Variables &amp; Mutability<span class="br">├</span></h2>
+          <p class="lede">Bindings are <b>immutable by default</b>. Add <code>mut</code> to allow change. <b>Shadowing</b> lets you reuse a name — even with a new type.</p>
+          <script type="text/rust">let x = 5;             // immutable by default
+let mut y = 5;         // explicitly mutable
+let z: i32 = 10;       // type annotation
+const MAX: u32 = 100;  // compile-time constant
+
+let s = "hi";          // &str
+let s = s.len();       // shadowing: same name, new type
+
+let (a, b) = (1, 2);   // destructuring bind</script>
+        </section>
+
+        <!-- 03 -->
+        <section class="panel" id="s03">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">03</span>Data Types<span class="br">├</span></h2>
+          <p class="lede">Scalars, fixed compound types, and the two string kinds: <code>&amp;str</code> (borrowed slice) vs <code>String</code> (heap-owned, growable).</p>
+          <script type="text/rust">// scalars
+let a: i32 = -5;
+let b: u64 = 5;
+let pi: f64 = 3.14;
+let flag: bool = true;
+let heart: char = 'x';      // 4-byte unicode scalar
+
+// compound
+let pair: (i32, &str) = (1, "a");
+let arr: [i32; 3] = [1, 2, 3];   // fixed size, stack
+
+// two string flavors
+let borrowed: &str = "slice";          // borrowed, static
+let owned: String = String::from("heap"); // growable</script>
+        </section>
+
+        <!-- 04 -->
+        <section class="panel" id="s04">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">04</span>Control Flow<span class="br">├</span></h2>
+          <p class="lede"><code>if</code> is an expression. <code>loop</code> can <b>return a value</b> via <code>break</code>. Ranges: <code>..</code> exclusive, <code>..=</code> inclusive.</p>
+          <script type="text/rust">if x > 5 {
+    println!("big");
+} else if x == 5 {
+    println!("five");
+} else {
+    println!("small");
+}
+
+for i in 0..10 { }     // 0..9  (exclusive)
+for i in 0..=10 { }    // 0..10 (inclusive)
+while cond { }
+
+let n: i32 = loop {
+    break 42;          // loops return a value
+};</script>
+        </section>
+
+        <!-- 05 -->
+        <section class="panel" id="s05">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">05</span>Ownership<span class="br">├</span></h2>
+          <p class="lede">Every value has <b>one owner</b>; when the owner leaves scope the value is dropped. Assignment <b>moves</b> non-Copy types. Primitives implement <code>Copy</code>.</p>
+          <script type="text/rust">let s1 = String::from("hi");
+let s2 = s1;            // MOVE: s1 is now invalid
+// println!("{}", s1);  // ERROR: use after move
+
+// primitives implement Copy
+let a = 5;
+let b = a;              // copied, a still valid
+println!("{a} {b}");    // fine
+
+// explicit deep copy
+let s3 = s2.clone();</script>
+        </section>
+
+        <!-- 06 -->
+        <section class="panel" id="s06">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">06</span>Borrowing &amp; References<span class="br">├</span></h2>
+          <p class="lede">References let you use a value without taking ownership. The borrow checker enforces: <b>many shared</b> <code>&amp;T</code> <b>XOR</b> <b>one mutable</b> <code>&amp;mut T</code> — never both at once.</p>
+          <script type="text/rust">fn length(s: &String) -> usize {  // borrows, no move
+    s.len()
+}
+
+let mut s = String::from("hi");
+let r1 = &s;            // shared borrow (read-only)
+let r2 = &s;            // many shared: OK together
+let r3 = &mut s;        // ERROR: can't mix &mut with &
+
+// slices borrow a contiguous view
+let v = vec![1, 2, 3, 4];
+let part: &[i32] = &v[1..3];   // [2, 3]</script>
+        </section>
+
+        <!-- 07 -->
+        <section class="panel" id="s07">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">07</span>Structs &amp; Enums<span class="br">├</span></h2>
+          <p class="lede">Structs group named fields; enums are tagged unions (variants can carry data). <code>impl</code> blocks attach methods. <code>Self</code> = the type itself.</p>
+          <script type="text/rust">struct User { name: String, age: u32 }
+
+impl User {
+    fn new(name: &str) -> Self {
+        User { name: name.to_string(), age: 0 }
+    }
+    fn birthday(&mut self) { self.age += 1; }
+}
+
+enum Shape {
+    Circle(f64),
+    Square(f64),
+    Rect { w: f64, h: f64 },
+}
+
+let u = User::new("ada");
+let s = Shape::Circle(2.0);</script>
+        </section>
+
+        <!-- 08 -->
+        <section class="panel" id="s08">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">08</span>Pattern Matching<span class="br">├</span></h2>
+          <p class="lede"><code>match</code> is exhaustive and total. <code>Option&lt;T&gt;</code> replaces <code>null</code> — you must handle the missing case.</p>
+          <script type="text/rust">fn area(s: Shape) -> f64 {
+    match s {
+        Shape::Circle(r)     => 3.14159 * r * r,
+        Shape::Square(side)  => side * side,
+        Shape::Rect { w, h } => w * h,
+    }
+}
+
+fn first(xs: &[i32]) -> Option<i32> {
+    if xs.is_empty() { None } else { Some(xs[0]) }
+}
+
+match first(&[]) {
+    Some(x) => println!("first = {x}"),
+    None    => println!("empty"),
+}</script>
+        </section>
+
+        <!-- 09 -->
+        <section class="panel" id="s09">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">09</span>Error Handling<span class="br">├</span></h2>
+          <p class="lede">No exceptions, no nulls. Failures are <code>Result&lt;T, E&gt;</code>. The <code>?</code> operator short-circuits and propagates <code>Err</code> upward.</p>
+          <script type="text/rust">use std::num::ParseIntError;
+
+fn parse(s: &str) -> Result<i32, ParseIntError> {
+    s.parse()
+}
+
+// ? propagates errors to the caller
+fn double(s: &str) -> Result<i32, ParseIntError> {
+    let n: i32 = parse(s)?;   // return Err on failure
+    Ok(n * 2)
+}
+
+match double("21") {
+    Ok(v)  => println!("v = {v}"),
+    Err(e) => println!("error: {e}"),
+}</script>
+        </section>
+
+        <!-- 10 -->
+        <section class="panel" id="s10">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">10</span>Traits &amp; Generics<span class="br">├</span></h2>
+          <p class="lede">Traits are interfaces. Generics + trait bounds <b>monomorphize</b> at compile time — zero-cost abstraction, no vtable unless you use <code>dyn</code>.</p>
+          <script type="text/rust">trait Greet {
+    fn hello(&self) -> String;
+}
+
+struct User { name: String }
+
+impl Greet for User {
+    fn hello(&self) -> String {
+        format!("hi, {}", self.name)
+    }
+}
+
+// static dispatch: T is specialized at compile time
+fn max<T: PartialOrd>(a: T, b: T) -> T {
+    if a > b { a } else { b }
+}
+
+// dynamic dispatch via a trait object
+fn greet(g: &dyn Greet) { println!("{}", g.hello()); }</script>
+        </section>
+
+        <!-- 11 -->
+        <section class="panel" id="s11">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">11</span>Cargo<span class="br">├</span></h2>
+          <p class="lede">Cargo is the build system + package manager. <code>Cargo.toml</code> declares deps; <code>src/main.rs</code> is the binary entry.</p>
+          <script type="text/shell">$ cargo new myproj       # scaffold a binary project
+$ cargo build            # compile (debug)
+$ cargo build --release  # optimized build
+$ cargo run              # build + run
+$ cargo test             # run #[test] functions
+$ cargo add serde        # add a dependency
+$ cargo fmt              # format the code
+$ cargo clippy           # lint</script>
+        </section>
+
+        <!-- 12 -->
+        <section class="panel" id="s12">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">12</span>Modules &amp; Imports<span class="br">├</span></h2>
+          <p class="lede">Code is organised with <code>mod</code>. <code>use</code> brings paths into scope; <code>pub</code> makes items visible outside their module. Paths are absolute from the crate root or relative to the current module.</p>
+          <script type="text/rust">// src/main.rs is the crate root of a binary
+mod network;          // loads src/network.rs (or network/mod.rs)
+mod parser {
+    pub fn parse(s: &str) -> u32 { 0 }
+    fn internal() {}              // private by default
+}
+
+// bring items into scope
+use parser::parse;                 // single item
+use std::collections::{HashMap, BTreeMap};  // multiple
+use std::io as io2;                // rename to avoid clash
+
+// re-export from a module
+pub use parser::parse as parse_u32;
+
+// path qualifiers
+//  crate::  — crate root (absolute)
+//  self::   — current module
+//  super::  — parent module
+use crate::network::connect;
+use super::parser::parse as p;</script>
+        </section>
+
+        <!-- 13 -->
+        <section class="panel" id="s13">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">13</span>Closures &amp; Iterators<span class="br">├</span></h2>
+          <p class="lede">Closures capture their environment; annotate with <code>Fn</code> (by ref), <code>FnMut</code> (by mut ref), <code>FnOnce</code> (by value). Iterators are lazy — nothing runs until you <code>collect</code> or consume.</p>
+          <script type="text/rust">// closures
+let add = |a: i32, b: i32| a + b;       // inferred types
+let n = 10;
+let closure = move || n * 2;  // move captures n by value
+
+// iterator adaptors — lazy, chain freely
+let v = vec![1, 2, 3, 4, 5];
+let doubled: Vec<i32> = v.iter()
+    .map(|x| x * 2)             // transform
+    .filter(|x| *x > 4)         // keep matching
+    .collect();                 // [6, 8, 10]
+
+// other adaptors
+(1..=3).rev();                  // 3, 2, 1
+(1..=5).enumerate();            // (0,1), (1,2), ...
+(1..=10).skip(2).take(3);       // 3, 4, 5
+[1,2,3].iter().sum::<i32>();    // 6
+(0..5).any(|x| x == 3);         // true
+(0..5).all(|x| x < 10);         // true</script>
+        </section>
+
+        <!-- 14 -->
+        <section class="panel" id="s14">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">14</span>Lifetimes<span class="br">├</span></h2>
+          <p class="lede">A lifetime tells the compiler how long a reference is valid. You rarely write them — <b>elision</b> infers the common cases. Write them when a function returns a borrow tied to an input.</p>
+          <script type="text/rust">// elision handles the common case for you
+fn first_word(s: &str) -> &str {  // implicit same lifetime
+    s.split_whitespace().next().unwrap_or("")
+}
+
+// explicit: tie the output to an input
+fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+    if x.len() > y.len() { x } else { y }
+}
+
+// structs holding references need a lifetime
+struct Parser<'src> { input: &'src str }
+impl<'src> Parser<'src> {
+    fn rest(&self) -> &'src str { self.input }
+}
+
+// 'static lives for the entire program — string literals have it
+let s: &'static str = "I live forever";
+
+// in generics, T: 'a means T's refs outlive 'a
+fn foo<T: 'a>(x: &'a T) {}</script>
+        </section>
+
+        <!-- 15 -->
+        <section class="panel" id="s15">
+          <h2 class="panel-title"><span class="br">┤</span><span class="num">15</span>Popular Crates<span class="br">├</span></h2>
+          <p class="lede">Add with <code>cargo add &lt;name&gt;</code>. These are the load-bearing dependencies in most real Rust codebases.</p>
+          <script type="text/shell">$ cargo add serde --features derive    # (de)serialization
+$ cargo add tokio --features full        # async runtime
+$ cargo add anyhow                       # flexible errors
+$ cargo add thiserror                    # typed enum errors
+$ cargo add clap --features derive       # CLI argument parsing
+$ cargo add reqwest                      # HTTP client
+$ cargo add rand                         # randomness
+$ cargo add rayon                        # data parallelism
+$ cargo add itertools                    # iterator extras
+$ cargo add tracing                      # structured logging
+$ cargo add chrono                       # dates &amp; times
+$ cargo add sqlx                         # async SQL</script>
+          <script type="text/rust">// serde — derive Serialize / Deserialize
+use serde::{Serialize, Deserialize};
+#[derive(Serialize, Deserialize)]
+struct User { name: String, age: u32 }
+let json = serde_json::to_string(&user).unwrap();
+
+// anyhow — boxed, ergonomic errors for apps
+use anyhow::{Context, Result};
+fn read_cfg() -> Result<String> {
+    Ok(std::fs::read_to_string("cfg.toml")
+        .context("reading cfg.toml")?)
+}
+
+// thiserror — typed errors for libraries
+use thiserror::Error;
+#[derive(Debug, Error)]
+enum AppError {
+    #[error("io: {0}")]
+    Io(#[from] std::io::Error),
+}
+
+// tokio — async runtime + macros
+#[tokio::main]
+async fn main() {
+    let body = reqwest::get("https://a.io")
+        .await.unwrap().text().await.unwrap();
+}
+
+// rayon — turn iter() into parallel par_iter()
+use rayon::prelude::*;
+let sum: i32 = (0..1_000_000)
+    .into_par_iter().map(|x| x * 2).sum();</script>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- status bar -->
+  <div class="statusbar">
+    <div class="sb-seg mode">NORMAL</div>
+    <div class="sb-seg"><span class="k">file:</span> rust-quick-ref.html</div>
+    <div class="sb-seg"><span class="k">section:</span> <span id="sbSec">01/15</span></div>
+    <div class="sb-spacer"></div>
+    <div class="sb-seg"><span class="k">ln:</span> <span id="sbLn">1</span></div>
+    <div class="sb-seg right">rust 1.96.0</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- rust syntax highlighter ---------------- */
+  const KW = new Set(["as","async","await","break","const","continue","crate","dyn","else","enum","extern","false","fn","for","if","impl","in","let","loop","match","mod","move","mut","pub","ref","return","self","Self","static","struct","super","trait","true","type","unsafe","use","where","while","union","box","macro_rules","yield","try"]);
+  const PRIM = new Set(["i8","i16","i32","i64","i128","isize","u8","u16","u32","u64","u128","usize","f32","f64","bool","char","str"]);
+  const TYPES = new Set(["String","Vec","Option","Result","Box","HashMap","BTreeMap","VecDeque","Arc","Rc","RefCell","Cell","Mutex","RwLock","Cow","Display","Debug","Clone","Copy","Default","Eq","Ord","PartialEq","PartialOrd","Hash","Iterator","IntoIterator","From","Into","TryFrom","TryInto","Send","Sync","Sized","Drop","Fn","FnMut","FnOnce","ParseIntError"]);
+
+  function isIdent(c){ return /[A-Za-z0-9_]/.test(c); }
+  function isIdentStart(c){ return /[A-Za-z_]/.test(c); }
+
+  function tokenize(src){
+    const out=[]; let i=0,n=src.length;
+    const push=(t,v)=>out.push({t,v});
+    while(i<n){
+      const c=src[i];
+      // line comment
+      if(c==='/'&&src[i+1]==='/'){ let j=i; while(j<n&&src[j]!=='\n')j++; push('comment',src.slice(i,j)); i=j; continue; }
+      // block comment
+      if(c==='/'&&src[i+1]==='*'){ let j=i+2; while(j<n&&!(src[j]==='*'&&src[j+1]==='/'))j++; j=Math.min(n,j+2); push('comment',src.slice(i,j)); i=j; continue; }
+      // raw string r"..." r#"..."#
+      if(c==='r'&&(src[i+1]==='"'||src[i+1]==='#')){
+        let j=i+1,h=0; while(src[j]==='#'){h++;j++;}
+        if(src[j]==='"'){
+          j++; const close='"'+'#'.repeat(h);
+          while(j<n&&src.slice(j,j+close.length)!==close)j++;
+          j=Math.min(n,j+close.length); push('str',src.slice(i,j)); i=j; continue;
+        }
+      }
+      // byte string b"..."
+      if(c==='b'&&src[i+1]==='"'){ let j=i+2; while(j<n&&src[j]!=='"'){if(src[j]==='\\')j++;j++;} j=Math.min(n,j+1); push('str',src.slice(i,j)); i=j; continue; }
+      // string
+      if(c==='"'){ let j=i+1; while(j<n&&src[j]!=='"'){if(src[j]==='\\')j++;j++;} j=Math.min(n,j+1); push('str',src.slice(i,j)); i=j; continue; }
+      // char or lifetime/label
+      if(c==="'"){
+        let j=i+1;
+        if(src[j]==='\\'){ j++; while(j<n&&src[j]!=="'")j++; j=Math.min(n,j+1); push('num',src.slice(i,j)); i=j; continue; }
+        if(src[j+1]==="'"){ j+=2; push('num',src.slice(i,j)); i=j; continue; }
+        let k=j; while(k<n&&isIdent(src[k]))k++;
+        if(k>j){ push('lifetime',src.slice(i,k)); i=k; continue; }
+        push('punct',c); i++; continue;
+      }
+      // number
+      if(/[0-9]/.test(c)){ let j=i; while(j<n&&/[0-9a-fA-F_.xXobuifeE_]/.test(src[j]))j++; push('num',src.slice(i,j)); i=j; continue; }
+      // identifier
+      if(isIdentStart(c)){
+        let j=i; while(j<n&&isIdent(src[j]))j++; const w=src.slice(i,j);
+        let k=j; while(src[k]===' '||src[k]==='\t')k++;
+        if(src[k]==='!'){ push('macro',w); i=j; continue; }
+        if(KW.has(w)){ push('kw',w); i=j; continue; }
+        if(PRIM.has(w)||TYPES.has(w)||/^[A-Z]/.test(w)){ push('type',w); i=j; continue; }
+        if(src[j]==='('){ push('fn',w); i=j; continue; }
+        push('ident',w); i=j; continue;
+      }
+      // whitespace
+      if(/\s/.test(c)){ let j=i; while(j<n&&/\s/.test(src[j]))j++; push('ws',src.slice(i,j)); i=j; continue; }
+      push('punct',c); i++;
+    }
+    return out;
+  }
+
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  function renderRust(src){
+    const tokens=tokenize(src.replace(/^\n+|\n+$/g,''));
+    const lines=[[]];
+    for(const tk of tokens){
+      const parts=tk.v.split('\n');
+      for(let k=0;k<parts.length;k++){
+        if(k>0) lines.push([]);
+        if(parts[k].length) lines[lines.length-1].push({t:tk.t,v:parts[k]});
+      }
+    }
+    return lines.map((ln,idx)=>{
+      const num=String(idx+1).padStart(2,' ');
+      const body=ln.map(x=> x.t==='ws'?esc(x.v):`<span class="t-${x.t}">${esc(x.v)}</span>`).join('')||' ';
+      return `<div class="cl"><span class="ln">${num}</span><span class="cc">${body}</span></div>`;
+    }).join('');
+  }
+
+  function renderShell(src){
+    const lines=src.replace(/^\n+|\n+$/g,'').split('\n');
+    return lines.map((line,idx)=>{
+      const num=String(idx+1).padStart(2,' ');
+      let body=esc(line);
+      // prompt
+      body=body.replace(/^(\s*)\$ /,(_,sp)=>`${sp}<span class="t-prompt">$</span> `);
+      // trailing comment
+      body=body.replace(/(\s)#(.*)$/,(_,sp,c)=>`${sp}<span class="t-comment">#${c}</span>`);
+      // flags
+      body=body.replace(/(\s)(--?[A-Za-z][\w-]*)/g,(_,sp,f)=>`${sp}<span class="t-flag">${f}</span>`);
+      return `<div class="cl"><span class="ln">${num}</span><span class="cc">${body||' '}</span></div>`;
+    }).join('');
+  }
+
+  // replace <script type=text/rust|shell> with rendered <pre>
+  document.querySelectorAll('script[type="text/rust"], script[type="text/shell"]').forEach(s=>{
+    const pre=document.createElement('pre');
+    pre.className='code';
+    pre.innerHTML = s.type==='text/rust' ? renderRust(s.textContent) : renderShell(s.textContent);
+    s.replaceWith(pre);
+  });
+
+  /* ---------------- sidebar / index ---------------- */
+  const sections=[...document.querySelectorAll('.panel')];
+  const tree=document.getElementById('tree');
+  const pad=n=>String(n).padStart(2,'0');
+  sections.forEach((sec,k)=>{
+    const id=sec.id;
+    const h=sec.querySelector('.panel-title');
+    // pull label text excluding the num/br spans
+    let label=sec.dataset.label;
+    if(!label){
+      const clone=h.cloneNode(true);
+      clone.querySelectorAll('.br,.num').forEach(e=>e.remove());
+      label=clone.textContent.trim();
+    }
+    const node=document.createElement('div');
+    node.className='treenode';
+    node.dataset.target=id;
+    node.innerHTML=`<span class="cur">·</span><span class="idx">${pad(k+1)}</span><span class="nm">${label}</span>`;
+    node.addEventListener('click',()=>go(id));
+    tree.appendChild(node);
+  });
+  const nodes=[...tree.querySelectorAll('.treenode')];
+  document.getElementById('sideCount').textContent=pad(sections.length);
+
+  /* ---------------- scroll spy ---------------- */
+  const main=document.getElementById('main');
+  const sbSec=document.getElementById('sbSec');
+  const sbLn=document.getElementById('sbLn');
+  let activeId=null;
+
+  function setActive(id){
+    if(id===activeId) return;
+    activeId=id;
+    nodes.forEach(nd=> nd.classList.toggle('active', nd.dataset.target===id));
+    const idx=sections.findIndex(s=>s.id===id);
+    if(idx>=0){
+      sbSec.textContent=`${pad(idx+1)}/${pad(sections.length)}`;
+      const node=nodes[idx]; if(node) node.scrollIntoView({block:'nearest'});
+    }
+  }
+
+  const io=new IntersectionObserver(entries=>{
+    // pick the entry closest to the top that is intersecting
+    let best=null,bestTop=Infinity;
+    entries.forEach(e=>{ if(e.isIntersecting){ const r=e.boundingClientRect; if(r.top>=0&&r.top<bestTop){bestTop=r.top;best=e.target;} } });
+    if(best) setActive(best.id);
+  },{root:main,rootMargin:'0px 0px -70% 0px',threshold:0});
+  sections.forEach(s=>io.observe(s));
+
+  // robust, layout-independent scroll-to: uses live rects so the multi-column
+  // grid placement doesn't throw off the target position.
+  function go(id){
+    const el=document.getElementById(id); if(!el) return;
+    const top = el.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop - 20;
+    main.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+  }
+
+  /* update line number as you scroll */
+  function updateLn(){
+    // approximate: line = how far through main * total-ish
+    const max=main.scrollHeight-main.clientHeight;
+    const ratio=max>0?main.scrollTop/max:0;
+    sbLn.textContent=String(Math.max(1,Math.round(ratio*420)+1));
+  }
+  main.addEventListener('scroll',updateLn,{passive:true});
+
+  /* ---------------- keyboard nav ---------------- */
+  const toast=document.getElementById('toast');
+  let toastT=null;
+  function flash(msg){ toast.innerHTML=msg; toast.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>toast.classList.remove('show'),900); }
+
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+    const k=e.key;
+    if(k==='j'||k==='ArrowDown'){ main.scrollBy({top:90,behavior:'smooth'}); e.preventDefault(); }
+    else if(k==='k'||k==='ArrowUp'){ main.scrollBy({top:-90,behavior:'smooth'}); e.preventDefault(); }
+    else if(k==='G'){ main.scrollTo({top:main.scrollHeight,behavior:'smooth'}); flash('<span class="ac">G</span> · bottom'); }
+    else if(k==='g'){ main.scrollTo({top:0,behavior:'smooth'}); flash('<span class="ac">g</span> · top'); }
+    else if(k==='d'){ main.scrollBy({top:main.clientHeight*0.5,behavior:'smooth'}); }
+    else if(k==='u'){ main.scrollBy({top:-main.clientHeight*0.5,behavior:'smooth'}); }
+    else if(k==='Enter'){ if(activeId) go(activeId); }
+    else if(/^[0-9]$/.test(k)){
+      const n=k==='0'?10:parseInt(k,10);
+      if(n<=sections.length){ go(sections[n-1].id); flash(`<span class="ac">${k}</span> · ${sections[n-1].id}`); }
+    }
+    else if(k==='q'){ flash('<span class="ac">:q!</span> · not really ;)'); }
+  });
+
+  setActive(sections[0].id);
+  updateLn();
+})();
+</script>
+</body>
+</html>
