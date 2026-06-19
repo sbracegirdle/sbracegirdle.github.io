@@ -9,6 +9,7 @@
     --bg:#0D0D0D;
     --bg-panel:#161616;
     --bg-inset:#080808;
+    --bg-title:#1F1F1F;
     --border:#2A2A2A;
     --border-dim:#1C1C1C;
     --fg:#E6E6E6;
@@ -101,49 +102,41 @@
     column-gap:22px;
   }
 
-  /* hero (spans all columns) */
-  .hero{
-    column-span:all;
-    border:1px solid var(--border);background:linear-gradient(180deg,var(--bg-panel),var(--bg));
-    padding:26px 28px;margin:0 0 22px;position:relative;
-  }
-  .hero::before{
-    content:"";position:absolute;inset:0;pointer-events:none;
-    background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.12) 2px 3px);
-    mix-blend-mode:overlay;opacity:.5;
-  }
-  .hero-title{
-    margin:0;font-size:24px;font-weight:700;letter-spacing:.06em;color:var(--fg);
-  }
-  .hero-title .ac{color:var(--accent)}
-  .hero-sub{margin:6px 0 12px;color:var(--fg-dim);font-size:13px;letter-spacing:.04em}
-  .hero-sub .sep{color:var(--fg-mute);margin:0 8px}
-  .hero-hint{margin:0;color:var(--fg-mute);font-size:12px}
-  kbd{
-    font-family:inherit;font-size:11px;color:var(--fg);
-    background:var(--bg-inset);border:1px solid var(--border);
-    border-radius:3px;padding:1px 5px;margin:0 1px;
-  }
-
   /* panels */
   .panel{
-    position:relative;border:1px solid var(--border);
-    background:var(--bg-panel);padding:16px 18px 18px;
+    border:1px solid var(--border);
+    background:var(--bg-panel);
     margin:0 0 22px;
+    overflow:hidden;
     break-inside:avoid;
     -webkit-column-break-inside:avoid;
     page-break-inside:avoid;
   }
   .panel-title{
-    position:absolute;top:-0.72em;left:16px;
-    background:var(--bg);padding:0 8px;font-size:12px;
-    color:var(--fg-dim);letter-spacing:.1em;
+    display:flex;align-items:center;gap:10px;
+    margin:0;padding:7px 16px;
+    border-bottom:1px solid var(--border-dim);
+    background:var(--bg-title);
+    font-size:12px;font-weight:500;
+    color:var(--fg);letter-spacing:.06em;
   }
-  .panel-title .br{color:var(--accent)}
-  .panel-title .num{color:var(--fg-mute);margin-right:8px}
-  .lede{margin:0 0 10px;color:var(--fg-dim);font-size:12.5px}
+  .panel-title .num{
+    color:var(--accent);font-weight:700;
+    font-variant-numeric:tabular-nums;
+  }
+  .panel-title .nm{color:var(--fg)}
+  .panel-body{padding:14px 16px 16px}
+  .lede{margin:0 0 10px;padding:2px 0;color:var(--fg-dim);font-size:12.5px}
   .lede b{color:var(--fg);font-weight:500}
   .lede code{color:var(--tan);background:var(--bg-inset);padding:1px 5px;border:1px solid var(--border-dim);font-size:12px}
+  .crate-list{
+    list-style:none;margin:0 0 12px;padding:0;
+    display:flex;flex-wrap:wrap;gap:5px 10px;
+    font-size:12px;color:var(--fg-dim);
+  }
+  .crate-list li{white-space:nowrap}
+  .crate-list li::before{content:"›";color:var(--accent);margin-right:5px}
+  .crate-list b{color:var(--gold);font-weight:500}
 
   /* code */
   .code{
@@ -229,26 +222,22 @@
     <main class="main" id="main">
       <div class="col">
 
-        <!-- hero -->
-        <section class="hero" id="top">
-          <h1 class="hero-title"><span class="ac">rust</span> quick reference</h1>
-          <p class="hero-sub">a progressive tour<span class="sep">·</span>rustc 1.96.0<span class="sep">·</span>tui quick ref</p>
-          <p class="hero-hint">scroll with <kbd>j</kbd>/<kbd>k</kbd><span class="sep">·</span>jump with <kbd>1</kbd>–<kbd>9</kbd><span class="sep">·</span>top/bottom with <kbd>g</kbd>/<kbd>G</kbd><span class="sep">·</span>or click the index</p>
-        </section>
-
         <!-- 01 -->
         <section class="panel" id="s01">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">01</span>Hello World<span class="br">├</span></h2>
-          <p class="lede">Entry point is <code>fn main()</code>. <b>println!</b> is a <b>macro</b> (note the <code>!</code>) — it expands at compile time, it's not a regular function.</p>
+          <h2 class="panel-title"><span class="num">01</span><span class="nm">Hello World</span></h2>
+          <div class="panel-body">
+            <p class="lede">Entry point is <code>fn main()</code>. <b>println!</b> is a <b>macro</b> (note the <code>!</code>) — it expands at compile time, it's not a regular function.</p>
           <script type="text/rust">fn main() {
     println!("Hello, world!");
 }</script>
+          </div>
         </section>
 
         <!-- 02 -->
         <section class="panel" id="s02">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">02</span>Variables &amp; Mutability<span class="br">├</span></h2>
-          <p class="lede">Bindings are <b>immutable by default</b>. Add <code>mut</code> to allow change. <b>Shadowing</b> lets you reuse a name — even with a new type.</p>
+          <h2 class="panel-title"><span class="num">02</span><span class="nm">Variables &amp; Mutability</span></h2>
+          <div class="panel-body">
+            <p class="lede">Bindings are <b>immutable by default</b>. Add <code>mut</code> to allow change. <b>Shadowing</b> lets you reuse a name — even with a new type.</p>
           <script type="text/rust">let x = 5;             // immutable by default
 let mut y = 5;         // explicitly mutable
 let z: i32 = 10;       // type annotation
@@ -258,12 +247,14 @@ let s = "hi";          // &str
 let s = s.len();       // shadowing: same name, new type
 
 let (a, b) = (1, 2);   // destructuring bind</script>
+          </div>
         </section>
 
         <!-- 03 -->
         <section class="panel" id="s03">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">03</span>Data Types<span class="br">├</span></h2>
-          <p class="lede">Scalars, fixed compound types, and the two string kinds: <code>&amp;str</code> (borrowed slice) vs <code>String</code> (heap-owned, growable).</p>
+          <h2 class="panel-title"><span class="num">03</span><span class="nm">Data Types</span></h2>
+          <div class="panel-body">
+            <p class="lede">Scalars, fixed compound types, and the two string kinds: <code>&amp;str</code> (borrowed slice) vs <code>String</code> (heap-owned, growable).</p>
           <script type="text/rust">// scalars
 let a: i32 = -5;
 let b: u64 = 5;
@@ -278,12 +269,14 @@ let arr: [i32; 3] = [1, 2, 3];   // fixed size, stack
 // two string flavors
 let borrowed: &str = "slice";          // borrowed, static
 let owned: String = String::from("heap"); // growable</script>
+          </div>
         </section>
 
         <!-- 04 -->
         <section class="panel" id="s04">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">04</span>Control Flow<span class="br">├</span></h2>
-          <p class="lede"><code>if</code> is an expression. <code>loop</code> can <b>return a value</b> via <code>break</code>. Ranges: <code>..</code> exclusive, <code>..=</code> inclusive.</p>
+          <h2 class="panel-title"><span class="num">04</span><span class="nm">Control Flow</span></h2>
+          <div class="panel-body">
+            <p class="lede"><code>if</code> is an expression. <code>loop</code> can <b>return a value</b> via <code>break</code>. Ranges: <code>..</code> exclusive, <code>..=</code> inclusive.</p>
           <script type="text/rust">if x > 5 {
     println!("big");
 } else if x == 5 {
@@ -299,12 +292,14 @@ while cond { }
 let n: i32 = loop {
     break 42;          // loops return a value
 };</script>
+          </div>
         </section>
 
         <!-- 05 -->
         <section class="panel" id="s05">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">05</span>Ownership<span class="br">├</span></h2>
-          <p class="lede">Every value has <b>one owner</b>; when the owner leaves scope the value is dropped. Assignment <b>moves</b> non-Copy types. Primitives implement <code>Copy</code>.</p>
+          <h2 class="panel-title"><span class="num">05</span><span class="nm">Ownership</span></h2>
+          <div class="panel-body">
+            <p class="lede">Every value has <b>one owner</b>; when the owner leaves scope the value is dropped. Assignment <b>moves</b> non-Copy types. Primitives implement <code>Copy</code>.</p>
           <script type="text/rust">let s1 = String::from("hi");
 let s2 = s1;            // MOVE: s1 is now invalid
 // println!("{}", s1);  // ERROR: use after move
@@ -316,12 +311,14 @@ println!("{a} {b}");    // fine
 
 // explicit deep copy
 let s3 = s2.clone();</script>
+          </div>
         </section>
 
         <!-- 06 -->
         <section class="panel" id="s06">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">06</span>Borrowing &amp; References<span class="br">├</span></h2>
-          <p class="lede">References let you use a value without taking ownership. The borrow checker enforces: <b>many shared</b> <code>&amp;T</code> <b>XOR</b> <b>one mutable</b> <code>&amp;mut T</code> — never both at once.</p>
+          <h2 class="panel-title"><span class="num">06</span><span class="nm">Borrowing &amp; References</span></h2>
+          <div class="panel-body">
+            <p class="lede">References let you use a value without taking ownership. The borrow checker enforces: <b>many shared</b> <code>&amp;T</code> <b>XOR</b> <b>one mutable</b> <code>&amp;mut T</code> — never both at once.</p>
           <script type="text/rust">fn length(s: &String) -> usize {  // borrows, no move
     s.len()
 }
@@ -334,12 +331,14 @@ let r3 = &mut s;        // ERROR: can't mix &mut with &
 // slices borrow a contiguous view
 let v = vec![1, 2, 3, 4];
 let part: &[i32] = &v[1..3];   // [2, 3]</script>
+          </div>
         </section>
 
         <!-- 07 -->
         <section class="panel" id="s07">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">07</span>Structs &amp; Enums<span class="br">├</span></h2>
-          <p class="lede">Structs group named fields; enums are tagged unions (variants can carry data). <code>impl</code> blocks attach methods. <code>Self</code> = the type itself.</p>
+          <h2 class="panel-title"><span class="num">07</span><span class="nm">Structs &amp; Enums</span></h2>
+          <div class="panel-body">
+            <p class="lede">Structs group named fields; enums are tagged unions (variants can carry data). <code>impl</code> blocks attach methods. <code>Self</code> = the type itself.</p>
           <script type="text/rust">struct User { name: String, age: u32 }
 
 impl User {
@@ -357,12 +356,14 @@ enum Shape {
 
 let u = User::new("ada");
 let s = Shape::Circle(2.0);</script>
+          </div>
         </section>
 
         <!-- 08 -->
         <section class="panel" id="s08">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">08</span>Pattern Matching<span class="br">├</span></h2>
-          <p class="lede"><code>match</code> is exhaustive and total. <code>Option&lt;T&gt;</code> replaces <code>null</code> — you must handle the missing case.</p>
+          <h2 class="panel-title"><span class="num">08</span><span class="nm">Pattern Matching</span></h2>
+          <div class="panel-body">
+            <p class="lede"><code>match</code> is exhaustive and total. <code>Option&lt;T&gt;</code> replaces <code>null</code> — you must handle the missing case.</p>
           <script type="text/rust">fn area(s: Shape) -> f64 {
     match s {
         Shape::Circle(r)     => 3.14159 * r * r,
@@ -379,12 +380,14 @@ match first(&[]) {
     Some(x) => println!("first = {x}"),
     None    => println!("empty"),
 }</script>
+          </div>
         </section>
 
         <!-- 09 -->
         <section class="panel" id="s09">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">09</span>Error Handling<span class="br">├</span></h2>
-          <p class="lede">No exceptions, no nulls. Failures are <code>Result&lt;T, E&gt;</code>. The <code>?</code> operator short-circuits and propagates <code>Err</code> upward.</p>
+          <h2 class="panel-title"><span class="num">09</span><span class="nm">Error Handling</span></h2>
+          <div class="panel-body">
+            <p class="lede">No exceptions, no nulls. Failures are <code>Result&lt;T, E&gt;</code>. The <code>?</code> operator short-circuits and propagates <code>Err</code> upward.</p>
           <script type="text/rust">use std::num::ParseIntError;
 
 fn parse(s: &str) -> Result<i32, ParseIntError> {
@@ -401,12 +404,14 @@ match double("21") {
     Ok(v)  => println!("v = {v}"),
     Err(e) => println!("error: {e}"),
 }</script>
+          </div>
         </section>
 
         <!-- 10 -->
         <section class="panel" id="s10">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">10</span>Traits &amp; Generics<span class="br">├</span></h2>
-          <p class="lede">Traits are interfaces. Generics + trait bounds <b>monomorphize</b> at compile time — zero-cost abstraction, no vtable unless you use <code>dyn</code>.</p>
+          <h2 class="panel-title"><span class="num">10</span><span class="nm">Traits &amp; Generics</span></h2>
+          <div class="panel-body">
+            <p class="lede">Traits are interfaces. Generics + trait bounds <b>monomorphize</b> at compile time — zero-cost abstraction, no vtable unless you use <code>dyn</code>.</p>
           <script type="text/rust">trait Greet {
     fn hello(&self) -> String;
 }
@@ -426,12 +431,14 @@ fn max<T: PartialOrd>(a: T, b: T) -> T {
 
 // dynamic dispatch via a trait object
 fn greet(g: &dyn Greet) { println!("{}", g.hello()); }</script>
+          </div>
         </section>
 
         <!-- 11 -->
         <section class="panel" id="s11">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">11</span>Cargo<span class="br">├</span></h2>
-          <p class="lede">Cargo is the build system + package manager. <code>Cargo.toml</code> declares deps; <code>src/main.rs</code> is the binary entry.</p>
+          <h2 class="panel-title"><span class="num">11</span><span class="nm">Cargo</span></h2>
+          <div class="panel-body">
+            <p class="lede">Cargo is the build system + package manager. <code>Cargo.toml</code> declares deps; <code>src/main.rs</code> is the binary entry.</p>
           <script type="text/shell">$ cargo new myproj       # scaffold a binary project
 $ cargo build            # compile (debug)
 $ cargo build --release  # optimized build
@@ -440,12 +447,14 @@ $ cargo test             # run #[test] functions
 $ cargo add serde        # add a dependency
 $ cargo fmt              # format the code
 $ cargo clippy           # lint</script>
+          </div>
         </section>
 
         <!-- 12 -->
         <section class="panel" id="s12">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">12</span>Modules &amp; Imports<span class="br">├</span></h2>
-          <p class="lede">Code is organised with <code>mod</code>. <code>use</code> brings paths into scope; <code>pub</code> makes items visible outside their module. Paths are absolute from the crate root or relative to the current module.</p>
+          <h2 class="panel-title"><span class="num">12</span><span class="nm">Modules &amp; Imports</span></h2>
+          <div class="panel-body">
+            <p class="lede">Code is organised with <code>mod</code>. <code>use</code> brings paths into scope; <code>pub</code> makes items visible outside their module. Paths are absolute from the crate root or relative to the current module.</p>
           <script type="text/rust">// src/main.rs is the crate root of a binary
 mod network;          // loads src/network.rs (or network/mod.rs)
 mod parser {
@@ -467,12 +476,14 @@ pub use parser::parse as parse_u32;
 //  super::  — parent module
 use crate::network::connect;
 use super::parser::parse as p;</script>
+          </div>
         </section>
 
         <!-- 13 -->
         <section class="panel" id="s13">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">13</span>Closures &amp; Iterators<span class="br">├</span></h2>
-          <p class="lede">Closures capture their environment; annotate with <code>Fn</code> (by ref), <code>FnMut</code> (by mut ref), <code>FnOnce</code> (by value). Iterators are lazy — nothing runs until you <code>collect</code> or consume.</p>
+          <h2 class="panel-title"><span class="num">13</span><span class="nm">Closures &amp; Iterators</span></h2>
+          <div class="panel-body">
+            <p class="lede">Closures capture their environment; annotate with <code>Fn</code> (by ref), <code>FnMut</code> (by mut ref), <code>FnOnce</code> (by value). Iterators are lazy — nothing runs until you <code>collect</code> or consume.</p>
           <script type="text/rust">// closures
 let add = |a: i32, b: i32| a + b;       // inferred types
 let n = 10;
@@ -492,12 +503,14 @@ let doubled: Vec<i32> = v.iter()
 [1,2,3].iter().sum::<i32>();    // 6
 (0..5).any(|x| x == 3);         // true
 (0..5).all(|x| x < 10);         // true</script>
+          </div>
         </section>
 
         <!-- 14 -->
         <section class="panel" id="s14">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">14</span>Lifetimes<span class="br">├</span></h2>
-          <p class="lede">A lifetime tells the compiler how long a reference is valid. You rarely write them — <b>elision</b> infers the common cases. Write them when a function returns a borrow tied to an input.</p>
+          <h2 class="panel-title"><span class="num">14</span><span class="nm">Lifetimes</span></h2>
+          <div class="panel-body">
+            <p class="lede">A lifetime tells the compiler how long a reference is valid. You rarely write them — <b>elision</b> infers the common cases. Write them when a function returns a borrow tied to an input.</p>
           <script type="text/rust">// elision handles the common case for you
 fn first_word(s: &str) -> &str {  // implicit same lifetime
     s.split_whitespace().next().unwrap_or("")
@@ -519,56 +532,57 @@ let s: &'static str = "I live forever";
 
 // in generics, T: 'a means T's refs outlive 'a
 fn foo<T: 'a>(x: &'a T) {}</script>
+          </div>
         </section>
 
         <!-- 15 -->
         <section class="panel" id="s15">
-          <h2 class="panel-title"><span class="br">┤</span><span class="num">15</span>Popular Crates<span class="br">├</span></h2>
-          <p class="lede">Add with <code>cargo add &lt;name&gt;</code>. These are the load-bearing dependencies in most real Rust codebases.</p>
-          <script type="text/shell">$ cargo add serde --features derive    # (de)serialization
-$ cargo add tokio --features full        # async runtime
-$ cargo add anyhow                       # flexible errors
-$ cargo add thiserror                    # typed enum errors
-$ cargo add clap --features derive       # CLI argument parsing
-$ cargo add reqwest                      # HTTP client
-$ cargo add rand                         # randomness
-$ cargo add rayon                        # data parallelism
-$ cargo add itertools                    # iterator extras
-$ cargo add tracing                      # structured logging
-$ cargo add chrono                       # dates &amp; times
-$ cargo add sqlx                         # async SQL</script>
+          <h2 class="panel-title"><span class="num">15</span><span class="nm">Popular Crates</span></h2>
+          <div class="panel-body">
+            <p class="lede">Add with <code>cargo add &lt;name&gt;</code>. These are the load-bearing dependencies in most real Rust codebases.</p>
+            <ul class="crate-list">
+              <li><b>serde</b> serialization</li>
+              <li><b>tokio</b> async runtime</li>
+              <li><b>anyhow</b> app errors</li>
+              <li><b>thiserror</b> library errors</li>
+              <li><b>clap</b> CLI parsing</li>
+              <li><b>reqwest</b> HTTP client</li>
+              <li><b>rand</b> randomness</li>
+              <li><b>rayon</b> data parallelism</li>
+              <li><b>itertools</b> iterator extras</li>
+              <li><b>tracing</b> structured logging</li>
+              <li><b>chrono</b> dates &amp; times</li>
+              <li><b>sqlx</b> async SQL</li>
+            </ul>
           <script type="text/rust">// serde — derive Serialize / Deserialize
-use serde::{Serialize, Deserialize};
-#[derive(Serialize, Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 struct User { name: String, age: u32 }
-let json = serde_json::to_string(&user).unwrap();
 
-// anyhow — boxed, ergonomic errors for apps
-use anyhow::{Context, Result};
-fn read_cfg() -> Result<String> {
+// anyhow — ergonomic boxed errors for apps
+fn read_cfg() -> anyhow::Result<String> {
     Ok(std::fs::read_to_string("cfg.toml")
         .context("reading cfg.toml")?)
 }
 
-// thiserror — typed errors for libraries
-use thiserror::Error;
-#[derive(Debug, Error)]
+// thiserror — typed enum errors for libraries
+#[derive(Debug, thiserror::Error)]
 enum AppError {
     #[error("io: {0}")]
     Io(#[from] std::io::Error),
 }
 
-// tokio — async runtime + macros
+// tokio + reqwest — async HTTP
 #[tokio::main]
 async fn main() {
     let body = reqwest::get("https://a.io")
-        .await.unwrap().text().await.unwrap();
+        .await?.text().await?;
 }
 
-// rayon — turn iter() into parallel par_iter()
+// rayon — parallel iterators
 use rayon::prelude::*;
 let sum: i32 = (0..1_000_000)
     .into_par_iter().map(|x| x * 2).sum();</script>
+          </div>
         </section>
 
       </div>
@@ -703,7 +717,7 @@ let sum: i32 = (0..1_000_000)
     let label=sec.dataset.label;
     if(!label){
       const clone=h.cloneNode(true);
-      clone.querySelectorAll('.br,.num').forEach(e=>e.remove());
+      clone.querySelectorAll('.num').forEach(e=>e.remove());
       label=clone.textContent.trim();
     }
     const node=document.createElement('div');
