@@ -27,7 +27,7 @@ done
 # Function to build and generate
 build_and_generate() {
     echo -e "${YELLOW}Building the static site generator...${NC}"
-    go build -o ssg ./main.go
+    go build -o ssg .
     
     echo -e "${YELLOW}Generating site...${NC}"
     mkdir -p build
@@ -70,7 +70,7 @@ if [ "$WATCH" = true ]; then
         trap "kill $SERVER_PID; exit 0" INT
         
         # Watch for file changes and rebuild
-        fswatch -o ./content ./main.go ./template.html | while read; do
+        fswatch -o ./content ./main.go ./highlight.go ./template.html | while read; do
             echo -e "${YELLOW}Changes detected, rebuilding...${NC}"
             build_and_generate
         done

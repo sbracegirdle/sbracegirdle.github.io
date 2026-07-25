@@ -33,7 +33,7 @@ jobs:
         run: go test -v ./...
 
       - name: Build static site generator
-        run: go build -o ssg ./main.go
+        run: go build -o ssg .
 
       - name: Generate site
         run: |

@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/adrg/frontmatter"
-	"github.com/gomarkdown/markdown"
 )
 
 // FrontMatter represents the metadata at the top of markdown files
@@ -317,8 +316,8 @@ func processMarkdownFile(filePath, template string) (string, string, *BlogPost, 
 		description = extractDescription(content)
 	}
 
-	// Parse markdown to HTML
-	htmlContent := markdown.ToHTML(content, nil, nil)
+	// Parse markdown to HTML (code blocks are syntax-highlighted at build time)
+	htmlContent := renderMarkdown(content)
 
 	// Replace template placeholders
 	output := strings.Replace(template, "{{title}}", title, -1)
@@ -462,13 +461,15 @@ func generateArchive(posts []*BlogPost, template string, buildDir string) error 
 	return nil
 }
 
-// copyStaticDir copies every file under staticDir into buildDir verbatim,
-// preserving relative paths and subdirectories. Files in static/ bypass the
-// markdown rendering pipeline entirely, so a standalone HTML resource (e.g. a
+// copyStaticDir copies every file under staticDir into buildDir, preserving
+// relative paths and subdirectories. Files in static/ bypass the markdown
+// rendering pipeline entirely, so a standalone HTML resource (e.g. a
 // self-contained quick-reference page) can be served and linked from the site
-// without being wrapped in the post template. A missing staticDir is a no-op.
-// Generated pages are written after this runs, so a generated file always wins
-// on a name collision with a static one.
+// without being wrapped in the post template. The one transformation applied:
+// <script type="text/rust|shell"> source blocks in HTML files are pre-rendered
+// into highlighted <pre class="code"> markup (see renderStaticCodeScripts).
+// A missing staticDir is a no-op. Generated pages are written after this runs,
+// so a generated file always wins on a name collision with a static one.
 func copyStaticDir(staticDir, buildDir string) error {
 	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
 		return nil
@@ -491,6 +492,9 @@ func copyStaticDir(staticDir, buildDir string) error {
 		data, err := os.ReadFile(p)
 		if err != nil {
 			return err
+		}
+		if strings.HasSuffix(p, ".html") {
+			data = []byte(renderStaticCodeScripts(string(data)))
 		}
 		return os.WriteFile(dst, data, 0644)
 	})
