@@ -341,6 +341,157 @@ func renderReadingSection(groups []ShelfBooks) string {
 	return b.String()
 }
 
+// The arcade is the homepage's ASCII shooter: a character grid that /game.js
+// animates, with a statusline HUD under it. Everything moving is the script's;
+// what the generator emits is the panel, the HUD, and one still frame.
+//
+// The still frame is the point of the next fifty lines. A panel that arrived
+// empty and filled in a moment later would push the page down as it did, so
+// the grid ships with a frame already drawn and theme.css states its height.
+// It is also the whole of what two kinds of visitor ever see: one with no
+// JavaScript, and one with prefers-reduced-motion set, for whom the panel
+// deliberately holds still until they press play.
+const (
+	arcadeStillCols = 64
+	arcadeStillRows = 11
+)
+
+// arcadePaint escapes grid text. The glyphs are ASCII art — `<-` and `-=>` are
+// two of the entities — so the markup characters have to go through entities,
+// and nothing else does.
+var arcadePaint = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;")
+
+// arcadeScatter mixes a cell's coordinates into something that doesn't read as
+// a pattern when it's sampled every n values. Any small integer hash would do.
+func arcadeScatter(x, y int) uint32 {
+	h := uint32(x)*374761393 + uint32(y)*668265263
+	h = (h ^ (h >> 13)) * 1274126177
+	return h ^ (h >> 16)
+}
+
+// renderArcadeStill draws the frame the panel holds until the script takes
+// over: a starfield with the ship on the left and three attackers coming at it.
+// Deterministic — the starfield is a sum over the cell's own coordinates, not a
+// random one — so an unchanged site still rebuilds byte-identically.
+func renderArcadeStill() string {
+	const cols, rows = arcadeStillCols, arcadeStillRows
+	chars := make([]byte, cols*rows)
+	class := make([]string, cols*rows)
+	for i := range chars {
+		chars[i] = ' '
+	}
+	put := func(x, y int, art, cls string) {
+		for i := 0; i < len(art); i++ {
+			if x+i < 0 || x+i >= cols || y < 0 || y >= rows {
+				continue
+			}
+			chars[y*cols+x+i] = art[i]
+			class[y*cols+x+i] = cls
+		}
+	}
+
+	for y := 0; y < rows; y++ {
+		for x := 0; x < cols; x++ {
+			// Scattered, not spaced: a star every n cells drew visible diagonal
+			// stripes across the panel, so the cell's coordinates go through a
+			// hash first. Still a pure function of x and y, so still the same
+			// starfield on every build.
+			h := arcadeScatter(x, y)
+			switch {
+			case h%29 == 0:
+				put(x, y, ".", "a-star")
+			case h%43 == 0:
+				put(x, y, "'", "a-star")
+			}
+		}
+	}
+	// Everything that matters lives in the top-left corner of the grid,
+	// because most of the grid isn't always there. The panel is 11 rows at a
+	// desktop and 8 on a phone, and a phone fits about 30 of these columns —
+	// so an attacker drawn at row 9, or past column 30, is one a phone visitor
+	// never sees, and under prefers-reduced-motion this frame is the whole of
+	// what they get. Row 8 and column 44 hold the extras a wider screen earns.
+	put(2, 4, "-=>", "a-ship")
+	put(8, 4, "-", "a-shot")
+	put(14, 4, "-", "a-shot")
+	put(20, 1, "<-", "a-foe")
+	put(25, 6, "{o}", "a-weave")
+	put(44, 2, "<[#]", "a-foe")
+	put(52, 7, "<-", "a-foe")
+
+	var b strings.Builder
+	for y := 0; y < rows; y++ {
+		// Trailing blanks are most of the grid and none of them show, so a row
+		// ends at its last painted cell.
+		end := cols - 1
+		for end >= 0 && chars[y*cols+end] == ' ' {
+			end--
+		}
+		run, cls := strings.Builder{}, ""
+		flush := func() {
+			if run.Len() == 0 {
+				return
+			}
+			if cls == "" {
+				b.WriteString(arcadePaint.Replace(run.String()))
+			} else {
+				fmt.Fprintf(&b, "<span class=\"%s\">%s</span>", cls, arcadePaint.Replace(run.String()))
+			}
+			run.Reset()
+		}
+		for x := 0; x <= end; x++ {
+			if class[y*cols+x] != cls {
+				flush()
+				cls = class[y*cols+x]
+			}
+			run.WriteByte(chars[y*cols+x])
+		}
+		flush()
+		if y < rows-1 {
+			b.WriteString("\n")
+		}
+	}
+	return b.String()
+}
+
+// renderArcade builds the panel. The grid is decoration and churns every
+// frame, so it stays out of the accessibility tree; the section's label and
+// the play button are what a screen reader is left with, which is the whole of
+// what there is to do here.
+func renderArcade() string {
+	var b strings.Builder
+	b.WriteString("<section class=\"arcade\" aria-label=\"Arcade — a small ASCII space shooter\">")
+	b.WriteString("<div class=\"arcade-screen\">")
+	b.WriteString("<pre class=\"arcade-frame\" aria-hidden=\"true\">")
+	b.WriteString(renderArcadeStill())
+	b.WriteString("</pre></div>")
+	b.WriteString("<div class=\"statusline\"><div class=\"statusline-row\">")
+	b.WriteString("<span class=\"seg seg-a\">arcade</span>")
+	b.WriteString("<span class=\"seg seg-b\">score <span class=\"arcade-score\">00000</span></span>")
+	b.WriteString("<span class=\"seg\">wave <span class=\"arcade-wave\">1</span></span>")
+	b.WriteString("<span class=\"seg seg-b\">lives <span class=\"arcade-lives\">3</span></span>")
+	b.WriteString("<span class=\"fill\"></span>")
+	b.WriteString("<span class=\"seg\">flown by <span class=\"arcade-mode\">auto</span></span>")
+	// Neither button carries aria-pressed: each one's label is its state, and
+	// a toggle does one or the other. "stop, pressed" reads as "stopped".
+	//
+	// They ship visible and the `noscript` rule in the head takes them away
+	// again, rather than the script revealing them. Revealed, they were a
+	// third row of the HUD at 390px — 28 pixels of the page moving down the
+	// moment the script ran, which only escaped being a layout shift because
+	// the script happened to finish before the first paint.
+	//
+	// One box around both, so the pair wraps as a pair. Left as two flex items
+	// they came apart between 360 and 400 pixels — the width most phones
+	// are — and `play` sat on a row of its own.
+	b.WriteString("<span class=\"arcade-controls\">")
+	b.WriteString("<button type=\"button\" class=\"seg arcade-pause\">pause</button>")
+	b.WriteString("<button type=\"button\" class=\"seg arcade-play\">play</button>")
+	b.WriteString("</span>")
+	b.WriteString("</div></div></section>")
+	return b.String()
+}
+
 // processMarkdownFile processes a single markdown file and returns the generated HTML
 func processMarkdownFile(filePath, template string) (string, string, *BlogPost, error) {
 	fileContent, err := os.ReadFile(filePath)
@@ -525,9 +676,9 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 	dated := datedPostsNewestFirst(posts)
 
 	var contentBuilder strings.Builder
-	contentBuilder.WriteString("<p>Notes on building software, shipping it, and the engineering practices in between.</p>")
+	contentBuilder.WriteString(renderArcade())
 	contentBuilder.WriteString("<p>Hi! I'm <a href=\"https://github.com/sbracegirdle\" rel=\"author\"><em>Simon</em></a>, a software engineer and consultant in Perth, Western Australia. I've spent 20+ years building products and helping teams improve how they work — now at <a href=\"https://govconnex.com/\">GovConnex</a>, after <a href=\"https://mechanicalrock.io\">Mechanical Rock</a> and <a href=\"https://seqta.com.au\">SEQTA Software</a>.</p>")
-	contentBuilder.WriteString("<p>What I bring:</p><ul>")
+	contentBuilder.WriteString("<p>What I can do:</p><ul>")
 	contentBuilder.WriteString("<li><em>AI features</em> — a research assistant that orchestrates agents and tools, plus overnight briefings and the embeddings pipeline behind semantic search.</li>")
 	contentBuilder.WriteString("<li><em>Web applications</em> — React and TypeScript, Node APIs, Elasticsearch, serverless AWS.</li>")
 	contentBuilder.WriteString("<li><em>Migrations</em> — a production webapp from JavaScript to TypeScript, about 30,000 lines, without pausing feature work.</li>")
@@ -557,7 +708,18 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 		File:        "index.html",
 		Description: siteDescription,
 		Canonical:   canonicalURL("index.html"),
-		Content:     contentBuilder.String(),
+		// The only script the site loads, on the only page that has
+		// anything for it to do. Deferred, so it neither blocks the
+		// parser nor runs before the panel it looks for exists.
+		//
+		// The `noscript` rule is how the arcade's two controls stay
+		// off a page that can't run them, without the script having
+		// to reveal them and reflow the HUD as it does. A `style` in
+		// a `noscript` is only conforming inside the head, which is
+		// the other reason it is here rather than beside the panel.
+		HeadExtra: "<script src=\"/game.js\" defer></script>" +
+			"<noscript><style>.arcade-play,.arcade-pause{display:none}</style></noscript>",
+		Content:   contentBuilder.String(),
 	})
 
 	// Write the index file

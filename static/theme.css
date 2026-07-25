@@ -770,6 +770,80 @@ footer { margin-top: var(--space-6); }
 .season td:has(.bar-4) { background: color-mix(in srgb, var(--hue) 18%, transparent); }
 .season td:has(.bar-5) { background: color-mix(in srgb, var(--hue) 22%, transparent); }
 
+/* ── Arcade (the homepage shooter) ────────────────────────────── */
+/* The one component that needs JavaScript. It is a character grid in a `pre`:
+   /game.js paints glyphs into it and hands each run one of the .a-* classes
+   below, so the game borrows the sitewide hue jobs instead of inventing
+   colours — foam is you, love is what's shooting at you, gold is the shot and
+   the score, iris the second attacker, rose the explosion. Every entity has
+   its own glyph as well, so none of that rests on colour alone.
+
+   Two rules that aren't obvious. The grid states its own height here rather
+   than taking it from its contents, so the panel is its final size before a
+   frame is drawn and nothing below it moves when the script starts. And
+   --arcade-rows is where the playfield's height is decided: the script reads
+   it back off the computed style, measures the visitor's own monospace to see
+   how many columns fit, and sizes the world to match — 88 columns on a desktop
+   and 30 on a phone, from the same markup. */
+.arcade {
+  --arcade-rows: 11;
+  margin: var(--space-4) 0;
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+}
+.arcade-screen { overflow: hidden; padding: var(--space-2) var(--space-3); cursor: pointer; }
+/* A screen, not a code block: the base `pre` chrome comes off. */
+.arcade-frame {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  overflow: hidden;
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+  /* `lh` rather than the leading token times an em: the two agree until a
+     visitor's own stylesheet overrides line height, which SC 1.4.12 says they
+     may — and then a height computed from the token clips the bottom rows off
+     a playfield the script is still drawing into. */
+  height: calc(var(--arcade-rows) * 1lh);
+  color: var(--color-text);
+}
+/* Eleven rows is a third of a phone screen, and the world is nearly square at
+   that width — short of what "side-scrolling" implies, on the page where the
+   space matters most. The script re-reads this and resizes the world. */
+@media (max-width: 640px) {
+  .arcade { --arcade-rows: 8; }
+}
+/* While the panel holds the keyboard and the pointer it says so, because the
+   arrow keys stop scrolling the page for as long as it does. `touch-action`
+   only goes on while playing, so a finger dragged across the panel scrolls
+   past it the rest of the time. */
+.arcade.playing { border-color: var(--c-foam); }
+.arcade.playing .arcade-screen { cursor: crosshair; touch-action: none; }
+/* The two controls are one flex item, so a narrow bar wraps them together
+   rather than stranding `play` on a row of its own. */
+.arcade-controls { display: flex; }
+.arcade-play,
+.arcade-pause {
+  font: inherit;
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  cursor: pointer;
+}
+.arcade-play:hover,
+.arcade-pause:hover { color: var(--c-rose); }
+/* Muted is decorative only, which is exactly what the starfield is: it sits in
+   an aria-hidden grid, carries nothing, and the glyphs that matter are drawn
+   over the top of it at full strength. */
+.a-star { color: var(--color-muted); }
+.a-ship { color: var(--c-foam); }
+.a-shot { color: var(--c-gold); }
+.a-foe { color: var(--c-love); }
+.a-weave { color: var(--c-iris); }
+.a-boom { color: var(--c-rose); }
+.a-hint { color: var(--color-subtle); }
+
 /* ── Buttons ──────────────────────────────────────────────────── */
 .btn {
   display: inline-block;

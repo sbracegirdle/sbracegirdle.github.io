@@ -1543,6 +1543,97 @@ func TestGenerateSiteWithNoPosts(t *testing.T) {
 	}
 }
 
+// TestRenderArcadeStill covers the frame the arcade panel holds before the
+// script runs: the right number of rows, markup characters escaped, and the
+// same bytes every time. The last of those is what keeps an unchanged site
+// rebuilding byte-identically, and a starfield drawn with math/rand would have
+// broken it without failing anything else.
+func TestRenderArcadeStill(t *testing.T) {
+	still := renderArcadeStill()
+
+	if got := strings.Count(still, "\n") + 1; got != arcadeStillRows {
+		t.Errorf("still frame has %d rows, want %d", got, arcadeStillRows)
+	}
+	if still != renderArcadeStill() {
+		t.Error("still frame is not deterministic — the build would no longer be reproducible")
+	}
+
+	// The entities are ASCII art, so the ship and the attackers are made of the
+	// characters that would otherwise open a tag.
+	for _, want := range []string{
+		`<span class="a-ship">-=&gt;</span>`,
+		`&lt;-`,
+		`&lt;[#]`,
+		`class="a-star"`,
+		`class="a-weave"`,
+	} {
+		if !strings.Contains(still, want) {
+			t.Errorf("still frame missing %q\ngot: %s", want, still)
+		}
+	}
+
+	// Nothing may reach the page as raw markup: every `<` left in the string
+	// has to be one this function opened a span with.
+	for i := 0; i < len(still); i++ {
+		if still[i] != '<' {
+			continue
+		}
+		if !strings.HasPrefix(still[i:], "<span ") && !strings.HasPrefix(still[i:], "</span>") {
+			t.Fatalf("unescaped `<` at byte %d: %s", i, still[i:min(i+40, len(still))])
+		}
+	}
+	if strings.Count(still, "<span") != strings.Count(still, "</span>") {
+		t.Errorf("unbalanced spans in still frame: %s", still)
+	}
+}
+
+// TestGenerateIndexIncludesArcade checks the panel and its script land on the
+// home page, and only there. It renders through the real template.html because
+// the script tag arrives via {{head_extra}}, which the test template doesn't
+// carry.
+func TestGenerateIndexIncludesArcade(t *testing.T) {
+	testDir, cleanup := setupTestEnv(t)
+	defer cleanup()
+	buildDir := filepath.Join(testDir, "build")
+
+	template, err := os.ReadFile("template.html")
+	if err != nil {
+		t.Fatalf("reading the site template: %v", err)
+	}
+
+	date, _ := time.Parse("2006-01-02", "2023-01-15")
+	posts := []*BlogPost{{Title: "First Post", Date: date, OutputFile: "2023-01-15-first-post.html"}}
+	if err := generateIndex(posts, string(template), buildDir, nil); err != nil {
+		t.Fatalf("Error generating index: %v", err)
+	}
+
+	content, err := os.ReadFile(filepath.Join(buildDir, "index.html"))
+	if err != nil {
+		t.Fatalf("Error reading index file: %v", err)
+	}
+	body := string(content)
+
+	for _, want := range []string{
+		`<section class="arcade"`,
+		`<pre class="arcade-frame" aria-hidden="true">`,
+		`<script src="/game.js" defer></script>`,
+		`<button type="button" class="seg arcade-pause">pause</button>`,
+		`<button type="button" class="seg arcade-play">play</button>`,
+		// The buttons are in the markup so the HUD doesn't reflow when the
+		// script starts, and a page that can't run the script takes them away
+		// again rather than showing controls that do nothing.
+		`<noscript><style>.arcade-play,.arcade-pause{display:none}</style></noscript>`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("index missing %q", want)
+		}
+	}
+
+	if strings.Index(body, `class="arcade"`) > strings.Index(body, "Latest posts") {
+		t.Error("the arcade panel should sit at the top of the page, above the posts")
+	}
+}
+
 // TestMain points the shelf fetcher at a local server for the whole package, so
 // no test reaches goodreads.com. TestFileGeneration calls main(), which fetches
 // every featured shelf; against the real origin that is three live HTTPS

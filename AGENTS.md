@@ -22,6 +22,7 @@ index page listing all dated posts.
 - `static/` — standalone resources (e.g. self-contained HTML pages) copied verbatim into `build/` without going through the markdown/template pipeline; link to them from the homepage or posts
 - `template.html` — HTML template with `{{title}}` (tab title and `og:title`), `{{heading}}` (visible h1), `{{file}}` (statusline filename), `{{description}}`, `{{canonical}}`, `{{ogtype}}`, `{{head_extra}}` (raw extra `<head>` markup) and `{{content}}` placeholders; links `/theme.css`
 - `static/theme.css` — the site's single stylesheet: all tokens and components, linked by every page
+- `static/game.js` — the arcade: a side-scrolling ASCII shooter in the homepage panel, and the only script the site serves. No dependencies and no build step; `main.go` emits the panel and the `<script defer>` tag, and theme.css styles the glyphs
 - `build/` — generated output (git-ignored, not committed)
 - `local-serve.sh` — local preview server (build + serve, optional `--watch`)
 - `style.md` — Simon's writing style guidelines (apply when writing/editing posts)
@@ -381,6 +382,20 @@ carry a few page-specific rules inline (e.g. the quick ref's two-column TOC).
   line height. Post prose may hot-link images, which is the author's call —
   the "no external requests" rule is about the theme, and the browser suite
   only fails on off-origin *code*.
+- The homepage arcade (`.arcade`, `static/game.js`) is the one exception to the
+  no-JS rule, and it's meant to stay the only one: behaviour a native element
+  or a CSS pattern can carry never gets a script. It animates a `pre` full of
+  characters: no element per frame, nothing moving in CSS, and the hues doing
+  their sitewide jobs (`.a-ship` foam, `.a-foe` love, `.a-shot` gold,
+  `.a-weave` iris, `.a-boom` rose, `.a-star` muted). Every entity has its own
+  glyph too, so nothing rests on colour alone. Four things it must keep doing:
+  hold still under `prefers-reduced-motion` until the visitor presses play,
+  stop when off-screen or in a background tab, offer a pause that halts it
+  outright (SC 2.2.2 — it starts on its own and runs well past five seconds),
+  and read the arrow keys only after being asked. Escape, Tab, the stop button,
+  a click elsewhere and scrolling it out of view all hand them back. The grid
+  is `aria-hidden`; the buttons carry the accessible names.
+  `specs/arcade.spec.js` holds all of that in place.
 - The generator's own markup hot-links nothing. The homepage reading shelves used to pull a
   Goodreads cover per book — up to 750 KB each, for a 26px slot, from a third
   party that can change or vanish. They now draw `.book-glyph`, a book in CSS:

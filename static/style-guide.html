@@ -166,8 +166,9 @@
   <a href="https://rosepinetheme.com/palette/">Rosé Pine</a> palette: deep
   violet-black surfaces with six muted pastel inks, in place of v1's saturated
   gruvbox primaries. Identity comes from structure: a statusline, an
-  inverted title row, numbered section rules, a tree TOC. Zero JavaScript, one shared stylesheet
-(<code>/theme.css</code>).
+  inverted title row, numbered section rules, a tree TOC. One shared stylesheet
+(<code>/theme.css</code>), and one script, on one page — the
+  <a href="#arcade">arcade</a>.
 </p>
 
 <nav aria-label="Contents">
@@ -200,9 +201,11 @@
   <li><strong>Prose first.</strong> Monospace everywhere, but with generous
     leading, a real measure, and decoration that stays out of the reading
     column.</li>
-  <li><strong>Zero external requests, zero JavaScript.</strong> System font
-    stacks, CSS-only components, one shared same-origin stylesheet
-    (<code>/theme.css</code>).</li>
+  <li><strong>Zero external requests. A script has to earn its place.</strong>
+    System font stacks, CSS-only components, one shared same-origin stylesheet
+    (<code>/theme.css</code>). A script never gets behaviour a native element or
+    a CSS pattern can carry; the <a href="#arcade">arcade</a> is the one thing
+    on the site neither of them can do.</li>
 </ol>
 
 <!-- ════════════════════════════════════════════════════════════ -->
@@ -521,8 +524,9 @@
 <h2 id="components"><span>Components</span></h2>
 
 <p>
-  The full set, all CSS-only. Anything interactive here is styled native HTML —
-  no scripts to load, nothing to hydrate.
+  The full set. Anything interactive here is styled native HTML, and every
+  component but one is CSS all the way down — nothing to hydrate. The
+  exception, the <a href="#arcade">arcade</a>, is a game.
 </p>
 
 <h3>Statusline</h3>
@@ -1050,10 +1054,10 @@
 
 <div class="frame" data-label="details">
   <details style="margin:0">
-    <summary>Why no JavaScript?</summary>
+    <summary>Why so little JavaScript?</summary>
     <p style="font-size: var(--text-sm)">Every behaviour on the site — theme,
-    tooltips, disclosure, navigation — has a native or CSS-only equivalent.
-    Shipping zero scripts means nothing to break and nothing to audit.</p>
+    tooltips, disclosure, navigation — has a native or CSS-only equivalent, and
+    uses it. That leaves one script to break and one to audit.</p>
   </details>
 </div>
 
@@ -1191,6 +1195,75 @@
   <p class="scroll-hint sg-fit-514">Scroll the table sideways for the rest of it.</p>
 </div>
 
+<h3 id="arcade">Arcade</h3>
+
+<p>
+  A character grid in a <code>pre</code>, with a statusline under it for a HUD.
+  The home page runs a side-scrolling shooter in one: <code>/game.js</code>
+  writes glyphs into the grid and wraps each run of them in one of the
+  <code>.a-*</code> inks below. It is the only component on the site that needs
+  a script, and the only place a hue does a job that isn't its sitewide one —
+  so each game job maps onto a sitewide one instead of inventing a colour. Foam
+  is you, love is what's shooting at you, gold is the shot and the score, iris
+  the second attacker, rose the explosion, muted the starfield behind all of
+  it, and subtle the two things the panel ever writes in words: the hint and
+  the game-over line. Each entity has its own glyph as well, so nothing here
+  rests on colour alone.
+</p>
+
+<div class="frame" data-label="arcade">
+  <div class="arcade" style="--arcade-rows: 8; max-width: 22rem">
+    <div class="arcade-screen">
+<pre class="arcade-frame" aria-hidden="true">  <span class="a-star">.</span>      <span class="a-star">'</span>        <span class="a-star">.</span>   <span class="a-star">'</span>
+    <span class="a-star">'</span>        <span class="a-star">.</span>   <span class="a-foe">&lt;-</span>
+ <span class="a-star">.</span>     <span class="a-star">'</span>      <span class="a-star">.</span>      <span class="a-star">'</span>
+   <span class="a-star">'</span>      <span class="a-weave">{o}</span>      <span class="a-star">.</span>
+<span class="a-ship">-=&gt;</span>  <span class="a-shot">-</span>    <span class="a-boom">*</span>     <span class="a-foe">&lt;[#]</span>
+  <span class="a-star">.</span>      <span class="a-star">'</span>       <span class="a-star">.</span>
+    <span class="a-star">'</span>    <span class="a-foe">o</span>     <span class="a-star">.</span>   <span class="a-star">'</span>
+     <span class="a-hint">click to play</span></pre>
+    </div>
+    <div class="statusline">
+      <div class="statusline-row">
+        <span class="seg seg-a">arcade</span>
+        <span class="seg seg-b">score <span>01250</span></span>
+        <span class="seg">wave <span>3</span></span>
+        <span class="seg seg-b">lives <span>2</span></span>
+        <span class="fill"></span>
+        <span class="seg">flown by <span>auto</span></span>
+        <span class="arcade-controls">
+          <button type="button" class="seg arcade-pause">pause</button>
+          <button type="button" class="seg arcade-play">play</button>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p>
+  A miniature, held to about a phone's width: eight rows, and cut to
+  twenty-four columns so it fits this page at any width. The live panel
+  measures its own width and fills it — about thirty columns on a phone,
+  nearer ninety on a desktop. The grid
+  states its height in CSS rather than taking it from its contents.
+  <code>--arcade-rows</code> on the panel is what the script reads to size the
+  world, and it is why the panel is its full size before a frame has been
+  drawn — eleven rows on a desktop, eight below 640px. It measures the width at
+  run time, in the visitor's own monospace, and fills it. Nothing moves in CSS
+  here: the animation is which character sits in which cell.
+</p>
+
+<p>
+  The home page ships a still frame eleven rows deep, drawn by the generator,
+  and the two buttons at the end of the HUD are in the markup from the start —
+  a <code>noscript</code> rule in the head takes them away again on a page that
+  can't run them, which keeps a dead control off that page without the HUD
+  reflowing on every other one. <strong>play</strong> hands the visitor the
+  ship, <strong>pause</strong> stops the panel moving at all. The visitor asks
+  for the keyboard, and can take it back — see
+  <a href="#motion">motion &amp; accessibility</a>.
+</p>
+
 <h3 id="hues">Hue carriers</h3>
 
 <p>
@@ -1235,6 +1308,19 @@ top of the page.</p>
   <li><strong>Motion budget: one animation.</strong> The prompt cursor blink,
     removed under <code>prefers-reduced-motion</code>. Everything else is a
     0.15s colour/border transition; nothing moves position.</li>
+  <li><strong>The arcade asks first, and stops when told.</strong> A panel that
+    animates by itself is what <code>prefers-reduced-motion</code> is about, so
+    under it the <a href="#arcade">arcade</a> holds its still frame until the
+    visitor presses play. It also stops while off-screen or in a background
+    tab, and its pause button halts it outright — SC 2.2.2 asks for that of
+    anything that starts on its own and runs past five seconds.</li>
+  <li><strong>Nothing takes the keyboard uninvited.</strong> The arcade reads
+    the arrow keys only after a click or the play button, so someone scrolling
+    past it never finds the page stuck. Escape, Tab, the stop button, a click
+    elsewhere and scrolling the panel out of view all hand them back, and Enter
+    stays with the focused button rather than being spent on the gun. The grid
+    churns every frame and says nothing worth reading aloud, so it is
+    <code>aria-hidden</code> and the buttons carry the names.</li>
   <li><strong>Contrast.</strong> Text tones and link colours clear WCAG AA at
     body size (most clear AAA). Pine and muted are locked to decorative roles
     — the ◆ flags in the colour tables are the contract.</li>
@@ -1379,11 +1465,12 @@ top of the page.</p>
   </div>
   <div class="do">
     <p class="label">Do</p>
-    <p>Use native elements and CSS-only patterns for every behaviour.</p>
+    <p>Use native elements and CSS-only patterns for every behaviour they can carry.</p>
   </div>
   <div class="dont">
     <p class="label">Don't</p>
-    <p>Add JavaScript, webfonts, CDN assets, or any request that isn't the page.</p>
+    <p>Reach for a script where an element would do, or add webfonts, CDN
+    assets, or any request that isn't the page.</p>
   </div>
   <div class="do">
     <p class="label">Do</p>
