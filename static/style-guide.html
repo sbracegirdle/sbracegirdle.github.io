@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="dark" />
+<title>Style Guide — LetsBuild.cloud</title>
+<link rel="stylesheet" href="/theme.css" />
+<style>
+  /* ══════════════════════════════════════════════════════════════
+     Guide-only scaffolding. Everything real lives in /theme.css —
+     this block only styles the demo apparatus (frames, swatches,
+     specimens, scale bars) used to present the theme.
+     ══════════════════════════════════════════════════════════════ */
+
+  /* ── TOC tree ── */
+  .tree { list-style: none; padding: 0; margin: var(--space-4) 0; font-size: var(--text-sm); }
+  .tree li { margin: 0; padding: calc(var(--space-1) / 2) 0; }
+  .tree li::marker { content: ""; }
+  .tree li::before { content: "├── "; color: var(--color-muted); }
+  .tree li:last-child::before { content: "└── "; }
+  .tree .n { color: var(--c-gold); margin-right: var(--space-2); font-size: var(--text-xs); }
+
+  /* ── Demo frames ── */
+  .frame {
+    position: relative;
+    border: var(--border-width) solid var(--color-border);
+    padding: var(--space-4);
+    margin: var(--space-3) 0;
+  }
+  .frame::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -0.75em; left: var(--space-3);
+    background: var(--color-bg);
+    padding: 0 var(--space-2);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-muted);
+  }
+  .frame > :first-child { margin-top: 0; }
+  .frame > :last-child { margin-bottom: 0; }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-3); }
+
+  /* ── Swatches, specimens, scale bars ── */
+  .chip { display: inline-block; width: 3.25rem; height: 2rem; border: 1px solid var(--color-border-strong); vertical-align: middle; }
+  .hex { font-size: var(--text-xs); color: var(--color-subtle); margin-left: var(--space-2); }
+  .cr { font-size: var(--text-xs); color: var(--color-subtle); white-space: nowrap; }
+  .deco { color: var(--c-gold); }
+  .surface-row { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: var(--space-3) 0; }
+  .surface { flex: 1 1 150px; border: var(--border-width) solid var(--color-border); padding: var(--space-3); font-size: var(--text-xs); }
+  .surface .tok { font-weight: var(--weight-medium); display: block; color: var(--color-text); }
+  .surface .val { color: var(--color-subtle); }
+  .specimen { border: var(--border-width) solid var(--color-border); padding: var(--space-3) var(--space-4); margin: var(--space-3) 0; }
+  .specimen-row { display: flex; align-items: baseline; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px dashed var(--color-border); }
+  .specimen-row:last-child { border-bottom: none; }
+  .specimen-row .meta { flex: 0 0 12rem; font-size: var(--text-xs); color: var(--color-subtle); }
+  .s-3xl { font-size: var(--text-3xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+  .s-2xl { font-size: var(--text-2xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+  .s-xl  { font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+  .s-lg  { font-size: var(--text-lg); font-weight: var(--weight-medium); }
+  .s-base{ font-size: var(--text-base); }
+  .s-sm  { font-size: var(--text-sm); }
+  .s-xs  { font-size: var(--text-xs); }
+  .space-demo { display: flex; flex-direction: column; gap: var(--space-2); margin: var(--space-3) 0; }
+  .space-row { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-xs); }
+  .space-row .lbl { flex: 0 0 9rem; color: var(--color-subtle); }
+  .space-row .bar { background: var(--c-iris); height: 1rem; }
+  .measure-demo { border: var(--border-width) solid var(--color-border); margin: var(--space-3) 0; }
+  .measure-inner {
+    max-width: var(--layout-width);
+    margin: 0 auto;
+    border-left: 1px dashed var(--c-pine);
+    border-right: 1px dashed var(--c-pine);
+    padding: var(--space-3) var(--layout-pad-x);
+    font-size: var(--text-xs);
+    color: var(--color-subtle);
+  }
+  .demo-h1 {
+    display: inline-block;
+    background: var(--c-rose); color: var(--color-bg);
+    font-size: var(--text-2xl); font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+    padding: var(--space-1) var(--space-3);
+  }
+  footer.page-end { margin-top: var(--space-6); }
+</style>
+</head>
+<body>
+
+<header class="statusline" aria-label="Site header">
+  <a class="seg seg-a" href="/">simon@letsbuild</a>
+  <a class="seg seg-b" href="/">~/blog</a>
+  <span class="fill"></span>
+  <span class="seg seg-c">style-guide.html</span>
+  <span class="seg seg-b">utf-8</span>
+</header>
+
+<h1>Style guide</h1>
+<p class="prompt">theme v2 — night terminal<span class="cursor" aria-hidden="true"></span></p>
+
+<p>
+  The design system for LetsBuild.cloud. Dark only — a terminal doesn't have a
+  light mode, and neither does this site. Built on the
+  <a href="https://rosepinetheme.com/palette/">Rosé Pine</a> palette: deep
+  violet-black surfaces with six muted pastel inks, in place of v1's saturated
+  gruvbox primaries. Identity comes from structure — a statusline, an inverted
+  title row, numbered section rules, a tree TOC — not from glyphs stuck in
+  front of every heading. Zero JavaScript, one shared stylesheet
+(<code>/theme.css</code>).
+</p>
+
+<nav aria-label="Contents">
+  <ol class="tree">
+    <li><span class="n">01</span><a href="#principles">principles</a></li>
+    <li><span class="n">02</span><a href="#colour">colour</a></li>
+    <li><span class="n">03</span><a href="#typography">typography</a></li>
+    <li><span class="n">04</span><a href="#spacing">spacing &amp; layout</a></li>
+    <li><span class="n">05</span><a href="#components">components</a></li>
+    <li><span class="n">06</span><a href="#motion">motion &amp; accessibility</a></li>
+    <li><span class="n">07</span><a href="#voice">voice &amp; tone</a></li>
+    <li><span class="n">08</span><a href="#tokens">token reference</a></li>
+    <li><span class="n">09</span><a href="#dodont">do &amp; don't</a></li>
+  </ol>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<h2 id="principles"><span>Principles</span></h2>
+
+<ol>
+  <li><strong>A terminal application, not a document with terminal makeup.</strong>
+    The chrome is a statusline; the title is a selected row; the index is a
+    dated listing; panels are bordered frames with tab labels. Structure does
+    the theming.</li>
+  <li><strong>Dark, always.</strong> One mode, tuned properly, instead of two
+    compromises. <code>color-scheme: dark</code> keeps native controls and
+    scrollbars in-theme.</li>
+  <li><strong>Muted inks on deep ground.</strong> Six pastel hues, none
+    saturated, each with a defined job. Body text is never coloured.</li>
+  <li><strong>Prose first.</strong> Monospace everywhere, but with generous
+    leading, a real measure, and decoration that stays out of the reading
+    column.</li>
+  <li><strong>Zero external requests, zero JavaScript.</strong> System font
+    stacks, CSS-only components, one shared same-origin stylesheet
+    (<code>/theme.css</code>) — nothing fetched from anywhere else.</li>
+</ol>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<h2 id="colour"><span>Colour</span></h2>
+
+<p>
+  Rosé Pine: three stacked surfaces, three text tones, six hues. Contrast
+  ratios are measured against <code>--color-bg</code>; hues marked
+  <span class="deco">◆</span> sit below 4.5:1 and are decorative-only — borders,
+  fills, and large glyphs, never body-size text.
+</p>
+
+<h3>Surfaces</h3>
+
+<div class="surface-row">
+  <div class="surface" style="background: var(--color-bg)">
+    <span class="tok">--color-bg</span>
+    <span class="val">#191724 · page ground</span>
+  </div>
+  <div class="surface" style="background: var(--color-surface)">
+    <span class="tok">--color-surface</span>
+    <span class="val">#1F1D2E · cards, code, callouts</span>
+  </div>
+  <div class="surface" style="background: var(--color-overlay)">
+    <span class="tok">--color-overlay</span>
+    <span class="val">#26233A · statusline, keycaps, tooltips</span>
+  </div>
+  <div class="surface" style="background: var(--color-border)">
+    <span class="tok">--color-border</span>
+    <span class="val">#403D52 · hairlines</span>
+  </div>
+  <div class="surface" style="background: var(--color-border-strong)">
+    <span class="tok">--color-border-strong</span>
+    <span class="val">#524F67 · emphasised edges</span>
+  </div>
+</div>
+
+<h3>Text &amp; interactive</h3>
+
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Token</th><th>Ink</th><th>Contrast</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>--color-text</code></td>
+      <td><span class="chip" style="background:#e0def4"></span><span class="hex">#E0DEF4</span></td>
+      <td class="cr">13.4:1</td>
+      <td>Body copy, headings</td>
+    </tr>
+    <tr>
+      <td><code>--color-subtle</code></td>
+      <td><span class="chip" style="background:#908caa"></span><span class="hex">#908CAA</span></td>
+      <td class="cr">5.5:1</td>
+      <td>Descriptions, labels, quotes, secondary text</td>
+    </tr>
+    <tr>
+      <td><code>--color-muted</code> <span class="deco">◆</span></td>
+      <td><span class="chip" style="background:#6e6a86"></span><span class="hex">#6E6A86</span></td>
+      <td class="cr">3.4:1</td>
+      <td>Tree branches, separators, placeholders — never sentences</td>
+    </tr>
+    <tr>
+      <td><code>--color-accent</code></td>
+      <td><span class="chip" style="background:#9ccfd8"></span><span class="hex">#9CCFD8</span></td>
+      <td class="cr">10.4:1</td>
+      <td>Links, focus rings, primary actions (= foam)</td>
+    </tr>
+    <tr>
+      <td><code>--color-accent-2</code></td>
+      <td><span class="chip" style="background:#c4a7e7"></span><span class="hex">#C4A7E7</span></td>
+      <td class="cr">8.4:1</td>
+      <td>Form accents, h3 sidebar (= iris)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Hues</h3>
+
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Token</th><th>Ink</th><th>Contrast</th><th>Assigned to</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>--c-love</code></td>
+      <td><span class="chip" style="background:#eb6f92"></span><span class="hex">#EB6F92</span></td>
+      <td class="cr">6.1:1</td>
+      <td>Danger buttons, warnings, "don't" panels</td>
+    </tr>
+    <tr>
+      <td><code>--c-gold</code></td>
+      <td><span class="chip" style="background:#f6c177"></span><span class="hex">#F6C177</span></td>
+      <td class="cr">10.8:1</td>
+      <td>Section numbers, dates, tips, badges, strings</td>
+    </tr>
+    <tr>
+      <td><code>--c-rose</code></td>
+      <td><span class="chip" style="background:#ebbcba"></span><span class="hex">#EBBCBA</span></td>
+      <td class="cr">10.5:1</td>
+      <td>Title-block fill, link hover, emphasis</td>
+    </tr>
+    <tr>
+      <td><code>--c-pine</code> <span class="deco">◆</span></td>
+      <td><span class="chip" style="background:#31748f"></span><span class="hex">#31748F</span></td>
+      <td class="cr">3.4:1</td>
+      <td>Decorative rules and fills only</td>
+    </tr>
+    <tr>
+      <td><code>--c-foam</code></td>
+      <td><span class="chip" style="background:#9ccfd8"></span><span class="hex">#9CCFD8</span></td>
+      <td class="cr">10.4:1</td>
+      <td>Links, primary buttons, notes, functions in code</td>
+    </tr>
+    <tr>
+      <td><code>--c-iris</code></td>
+      <td><span class="chip" style="background:#c4a7e7"></span><span class="hex">#C4A7E7</span></td>
+      <td class="cr">8.4:1</td>
+      <td>h3 sidebar, form controls, keywords in code</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Usage rules</h4>
+<ul>
+  <li>Body text is <code>--color-text</code> or <code>--color-subtle</code>. Nothing else colours a paragraph.</li>
+  <li>One link colour, sitewide: foam, hovering to rose.</li>
+  <li>Each hue keeps one job. If a new element needs colour, it reuses the hue whose job it matches — it does not get a new one.</li>
+  <li>Surfaces stack in order: bg → surface → overlay. Never skip a level for contrast tricks.</li>
+  <li>Never hard-code a hex in a rule; always go through a token.</li>
+</ul>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<h2 id="typography"><span>Typography</span></h2>
+
+<p>
+  One family — monospace, everywhere. System-installed developer fonts, no
+  downloads, so the site renders in the reader's own terminal font.
+</p>
+
+<pre><code>--font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", "SF Mono",
+             Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;</code></pre>
+
+<h3>Scale</h3>
+
+<p>Seven steps from a 16px base. Monospace runs wide, so the scale is tight.</p>
+
+<div class="specimen">
+  <div class="specimen-row"><span class="meta">--text-3xl · 2.25rem · h1</span><span class="s-3xl">Title row</span></div>
+  <div class="specimen-row"><span class="meta">--text-2xl · 1.75rem</span><span class="s-2xl">Section number</span></div>
+  <div class="specimen-row"><span class="meta">--text-xl · 1.4rem</span><span class="s-xl">Display</span></div>
+  <div class="specimen-row"><span class="meta">--text-lg · 1.2rem · h2/h3</span><span class="s-lg">Section heading</span></div>
+  <div class="specimen-row"><span class="meta">--text-base · 1rem · body</span><span class="s-base">Body copy at a comfortable reading size.</span></div>
+  <div class="specimen-row"><span class="meta">--text-sm · 0.9rem</span><span class="s-sm">Buttons, code, tables, tree listings.</span></div>
+  <div class="specimen-row"><span class="meta">--text-xs · 0.8rem</span><span class="s-xs">Labels, statusline, captions, tags.</span></div>
+</div>
+
+<h3>Weight, leading, tracking</h3>
+
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead>
+  <tbody>
+    <tr><td><code>--weight-normal</code></td><td>400</td><td>Body copy</td></tr>
+    <tr><td><code>--weight-medium</code></td><td>600</td><td>Buttons, active tabs, post titles</td></tr>
+    <tr><td><code>--weight-bold</code></td><td>700</td><td>Headings, statusline segments, badges</td></tr>
+    <tr><td><code>--leading-normal</code></td><td>1.7</td><td>Body — generous, because monospace is dense</td></tr>
+    <tr><td><code>--leading-tight</code></td><td>1.25</td><td>Headings, tooltips, book metadata</td></tr>
+    <tr><td><code>--tracking-tight</code></td><td>-0.01em</td><td>The h1 title row</td></tr>
+    <tr><td><code>--tracking-wide</code></td><td>0.08em</td><td>All small-caps labels (h2, h4, tags, table headers)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Hierarchy is typographic, not glyphic: the h1 is an inverted block, h2s are
+  numbered small-caps with a rule filling the line, h3s carry an iris sidebar,
+  h4s are small-caps labels. Uppercase + <code>--tracking-wide</code> is the
+  signature for anything label-like.
+</p>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<h2 id="spacing"><span>Spacing &amp; layout</span></h2>
+
+<h3>Spacing scale</h3>
+
+<p>Six steps. Pick from the scale; never invent an in-between value.</p>
+
+<div class="space-demo">
+  <div class="space-row"><span class="lbl">--space-1 · 0.25rem</span><span class="bar" style="width:0.25rem"></span></div>
+  <div class="space-row"><span class="lbl">--space-2 · 0.5rem</span><span class="bar" style="width:0.5rem"></span></div>
+  <div class="space-row"><span class="lbl">--space-3 · 1rem</span><span class="bar" style="width:1rem"></span></div>
+  <div class="space-row"><span class="lbl">--space-4 · 1.5rem</span><span class="bar" style="width:1.5rem"></span></div>
+  <div class="space-row"><span class="lbl">--space-5 · 2.5rem</span><span class="bar" style="width:2.5rem"></span></div>
+  <div class="space-row"><span class="lbl">--space-6 · 4rem</span><span class="bar" style="width:4rem"></span></div>
+</div>
+
+<ul>
+  <li><code>--space-1/2</code> — inside components: label gaps, chip padding.</li>
+  <li><code>--space-3/4</code> — between elements: paragraphs, card padding, rows.</li>
+  <li><code>--space-5/6</code> — between ideas: subsections and sections.</li>
+</ul>
+
+<h3>Measure</h3>
+
+<p>
+  The reading column is <code>--layout-width: 760px</code> — about 76 monospace
+  characters. One column, no sidebars, no grid. Horizontal padding
+  <code>--layout-pad-x: 1.5rem</code>, vertical <code>--layout-pad-y: 2.5rem</code>.
+  Wide content (code, tables) scrolls inside its own container; the page never
+  scrolls sideways.
+</p>
+
+<div class="measure-demo">
+  <div class="measure-inner">
+    ← --layout-width: 760px — everything the reader reads lives between these
+    dashed edges. Full-bleed elements (statusline, panels) may escape, but
+    their text stays on the measure.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<h2 id="components"><span>Components</span></h2>
+
+<p>
+  The full set, all CSS-only. Anything interactive here is styled native HTML —
+  no scripts to load, nothing to hydrate.
+</p>
+
+<h3>Statusline</h3>
+
+<p>
+  The site's chrome, top and bottom of every page: solid segments in the vim
+  mould. Foam segment for identity, overlay segments for context, surface fill
+  between. Segments can be links. Every page header carries the same pattern:
+  identity and <code>~/blog</code> both link home, and the current page's
+  filename sits in a surface segment after the fill.
+</p>
+
+<div class="frame" data-label="statusline">
+  <div class="statusline">
+    <span class="seg seg-a">simon@letsbuild</span>
+    <span class="seg seg-b">~/blog/2026-07-01-static-sites</span>
+    <span class="fill"></span>
+    <span class="seg seg-c">markdown</span>
+    <span class="seg seg-b">7 min read</span>
+  </div>
+</div>
+
+<h3>Prompt</h3>
+
+<p>
+  The interactive signature: foam <code>❯</code>, subtle text, blinking block
+  cursor. Used once per page at most — under the title. The blink respects
+  <code>prefers-reduced-motion</code>.
+</p>
+
+<div class="frame" data-label="prompt">
+  <p class="prompt" style="margin:0">cat 2026-07-01-static-sites.md<span class="cursor" aria-hidden="true"></span></p>
+</div>
+
+<h3>Title row</h3>
+
+<p>
+  Page titles render as a selected row — rose fill, ground-coloured text,
+  hugging its content width. Nothing else on the site is inverted at this
+  scale, which is what makes it the title.
+</p>
+
+<div class="frame" data-label="title">
+  <span class="demo-h1">Building a static site generator</span>
+</div>
+
+<h3>Buttons</h3>
+
+<div class="frame" data-label="buttons">
+  <div class="row">
+    <button class="btn btn-primary">Deploy</button>
+    <button class="btn">Preview</button>
+    <button class="btn btn-danger">Delete</button>
+    <button class="btn btn-ghost">cancel</button>
+    <button class="btn" disabled>Disabled</button>
+  </div>
+</div>
+
+<ul>
+  <li><strong>Primary</strong> — foam fill, one per view. Hover shifts to rose.</li>
+  <li><strong>Default</strong> — outlined; border and text turn foam on hover.</li>
+  <li><strong>Danger</strong> — love outline, filling on hover. Destructive only.</li>
+  <li><strong>Ghost</strong> — bracketed text action, for inline or tertiary use.</li>
+</ul>
+
+<h3>Tags, badges &amp; keycaps</h3>
+
+<div class="frame" data-label="tags · badges · kbd">
+  <div class="row">
+    <span class="tag">draft</span>
+    <span class="tag tag-foam">go</span>
+    <span class="tag tag-gold">aws</span>
+    <span class="tag tag-iris">meta</span>
+    <span class="tag tag-love">deprecated</span>
+    <span class="badge">new</span>
+    <span class="badge badge-foam">v2.0</span>
+    <span class="badge badge-love">breaking</span>
+    <span><kbd>Ctrl</kbd> + <kbd>R</kbd></span>
+  </div>
+</div>
+
+<p>
+  Tags are outlined and quiet; badges are filled and loud — use badges
+  sparingly. Keycaps get an overlay fill with a thick bottom edge.
+</p>
+
+<h3>Cards</h3>
+
+<p>
+  A surface panel with its label breaking the top border — the CSS equivalent
+  of a <code>┌─ title ─┐</code> box. Accent variants recolour the tab and
+  border together.
+</p>
+
+<div class="card-grid">
+  <div class="card">
+    <span class="card-title">changelog</span>
+    <p style="font-size: var(--text-sm)">Watch mode now live-reloads the browser
+    on save. Goodreads shelf data is cached for ten minutes.</p>
+  </div>
+  <div class="card card-foam">
+    <span class="card-title">now reading</span>
+    <p style="font-size: var(--text-sm)"><strong>The Mythical Man-Month</strong><br />
+    <span style="color: var(--color-subtle)">Frederick P. Brooks Jr.</span></p>
+  </div>
+</div>
+
+<h3>Callouts</h3>
+
+<div class="frame" data-label="callouts">
+  <div class="stack">
+    <div class="callout callout-note">
+      <span class="callout-label">note</span>
+      Neutral context the reader can skip without losing the thread.
+    </div>
+    <div class="callout callout-tip">
+      <span class="callout-label">tip</span>
+      A shortcut or sharper way to do the thing just described.
+    </div>
+    <div class="callout callout-warn">
+      <span class="callout-label">warning</span>
+      This step is destructive or easy to get wrong. Read before running.
+    </div>
+  </div>
+</div>
+
+<h3>Blockquote</h3>
+
+<div class="frame" data-label="blockquote">
+  <blockquote style="margin:0">
+    Programs must be written for people to read, and only incidentally for
+    machines to execute.
+    <cite>Abelson &amp; Sussman, SICP</cite>
+  </blockquote>
+</div>
+
+<h3>Code</h3>
+
+<p>
+  One code component, everywhere: every block — fenced in a post, or sourced
+  from a static page — is rendered at build time by the SSG's own tiny
+  tokenizer (<code>highlight.go</code> — rust, go, python, shell, yaml, js;
+  anything else stays plain) into the same line-numbered
+  <code>pre.code</code> rows: muted gutter, overlay row hover, surface fill,
+  hairline border. An optional title bar names the file and language. Inline
+  code gets the same treatment at <code>0.9em</code>. Syntax inks, one job per
+  hue: keywords iris; functions and types foam; strings, macros and flags
+  gold; numbers and lifetimes rose; comments <em>subtle</em> italic — never
+  muted, which fails AA at code size.
+</p>
+
+<div class="frame" data-label="code block">
+  <div class="codeblock" style="margin:0">
+    <div class="codeblock-title"><span>main.go</span><span>go</span></div>
+    <pre class="code" style="margin:0"><div class="cl"><span class="ln"> 1</span><span class="cc"><span class="t-comment">// Render a post through the single template.</span></span></div><div class="cl"><span class="ln"> 2</span><span class="cc"><span class="t-kw">func</span> <span class="t-fn">render</span>(post <span class="t-type">Post</span>) <span class="t-type">string</span> {</span></div><div class="cl"><span class="ln"> 3</span><span class="cc">    html := markdown.<span class="t-type">ToHTML</span>(post.Body, <span class="t-num">0</span>)</span></div><div class="cl"><span class="ln"> 4</span><span class="cc">    <span class="t-kw">return</span> strings.<span class="t-type">Replace</span>(tmpl, <span class="t-str">"{{content}}"</span>, html, <span class="t-num">1</span>)</span></div><div class="cl"><span class="ln"> 5</span><span class="cc">}</span></div></pre>
+  </div>
+</div>
+
+<h3>Tables</h3>
+
+<div class="frame" data-label="table">
+  <table style="margin:0">
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>./ssg</code></td><td>Generate the site into <code>./build</code></td></tr>
+      <tr><td><code>./ssg --watch</code></td><td>Serve with live reload</td></tr>
+      <tr><td><code>go test ./...</code></td><td>Run the test suite</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<p>Rows highlight on hover with a surface fill; headers are small-caps labels.</p>
+
+<h3>Forms</h3>
+
+<div class="frame" data-label="form controls">
+  <div class="stack">
+    <div class="field">
+      <label for="f-email">email</label>
+      <input type="email" id="f-email" placeholder="you@example.com" />
+    </div>
+    <div class="field">
+      <label for="f-topic">topic</label>
+      <select id="f-topic"><option>Go</option><option>AWS</option><option>Meta</option></select>
+    </div>
+    <div class="field" style="max-width: 100%">
+      <label for="f-msg">message</label>
+      <textarea id="f-msg" rows="2" placeholder="Say hello…"></textarea>
+    </div>
+    <label class="choice"><input type="checkbox" checked /> Subscribe to the feed</label>
+    <label class="choice"><input type="radio" name="fmt" checked /> HTML</label>
+    <label class="choice"><input type="radio" name="fmt" /> Plain text</label>
+  </div>
+</div>
+
+<p>
+  Inputs sit on the surface colour with strong borders; focus swaps the border
+  to foam and doubles it with a ring. Checks, radios and ranges use
+  <code>accent-color: var(--c-iris)</code> — native controls, correctly themed,
+  zero markup tax.
+</p>
+
+<h3>Breadcrumbs &amp; pagination</h3>
+
+<div class="frame" data-label="navigation">
+  <div class="stack">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="#components">~</a><span class="sep">/</span><a href="#components">blog</a><span class="sep">/</span><span class="here">static-site-generator</span>
+    </nav>
+    <nav aria-label="Pagination">
+      <ul class="pager">
+        <li><a href="#components">‹</a></li>
+        <li><a href="#components">1</a></li>
+        <li><span class="now" aria-current="page">2</span></li>
+        <li><a href="#components">3</a></li>
+        <li><span class="gap">…</span></li>
+        <li><a href="#components">9</a></li>
+        <li><a href="#components">›</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<h3>Tabs</h3>
+
+<div class="frame" data-label="tabs">
+  <nav class="tabs" aria-label="Sections">
+    <a href="#components" aria-current="page">posts</a>
+    <a href="#components">reading</a>
+    <a href="#components">about</a>
+  </nav>
+</div>
+
+<p>
+  The active tab joins the page: bordered on three sides, ground-filled, sitting
+  on top of the rail. CSS only — each tab is a link to its page.
+</p>
+
+<h3>Progress</h3>
+
+<div class="frame" data-label="progress">
+  <div class="stack">
+    <div class="progress" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" aria-label="Build progress"><div style="width:70%"></div></div>
+    <div class="progress progress-gold" role="progressbar" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress"><div style="width:35%"></div></div>
+  </div>
+</div>
+
+<p>Segmented fills — terminal block characters, drawn with a repeating gradient.</p>
+
+<h3>Tooltip</h3>
+
+<div class="frame" data-label="tooltip">
+  <p style="margin:0">The generator supports
+    <span tabindex="0" data-tip="Server-sent events push a reload on save">live reload</span>
+    in watch mode.</p>
+</div>
+
+<p>
+  Pure CSS: content lives in <code>data-tip</code>, shown on hover and on
+  keyboard focus. For glossary-grade asides only — anything important belongs
+  in the prose.
+</p>
+
+<h3>Disclosure</h3>
+
+<div class="frame" data-label="details">
+  <details style="margin:0">
+    <summary>Why no JavaScript?</summary>
+    <p style="font-size: var(--text-sm)">Every behaviour on the site — theme,
+    tooltips, disclosure, navigation — has a native or CSS-only equivalent.
+    Shipping zero scripts means nothing to break and nothing to audit.</p>
+  </details>
+</div>
+
+<h3>Post index</h3>
+
+<p>
+  The homepage lists posts as a dated list: gold ISO dates, foam titles, subtle
+  one-line descriptions, dashed hairlines between entries. No glyph prefixes —
+  the date column and separators carry the structure.
+</p>
+
+<div class="frame" data-label="post index">
+  <ul class="post-list">
+    <li><span class="date">2026-07-01</span><a href="#components">Building a static site generator in Go</a>
+      <p>What it takes to replace a framework with 500 lines of Go.</p></li>
+    <li><span class="date">2026-06-14</span><a href="#components">Live reload without the toolchain</a>
+      <p>File watching and server-sent events, standard library only.</p></li>
+    <li><span class="date">2026-05-02</span><a href="#components">Terminal aesthetics on the web</a>
+      <p>Monospace, box glyphs, and knowing when to stop.</p></li>
+  </ul>
+</div>
+
+<h3>Footer</h3>
+
+<p>The statusline mirrored at the page end, carrying the colophon and the way
+back — every footer links home and <code>&uarr; top</code>.</p>
+
+<div class="frame" data-label="footer">
+  <div class="statusline">
+    <span class="seg seg-a">eof</span>
+    <a class="seg seg-b" href="#components">built with 500 lines of go</a>
+    <span class="fill"></span>
+    <span class="seg seg-b">© 2026</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<h2 id="motion"><span>Motion &amp; accessibility</span></h2>
+
+<ul>
+  <li><strong>Motion budget: one animation.</strong> The prompt cursor blink,
+    removed under <code>prefers-reduced-motion</code>. Everything else is a
+    0.15s colour/border transition; nothing moves position.</li>
+  <li><strong>Contrast.</strong> Text tones and link colours clear WCAG AA at
+    body size (most clear AAA). Pine and muted are locked to decorative roles
+    — the ◆ flags in the colour tables are the contract.</li>
+  <li><strong>Colour is never the only signal.</strong> Links underline on
+    hover, focus draws a 2px foam ring, active tabs change weight and border,
+    callouts carry text labels.</li>
+  <li><strong>Semantics.</strong> One h1, ordered heading levels, native
+    controls (<code>button</code>, <code>details</code>, <code>progress</code>
+    roles), real <code>nav</code> landmarks. Decoration lives in CSS generated
+    content, invisible to screen readers.</li>
+  <li><strong>Keyboard.</strong> Everything interactive is a native focusable
+    element; tooltips open on focus, not just hover.</li>
+</ul>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<h2 id="voice"><span>Voice &amp; tone</span></h2>
+
+<p>
+  The theme frames the words; <code>style.md</code> governs them: concise,
+  approachable, informal but professional. Active voice, no weasel words, no
+  clichés. Short paragraphs, concrete examples, code where code explains
+  better than prose. The design should feel like the writing — direct, a
+  little nocturnal, nothing wasted.
+</p>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<h2 id="tokens"><span>Token reference</span></h2>
+
+<p>
+  The complete set — every value the theme uses, grouped by concern. The live
+  copy is the <code>:root</code> block in <a href="/theme.css">/theme.css</a>
+  — the single stylesheet every page on the site (including this one) links.
+  Change a token there and it changes everywhere at once.
+</p>
+
+<h4>Colour</h4>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td><code>--color-bg</code></td><td>#191724</td><td>Page ground</td></tr>
+    <tr><td><code>--color-surface</code></td><td>#1F1D2E</td><td>Cards, code, callouts, row hover</td></tr>
+    <tr><td><code>--color-overlay</code></td><td>#26233A</td><td>Statusline, keycaps, tooltips, selection</td></tr>
+    <tr><td><code>--color-border</code></td><td>#403D52</td><td>Hairlines</td></tr>
+    <tr><td><code>--color-border-strong</code></td><td>#524F67</td><td>Emphasised edges, table header rule</td></tr>
+    <tr><td><code>--color-text</code></td><td>#E0DEF4</td><td>Body, headings</td></tr>
+    <tr><td><code>--color-subtle</code></td><td>#908CAA</td><td>Secondary text</td></tr>
+    <tr><td><code>--color-muted</code></td><td>#6E6A86</td><td>Decorative text (branches, separators)</td></tr>
+    <tr><td><code>--color-accent</code></td><td>#9CCFD8</td><td>Links, focus, primary actions</td></tr>
+    <tr><td><code>--color-accent-2</code></td><td>#C4A7E7</td><td>Secondary interactive</td></tr>
+    <tr><td><code>--c-love</code></td><td>#EB6F92</td><td>Danger / warning</td></tr>
+    <tr><td><code>--c-gold</code></td><td>#F6C177</td><td>Numbers, dates, tips, strings</td></tr>
+    <tr><td><code>--c-rose</code></td><td>#EBBCBA</td><td>Title fill, hover, emphasis</td></tr>
+    <tr><td><code>--c-pine</code></td><td>#31748F</td><td>Decorative fills</td></tr>
+    <tr><td><code>--c-foam</code></td><td>#9CCFD8</td><td>= accent</td></tr>
+    <tr><td><code>--c-iris</code></td><td>#C4A7E7</td><td>= accent-2</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Typography</h4>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td><code>--font-mono</code></td><td>JetBrains Mono → … → monospace</td><td>The only family</td></tr>
+    <tr><td><code>--text-xs</code></td><td>0.8rem</td><td>Labels, statusline, tags, captions</td></tr>
+    <tr><td><code>--text-sm</code></td><td>0.9rem</td><td>Buttons, code, tables, trees</td></tr>
+    <tr><td><code>--text-base</code></td><td>1rem</td><td>Body</td></tr>
+    <tr><td><code>--text-lg</code></td><td>1.2rem</td><td>h2 / h3</td></tr>
+    <tr><td><code>--text-xl</code></td><td>1.4rem</td><td>Display</td></tr>
+    <tr><td><code>--text-2xl</code></td><td>1.75rem</td><td>Section numbers</td></tr>
+    <tr><td><code>--text-3xl</code></td><td>2.25rem</td><td>h1 title row</td></tr>
+    <tr><td><code>--leading-tight</code></td><td>1.25</td><td>Headings, tooltips</td></tr>
+    <tr><td><code>--leading-normal</code></td><td>1.7</td><td>Body</td></tr>
+    <tr><td><code>--tracking-tight</code></td><td>-0.01em</td><td>h1</td></tr>
+    <tr><td><code>--tracking-wide</code></td><td>0.08em</td><td>Small-caps labels</td></tr>
+    <tr><td><code>--weight-normal</code></td><td>400</td><td>Body</td></tr>
+    <tr><td><code>--weight-medium</code></td><td>600</td><td>Buttons, active states</td></tr>
+    <tr><td><code>--weight-bold</code></td><td>700</td><td>Headings, segments, badges</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Spacing &amp; layout</h4>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td><code>--space-1</code> … <code>--space-6</code></td><td>0.25 / 0.5 / 1 / 1.5 / 2.5 / 4 rem</td><td>The only permitted gaps</td></tr>
+    <tr><td><code>--layout-width</code></td><td>760px</td><td>Reading measure (~76ch)</td></tr>
+    <tr><td><code>--layout-pad-x</code></td><td>1.5rem</td><td>Column side padding</td></tr>
+    <tr><td><code>--layout-pad-y</code></td><td>2.5rem</td><td>Page top/bottom padding</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>Borders &amp; motion</h4>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td><code>--border-width</code></td><td>1px</td><td>All hairlines</td></tr>
+    <tr><td><code>--bar-width</code></td><td>3px</td><td>Accent sidebars (h3, callouts, do/don't)</td></tr>
+    <tr><td><code>--radius</code></td><td>0px</td><td>Square corners, always</td></tr>
+    <tr><td><code>--transition</code></td><td>0.15s ease</td><td>Colour/border transitions</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<h2 id="dodont"><span>Do &amp; don't</span></h2>
+
+<div class="dd">
+  <div class="do">
+    <h4>Do</h4>
+    <p>Reach for a token. Every colour, size and gap in a rule is a <code>var()</code>.</p>
+  </div>
+  <div class="dont">
+    <h4>Don't</h4>
+    <p>Hard-code a hex or a magic number — it silently forks the system.</p>
+  </div>
+  <div class="do">
+    <h4>Do</h4>
+    <p>Build hierarchy from structure: inversion, numbering, rules, sidebars, small caps.</p>
+  </div>
+  <div class="dont">
+    <h4>Don't</h4>
+    <p>Prefix headings or list items with ornamental glyphs — that was v1's tell.</p>
+  </div>
+  <div class="do">
+    <h4>Do</h4>
+    <p>Keep each hue on its one job, and reuse it when a new element matches that job.</p>
+  </div>
+  <div class="dont">
+    <h4>Don't</h4>
+    <p>Colour prose, add a second link colour, or use pine/muted for body-size text.</p>
+  </div>
+  <div class="do">
+    <h4>Do</h4>
+    <p>Use native elements and CSS-only patterns for every behaviour.</p>
+  </div>
+  <div class="dont">
+    <h4>Don't</h4>
+    <p>Add JavaScript, webfonts, CDN assets, or any request that isn't the page.</p>
+  </div>
+  <div class="do">
+    <h4>Do</h4>
+    <p>Let wide content scroll inside its own container.</p>
+  </div>
+  <div class="dont">
+    <h4>Don't</h4>
+    <p>Break the 760px measure or let the page scroll sideways.</p>
+  </div>
+</div>
+
+<footer class="page-end">
+  <div class="statusline">
+    <span class="seg seg-a">eof</span>
+    <a class="seg seg-b" href="/">~/blog</a>
+    <span class="seg seg-b">style guide v2 — night terminal</span>
+    <span class="fill"></span>
+    <a class="seg seg-b" href="#top">&uarr; top</a>
+    <a class="seg seg-b" href="https://rosepinetheme.com/palette/">palette: rosé pine</a>
+    <span class="seg seg-c">applied</span>
+  </div>
+</footer>
+
+</body>
+</html>

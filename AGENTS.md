@@ -11,20 +11,23 @@ index page listing all dated posts.
 
 ## Layout
 
-- `main.go` — the entire generator (markdown → HTML, frontmatter parsing, index generation, optional `--watch` serve with live reload)
-- `main_test.go`, `benchmark_test.go` — tests and benchmarks
+- `main.go` — the generator (markdown → HTML, frontmatter parsing, index generation, optional `--watch` serve with live reload)
+- `highlight.go` — tiny dependency-free syntax highlighter (rust, go, python, shell, yaml, js; unknown languages stay plain). At build time it renders every code block — fenced blocks in posts and `<script type="text/rust|shell">` blocks in static HTML — as the same line-numbered `pre.code` component
+- `main_test.go`, `highlight_test.go`, `benchmark_test.go` — tests and benchmarks
 - `content/` — blog posts as Markdown, named `yyyy-mm-dd-title.md`
 - `static/` — standalone resources (e.g. self-contained HTML pages) copied verbatim into `build/` without going through the markdown/template pipeline; link to them from the homepage or posts
-- `template.html` — HTML template with `{{title}}` (tab title), `{{heading}}` (visible h1), and `{{content}}` placeholders
+- `template.html` — HTML template with `{{title}}` (tab title), `{{heading}}` (visible h1), `{{file}}` (statusline filename), and `{{content}}` placeholders; links `/theme.css`
+- `static/theme.css` — the site's single stylesheet: all tokens and components, linked by every page
 - `build/` — generated output (git-ignored, not committed)
 - `local-serve.sh` — local preview server (build + serve, optional `--watch`)
 - `style.md` — Simon's writing style guidelines (apply when writing/editing posts)
+- `static/style-guide.html` — visual design system reference (tokens, components, usage rules); deployed at `/style-guide.html`, linked from the site footer
 - `.github/workflows/deploy.yml` — CI: test, build, deploy to GitHub Pages on push to `main`
 
 ## Commands
 
 ```bash
-go build -o ssg ./main.go   # build the generator
+go build -o ssg .            # build the generator
 ./ssg                        # generate site into ./build
 ./ssg --watch [--port N]     # native watch + serve with live reload (Goodreads cached for 10m)
 go test -v ./...             # run tests (CI runs this and fails on errors)
@@ -40,46 +43,49 @@ go test -bench=. ./...       # run benchmarks
 - Frontmatter (`title`, `description`) is optional. Without a title, one is
   derived from the filename; without a description, one is extracted from the
   first paragraph.
-- Keep `main.go` dependency-light — it currently uses only `adrg/frontmatter`
+- Keep the generator dependency-light — it currently uses only `adrg/frontmatter`
   and `gomarkdown/markdown`. Prefer the standard library.
 - When writing or editing post content, follow `style.md` (concise, approachable,
   informal, professional; avoid passive voice, weasel words, clichés).
-- Standalone, self-contained resources live in `static/` and are copied as-is
-  into `build/` (no rendering, no template wrapping). Use this for pages that
-  ship their own markup/styling and shouldn't be wrapped in the blog template.
-  Generated pages win on name collisions, so don't name a static file
-  `index.html` or after a post.
+- Standalone, self-contained resources live in `static/` and are copied into
+  `build/` without rendering or template wrapping — except that
+  `<script type="text/rust|shell">` blocks in static HTML are pre-rendered to
+  highlighted code by `highlight.go`. Use static/ for pages that ship their own
+  markup/styling. Generated pages win on name collisions, so don't name a
+  static file `index.html` or after a post.
 
 ## Theme
 
-All styling lives in the inline `<style>` block of `template.html` and is driven
-by CSS custom properties declared on `:root`, grouped by concern:
+Dark only — "night terminal" on the Rosé Pine palette. All CSS lives in one
+file: `static/theme.css` (tokens + every component), linked as `/theme.css` by
+the template, the style guide, and static pages — never duplicate its rules
+into a page. `static/style-guide.html` documents it (token reference, component
+demos, usage rules, verified contrast ratios); read the guide before any
+styling change, and keep its docs in step when theme.css changes. Pages may
+carry a few page-specific rules inline (e.g. the quick ref's two-column TOC).
 
-- **Colour** — `--color-bg`, `--color-text`, `--color-muted`, `--color-accent`,
-  `--color-accent-hover`, `--color-code-bg`, `--color-border`. Overridden in the
-  `prefers-color-scheme: dark` block for dark mode. A set of seven gruvbox
-  accent tokens (`--c-red`, `--c-green`, `--c-yellow`, `--c-blue`, `--c-purple`,
-  `--c-aqua`, `--c-orange`) drive the divider, headings, list markers, and panel
-  borders — reused throughout for colour consistency.
-- **Fonts** — `--font-serif` (headings), `--font-sans` (body), `--font-mono`
-  (code). All three resolve to the same monospace stack — the TUI aesthetic is
-  monospace throughout. System-font stacks only; no external font requests.
-- **Type scale** — `--text-xs` … `--text-2xl`. Tightened for monospace widths.
-- **Line height / tracking** — `--leading-tight`, `--leading-normal`,
-  `--tracking-tight`.
-- **Weights** — `--weight-normal`, `--weight-medium`, `--weight-bold`.
-- **Spacing scale** — `--space-1` … `--space-6`.
-- **Layout / borders / motion** — `--layout-width`, `--layout-pad-y`,
-  `--layout-pad-x`, `--border-width`, `--radius`, `--transition`.
-
-When adjusting the look, change the token on `:root` rather than hard-coding
-values in rules; dark mode only needs the `--color-*` tokens re-declared. The
-theme is a terminal (TUI) aesthetic: monospace everywhere, gruvbox-inspired
-accents on neutral light/dark surfaces (green accent in light, phosphor-green in
-dark), square corners
-(`--radius: 0`), a header title bar, a blinking block cursor on the site
-prompt (respects `prefers-reduced-motion`), and `›` markers on the post list.
-Keep it readable — long-form prose still needs generous line height.
+- Tokens are grouped by concern: colour (surfaces `--color-bg/surface/overlay`,
+  borders `--color-border[-strong]`, text `--color-text/subtle/muted`, hues
+  `--c-love/gold/rose/pine/foam/iris`), typography (`--font-mono`,
+  `--text-xs`…`--text-3xl`, leading, tracking, weights), spacing
+  (`--space-1`…`--space-6`), layout, borders & motion. Never hard-code a hex or
+  magic number in a rule — always go through a token.
+- Each hue has one job: foam links/primary, gold numbers/dates, rose title
+  fill/hover/emphasis, iris h3 sidebar/forms, love danger. `--c-pine` and
+  `--color-muted` are decorative only — they fail AA for body-size text.
+- Hierarchy comes from structure, not glyph prefixes: inverted rose h1 block,
+  gold auto-numbered h2 with a fill rule, iris-sidebar h3, small-caps h4.
+  Page chrome is a statusline header/footer; the index is a `.post-list`
+  (gold ISO dates, dashed separators).
+- Syntax tokens (`.t-kw` iris, `.t-type/.t-fn` foam, `.t-str/.t-macro/.t-flag`
+  gold, `.t-num/.t-lifetime` rose, `.t-comment` subtle italic — never muted)
+  are emitted by `highlight.go` and styled in theme.css.
+- Monospace everywhere, square corners (`--radius: 0`), zero JS and zero
+  external requests in the theme; one animation (prompt cursor blink,
+  disabled under `prefers-reduced-motion`). Long-form prose keeps generous
+  line height.
+- `static/rust-quick-reference.html` and `static/style-guide.html` are
+  standalone pages but link `/theme.css` like everything else.
 
 ## Deployment
 

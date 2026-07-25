@@ -219,15 +219,17 @@ func renderReadingSection(groups []ShelfBooks) string {
 		return ""
 	}
 
+	// No heading: the shelf cards carry their own titles, so a section heading
+	// would just repeat them. The aria-label keeps the landmark named.
 	var b strings.Builder
-	b.WriteString("<section class=\"reading\">")
-	b.WriteString("<h2>What I'm reading</h2>")
+	b.WriteString("<section class=\"reading\" aria-label=\"What I'm reading\">")
+	b.WriteString("<div class=\"card-grid\">")
 	for _, group := range groups {
 		if len(group.Books) == 0 {
 			continue
 		}
-		b.WriteString("<div class=\"shelf\">")
-		b.WriteString(fmt.Sprintf("<h3 class=\"shelf-label\">%s</h3>", html.EscapeString(group.Label)))
+		b.WriteString("<div class=\"card\">")
+		b.WriteString(fmt.Sprintf("<span class=\"card-title\">%s</span>", html.EscapeString(group.Label)))
 		b.WriteString("<ul class=\"book-list\">")
 		for _, book := range group.Books {
 			b.WriteString("<li class=\"book\">")
@@ -257,6 +259,7 @@ func renderReadingSection(groups []ShelfBooks) string {
 		b.WriteString("</ul>")
 		b.WriteString("</div>")
 	}
+	b.WriteString("</div>")
 	b.WriteString("</section>")
 	return b.String()
 }
@@ -319,12 +322,13 @@ func processMarkdownFile(filePath, template string) (string, string, *BlogPost, 
 	// Parse markdown to HTML (code blocks are syntax-highlighted at build time)
 	htmlContent := renderMarkdown(content)
 
+	outputFilename := strings.TrimSuffix(filename, filepath.Ext(filename)) + ".html"
+
 	// Replace template placeholders
 	output := strings.Replace(template, "{{title}}", title, -1)
 	output = strings.Replace(output, "{{heading}}", title, -1)
+	output = strings.Replace(output, "{{file}}", outputFilename, -1)
 	output = strings.Replace(output, "{{content}}", string(htmlContent), -1)
-
-	outputFilename := strings.TrimSuffix(filename, filepath.Ext(filename)) + ".html"
 
 	// Create blog post metadata
 	blogPost := &BlogPost{
@@ -385,14 +389,15 @@ func datedPostsNewestFirst(posts []*BlogPost) []*BlogPost {
 	return dated
 }
 
-// renderPostList renders a <ul> linking to each post, newest first. Callers
-// pass an already-filtered, already-sorted slice.
+// renderPostList renders posts as ul.post-list, newest first: gold ISO date,
+// linked title, one-line description. Callers pass an already-filtered,
+// already-sorted slice.
 func renderPostList(posts []*BlogPost) string {
 	var b strings.Builder
 	b.WriteString("<ul class=\"post-list\">")
 	for _, post := range posts {
-		formattedDate := post.Date.Format("January 2, 2006")
-		b.WriteString(fmt.Sprintf("<li><strong>%s</strong> - <a href=\"%s\">%s</a><p>%s</p></li>\n",
+		formattedDate := post.Date.Format("2006-01-02")
+		b.WriteString(fmt.Sprintf("<li><span class=\"date\">%s</span><a href=\"%s\">%s</a><p>%s</p></li>\n",
 			formattedDate, post.OutputFile, post.Title, post.Description))
 	}
 	b.WriteString("</ul>")
@@ -426,7 +431,8 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 
 	// Replace template placeholders
 	output := strings.Replace(template, "{{title}}", "Let's Build", -1)
-	output = strings.Replace(output, "{{heading}}", "", -1)
+	output = strings.Replace(output, "{{heading}}", "Let's Build", -1)
+	output = strings.Replace(output, "{{file}}", "index.html", -1)
 	output = strings.Replace(output, "{{content}}", contentBuilder.String(), -1)
 
 	// Write the index file
@@ -450,6 +456,7 @@ func generateArchive(posts []*BlogPost, template string, buildDir string) error 
 
 	output := strings.Replace(template, "{{title}}", "All posts", -1)
 	output = strings.Replace(output, "{{heading}}", "All posts", -1)
+	output = strings.Replace(output, "{{file}}", "posts.html", -1)
 	output = strings.Replace(output, "{{content}}", contentBuilder.String(), -1)
 
 	outputPath := filepath.Join(buildDir, "posts.html")

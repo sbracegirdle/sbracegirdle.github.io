@@ -460,14 +460,14 @@ func TestGenerateIndex(t *testing.T) {
 		t.Error("Posts not sorted correctly by date in descending order")
 	}
 
-	// Check formatted dates appear in the content
-	if !strings.Contains(string(content), "January 15, 2023") {
+	// Check formatted dates appear in the content (ISO, per the post tree)
+	if !strings.Contains(string(content), "2023-01-15") {
 		t.Error("First post date not found in index")
 	}
-	if !strings.Contains(string(content), "March 20, 2023") {
+	if !strings.Contains(string(content), "2023-03-20") {
 		t.Error("Second post date not found in index")
 	}
-	if !strings.Contains(string(content), "February 10, 2023") {
+	if !strings.Contains(string(content), "2023-02-10") {
 		t.Error("Third post date not found in index")
 	}
 }
