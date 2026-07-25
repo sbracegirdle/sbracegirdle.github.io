@@ -23,6 +23,20 @@
      specimens, scale bars) used to present the theme.
      ══════════════════════════════════════════════════════════════ */
 
+  /* ── Scroll hints ── */
+  /* theme.css styles the hint and hides it; the width at which a table stops
+     fitting is a fact about that table, so the query lives with the page. Each
+     class is named for the measured width at which its scroller first fits, and
+     fires one pixel below it. Re-measure if a table gains a column or a cell
+     gets wider — a hint pointing at nothing is as wrong as no hint at all. */
+  @media (max-width: 469px) { .sg-fit-470 { display: block; } }  /* text & interactive */
+  @media (max-width: 444px) { .sg-fit-445 { display: block; } }  /* season demo */
+  @media (max-width: 442px) { .sg-fit-443 { display: block; } }  /* hues */
+  @media (max-width: 365px) { .sg-fit-366 { display: block; } }  /* typography ref */
+  @media (max-width: 347px) { .sg-fit-348 { display: block; } }  /* colour, borders & motion */
+  @media (max-width: 338px) { .sg-fit-339 { display: block; } }  /* weight/leading/tracking */
+  @media (max-width: 329px) { .sg-fit-330 { display: block; } }  /* spacing & layout */
+
   /* ── TOC tree ── */
   .tree { list-style: none; padding: 0; margin: var(--space-4) 0; font-size: var(--text-sm); }
   .tree li { margin: 0; padding: calc(var(--space-1) / 2) 0; }
@@ -89,6 +103,24 @@
     font-size: var(--text-xs);
     color: var(--color-subtle);
   }
+  /* ── Wide-mode schematic ── */
+  /* The two columns are hard-coded. The real .panes floors its tracks at 36rem
+     and would collapse to one inside this 760px page — which is the floor
+     doing its job, and the opposite of what the diagram needs to show. */
+  .sch-measure {
+    max-width: 59.7%;   /* 760 of 1272 */
+    border: 1px dashed var(--c-pine);
+    padding: var(--space-1) var(--space-2);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-xs);
+    color: var(--color-subtle);
+  }
+  .sch-panes { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6) var(--space-4); }
+  .sch-pane { font-size: var(--text-xs); color: var(--color-subtle); }
+  .sch-head { display: flex; align-items: center; gap: var(--space-2); }
+  .sch-head::after { content: ""; flex: 1; border-top: var(--border-width) solid var(--color-border); }
+  .sch-head .n { color: var(--c-gold); }
+  .sch-body { border: 1px dashed var(--color-border-strong); border-top: none; margin-top: var(--space-1); }
   .demo-h1 {
     display: inline-block;
     background: var(--c-rose); color: var(--color-bg);
@@ -113,12 +145,15 @@
     <a class="seg" href="/">~/blog</a>
     <a class="seg" href="/posts.html">posts</a>
     <a class="seg" href="/tags.html">tags</a>
+    <a class="seg" href="/sports.html">sports</a>
     <a class="seg" href="/about.html">about</a>
   </nav>
 </header>
 
 <h1>Style guide</h1>
 <p class="prompt">theme v2 — night terminal<span class="cursor" aria-hidden="true"></span></p>
+
+<main>
 
 <p>
   The design system for LetsBuild.cloud. Dark only — a terminal doesn't have a
@@ -202,7 +237,7 @@
 
 <h3>Text &amp; interactive</h3>
 
-<div class="scroll-x">
+<div class="scroll-x" tabindex="0" role="region" aria-label="Text and interactive tokens">
 <table>
   <thead><tr><th>Token</th><th>Ink</th><th>Contrast</th><th>Role</th></tr></thead>
   <tbody>
@@ -239,10 +274,11 @@
   </tbody>
 </table>
 </div>
+<p class="scroll-hint sg-fit-470">Scroll the table sideways for the rest of the columns.</p>
 
 <h3>Hues</h3>
 
-<div class="scroll-x">
+<div class="scroll-x" tabindex="0" role="region" aria-label="Hue tokens">
 <table>
   <thead><tr><th>Token</th><th>Ink</th><th>Contrast</th><th>Assigned to</th></tr></thead>
   <tbody>
@@ -285,6 +321,7 @@
   </tbody>
 </table>
 </div>
+<p class="scroll-hint sg-fit-443">Scroll the table sideways for the rest of the columns.</p>
 
 <h4>Usage rules</h4>
 <ul>
@@ -322,7 +359,7 @@
 
 <h3>Weight, leading, tracking</h3>
 
-<div class="scroll-x">
+<div class="scroll-x" tabindex="0" role="region" aria-label="Weight, leading and tracking tokens">
 <table>
   <thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead>
   <tbody>
@@ -336,6 +373,7 @@
   </tbody>
 </table>
 </div>
+<p class="scroll-hint sg-fit-339">Scroll the table sideways for the rest of the columns.</p>
 
 <p>
   Hierarchy is typographic: the h1 is an inverted block, h2s are
@@ -379,7 +417,8 @@
 
 <p>
   The reading column is <code>--layout-width: 760px</code> — about 76 monospace
-  characters. One column, no sidebars, no grid. Horizontal padding
+  characters. One column and no sidebars, unless a page opts into wide mode
+  below. Horizontal padding
   <code>--layout-pad-x: 1.5rem</code>, vertical <code>--layout-pad-y: 2.5rem</code>.
   Wide content (code, tables) scrolls inside its own container; the page never
   scrolls sideways.
@@ -392,6 +431,86 @@
     their text stays on the measure.
   </div>
 </div>
+
+<h3 id="wide">Wide mode</h3>
+
+<p>
+  Not every page is prose. A quick reference gets skimmed: you arrive looking
+  for one thing, find it, and leave. Stacked in a 760px column, fifteen short
+  sections turn into several screens of scroll with half the window unused.
+</p>
+
+<p>
+  <code>.wide</code> on the <code>&lt;body&gt;</code> moves the page cap to
+  <code>--layout-width-wide: 1272px</code>, but only once the window is wide
+  enough for two panes — under that the page stays on the measure, because a
+  single 1175px pane of prose is worse than the 760px it started from. Nothing
+  else changes — same
+  statusline, same title row, same prompt — so a wide page still reads as the
+  same site. Two rules come with it.
+</p>
+
+<p>
+  <strong>Prose goes back on the measure.</strong> A paragraph at 1200px runs
+  past 120 characters and stops being readable. <code>.measure</code> caps a
+  single block at <code>--layout-width</code>: the intro, an aside, anything
+  meant to be read in sentences.
+</p>
+
+<p>
+  <strong>Sections tile.</strong> <code>.panes</code> lays the page's own
+  sections side by side. Each pane is a <code>&lt;section&gt;</code>, and its
+  <code>h2</code> already draws the top edge — gold number, small caps, a rule
+  filling the line. A row of those reads as a tiled terminal, and it takes no
+  new border, glyph or hue to say so.
+</p>
+
+<div class="frame" data-label="body.wide — schematic">
+  <div class="sch-measure">.measure — prose back at 760px</div>
+  <div class="sch-panes">
+    <div class="sch-pane">
+      <div class="sch-head"><span class="n">01</span> section</div>
+      <div class="sch-body" style="height: 4.5rem"></div>
+    </div>
+    <div class="sch-pane">
+      <div class="sch-head"><span class="n">02</span> section</div>
+      <div class="sch-body" style="height: 7.5rem"></div>
+    </div>
+    <div class="sch-pane">
+      <div class="sch-head"><span class="n">03</span> section</div>
+      <div class="sch-body" style="height: 5.5rem"></div>
+    </div>
+    <div class="sch-pane">
+      <div class="sch-head"><span class="n">04</span> section</div>
+      <div class="sch-body" style="height: 4rem"></div>
+    </div>
+  </div>
+</div>
+
+<p>
+  The track floor is <code>36rem</code>, and it sits that high on purpose. Much
+  under that a pane is too narrow to hold a code block at all, so
+  <code>auto-fit</code> drops back to one column instead of squeezing. Panes
+  align to <code>start</code>, so a short section keeps its own height rather
+  than stretching to match a tall neighbour; the ragged bottom edge above is
+  what that trade looks like.
+</p>
+
+<p>
+  Panes read in DOM order, left to right and then down, which is the order the
+  <code>h2</code> counter numbers them in. Multi-column
+  (<code>columns</code>) would flow down one column and back up to the top of
+  the next — right for an index, wrong for fifteen numbered sections. The
+  quick reference uses both, and that's the split: <code>columns</code> for its
+  table of contents, <code>.panes</code> for its body.
+</p>
+
+<p>
+  Wide mode belongs to <code>static/</code>. Posts render through
+  <code>template.html</code>, which owns the <code>&lt;body&gt;</code> tag and
+  is prose by definition. <a href="/rust-quick-reference.html">The Rust quick
+  reference</a> is the live example.
+</p>
 
 <!-- ════════════════════════════════════════════════════════════ -->
 <h2 id="components"><span>Components</span></h2>
@@ -470,6 +589,7 @@
       <a class="seg" href="#components">~/blog</a>
       <a class="seg" href="#components">posts</a>
       <a class="seg" href="#components">tags</a>
+      <a class="seg" href="#components">sports</a>
       <a class="seg" href="#components">about</a>
     </div>
   </div>
@@ -591,6 +711,73 @@
   </nav>
 </div>
 
+<p>
+  The chips don't have to be links. A row that only names things — the riders
+  a page is following, the teams it covers — is a <code>&lt;ul&gt;</code>, one
+  chip per <code>&lt;li&gt;</code>, with a <code>.label</code> above it and
+  <code>aria-labelledby</code> pointing back at that label. Match the element to
+  the job: linked chips are navigation and take a <code>&lt;nav&gt;</code>;
+  unlinked chips are a list and take a list. Ten names inside a bare
+  <code>&lt;div&gt;</code> reach a screen reader as one unbroken run of text,
+  because a <code>span</code> is not an object the way a link is.
+</p>
+
+<div class="frame" data-label="tag-list · unlinked">
+  <p class="label" id="sg-watch">Watching</p>
+  <ul class="tag-list" aria-labelledby="sg-watch">
+    <li><span class="tag">Jai Hindley</span></li>
+    <li><span class="tag">Sarah Gigante</span></li>
+    <li><span class="tag">Ally Wollaston</span></li>
+  </ul>
+</div>
+
+<p>
+  <code>.who</code> adds a nationality to a name chip: a country code in a
+  <code>.nat</code> span, tinted by a <code>.hue-*</code> class on the chip.
+  It's a flag drawn as three letters, which is what a site with no external
+  requests and no images in its chrome can afford. The hue lands on the code it
+  repeats, so a reader who can't tell iris from rose loses nothing — and
+  because it's text, <code>--c-pine</code> and <code>--color-muted</code> stay
+  out of this set.
+</p>
+
+<p>
+  There's no rail on a <code>.who</code>, and that's deliberate.
+  <code>.fixture</code> already draws a 3px <code>--hue</code> rail meaning
+  <em>which sport this row belongs to</em>, and these chips sit inside one; the
+  same mark in the same variable would have meant nationality a few hundred
+  pixels from where it meant sport. Put the space between the code and the name
+  in the markup too — the gap is a margin, and a margin isn't in the
+  accessibility tree.
+</p>
+
+<div class="frame" data-label="tag-list · who">
+  <p class="label" id="sg-who">Watching</p>
+  <ul class="tag-list" aria-labelledby="sg-who">
+    <li><span class="tag who hue-gold"><span class="nat">AUS</span> Jai Hindley</span></li>
+    <li><span class="tag who hue-foam"><span class="nat">NZL</span> Hayden Wilde</span></li>
+    <li><span class="tag who hue-iris"><span class="nat">NOR</span> Gustav Iden</span></li>
+    <li><span class="tag who hue-rose"><span class="nat">FRA</span> Sam Laidlow</span></li>
+    <li><span class="tag who hue-love"><span class="nat">CAN</span> Lionel Sanders</span></li>
+  </ul>
+</div>
+
+<p>
+  A chip whose label already names its country doesn't need a code, and isn't a
+  <code>.who</code> — it's a plain <code>.tag</code>. Reach for the code when
+  the name alone doesn't say where someone is from.
+</p>
+
+<div class="frame" data-label="tag · teams">
+  <p class="label" id="sg-teams">Following</p>
+  <ul class="tag-list" aria-labelledby="sg-teams">
+    <li><span class="tag who hue-foam"><span class="nat">NZL</span> All Blacks</span></li>
+    <li><span class="tag who hue-gold"><span class="nat">AUS</span> Wallabies</span></li>
+    <li><span class="tag">New Zealand</span></li>
+    <li><span class="tag">Western Australia</span></li>
+  </ul>
+</div>
+
 <h3>Cards</h3>
 
 <p>
@@ -617,9 +804,10 @@
 <p>
   The homepage reading block: one card per Goodreads shelf, each tinted by a
   <code>.shelf-gold</code>, <code>.shelf-foam</code> or <code>.shelf-iris</code>
-  modifier so the three groups read as three groups. This is the one place a hue
-  means <em>which group</em> rather than its usual job. The card title always
-  says the same thing, so nothing rides on colour alone.
+  modifier so the three groups read as three groups. The hue means
+  <em>which group</em> here rather than its usual job — see
+  <a href="#hues">hue carriers</a> for the rule that allows it. The card title
+  always says the same thing, so nothing rides on colour alone.
 </p>
 
 <p>
@@ -722,6 +910,34 @@
 </div>
 
 <p>Rows highlight on hover with a surface fill; headers are small-caps labels.</p>
+
+<p>
+  A table too wide for a phone goes in a <code>.scroll-x</code> wrapper, which
+  scrolls it sideways instead of widening the page. A wrapper that actually
+  scrolls also needs <code>tabindex="0"</code>, <code>role="region"</code> and a
+  name, unless focusable content spans its scrollable width. No browser makes a
+  bare overflow box focusable, so without those a keyboard user reaches the
+  first column and nothing else. Links in a frozen first column don't count — the
+  season grid's row headers are links and every one of them is already on
+  screen.
+</p>
+
+<p>
+  Give it a <code>.scroll-hint</code> too. A scroller can end flush with a
+  column boundary and read as a finished table: the season grid showed July
+  to September at 390px, stopped exactly on September's edge, and lost the rest
+  of the year with nothing on screen to say so.
+</p>
+
+<p>
+  Two rules come with it. The width where a table stops fitting is a fact
+  about that table, so <code>theme.css</code> hides the hint and the page
+  reveals it — measure your table and put the one media query beside it. And
+  word the hint so it's true at every width it shows at: naming the columns
+  that are off to the right is tempting and wrong, because which ones those
+  are changes as the viewport does, and without JavaScript the page ends up
+  telling you to scroll for a month that never left the screen.
+</p>
 
 <h3>Forms</h3>
 
@@ -851,6 +1067,124 @@
   </ul>
 </div>
 
+<h3 id="fixture-list">Fixture list</h3>
+
+<p>
+  The post index's counterpart for events that haven't happened yet — a race
+  calendar, a season, a run of fixtures. A row gives the date, the event, and
+  one subtle line holding the place and why it matters. Dates stay gold here,
+  the same as on the post index.
+</p>
+
+<div class="frame" data-label="fixture-list">
+  <ul class="fixture-list hue-gold">
+    <li class="fixture">
+      <span class="fixture-when">22 Aug – 13 Sep</span>
+      <span class="fixture-what"><a href="#components">Vuelta a España</a></span>
+      <p class="fixture-note"><span class="fixture-where">Spain</span>Three weeks and the last Grand Tour of the year.</p>
+    </li>
+    <li class="fixture">
+      <span class="fixture-when">10 Oct</span>
+      <span class="fixture-what"><a href="#components">Il Lombardia</a></span>
+      <p class="fixture-note"><span class="fixture-where">Italy</span>The race of the falling leaves, and the fifth Monument.</p>
+      <ul class="tag-list fixture-who" aria-label="Watching">
+        <li><span class="tag who hue-gold"><span class="nat">AUS</span> Hindley</span></li>
+        <li><span class="tag who hue-gold"><span class="nat">AUS</span> O'Connor</span></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<p>
+  A row can hang a <code>.fixture-who</code> under its note — a
+  <code>.tag-list</code> of <code>.who</code> chips naming who to watch at that
+  one. It's a third row of the same grid, so it stays on the note's side of the
+  date column and folds with it below 640px.
+</p>
+
+<p>
+  The rail down the left takes <code>--hue</code>. Put a <code>.hue-*</code>
+  class on the list when every row is the same kind, or on the rows themselves
+  when one list mixes them — a calendar covering six sports gives each sport its
+  own rail colour and stays one list. A mixed list has to name the kind in the
+  row as well; <code>.fixture-what .tag</code> is styled for exactly that chip.
+  Below 640px the date column folds away and each row stacks; the fixed column
+  is wider than a phone screen.
+</p>
+
+<h3 id="season-grid">Season grid</h3>
+
+<p>
+  Where a season's weight sits: a row per series, a column per month, the
+  number of events in the cell. The numbers are the content: the table reads in
+  order and adds up out loud. Everything else in the cell is decoration in the
+  row's hue — a column sized by <code>.bar-1</code> to <code>.bar-5</code>, one
+  step of height per event, and a wash behind it at the same weight. Every cell
+  in a row shares a baseline, so the grid reads as a bar chart rather than as a
+  set of unrelated marks. You apply the class by hand, so keep it in step with
+  the printed number. A cell with nothing in it drops the bar and prints a
+  subtle zero.
+</p>
+
+<p>
+  The scale is proportional rather than banded, which only holds while the
+  counts stay small — five steps is a tall enough column already. A grid with
+  counts in the twenties needs a different encoding.
+</p>
+
+<p>
+  The label goes in a <code>.label</code> above the scroller, not in a
+  <code>&lt;caption&gt;</code>. A caption is a child of the table, so it takes
+  the table's width and slides off the screen with it: the table is allowed to
+  scroll, its name isn't. Point the table at the label with
+  <code>aria-labelledby</code>.
+</p>
+
+<p class="label" id="sg-season-cap">Events, by sport and month</p>
+<div class="frame" data-label="season">
+  <div class="scroll-x" tabindex="0" role="region" aria-labelledby="sg-season-cap">
+    <table class="season" aria-labelledby="sg-season-cap">
+      <thead>
+        <tr>
+          <th scope="col">Sport</th>
+          <th scope="col">Aug</th><th scope="col">Sep</th>
+          <th scope="col">Oct</th><th scope="col">Nov</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="hue-gold">
+          <th scope="row">Cycling</th>
+          <td><span class="bar bar-3" aria-hidden="true"></span><span class="n">3</span></td>
+          <td><span class="bar bar-5" aria-hidden="true"></span><span class="n">5</span></td>
+          <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
+          <td><span class="n none">0</span></td>
+        </tr>
+        <tr class="hue-love">
+          <th scope="row">Formula 1</th>
+          <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
+          <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
+          <td><span class="bar bar-3" aria-hidden="true"></span><span class="n">3</span></td>
+          <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint sg-fit-445">Scroll the table sideways for the rest of it.</p>
+</div>
+
+<h3 id="hues">Hue carriers</h3>
+
+<p>
+  <code>.hue-gold</code>, <code>.hue-foam</code>, <code>.hue-iris</code>,
+  <code>.hue-rose</code>, <code>.hue-love</code> and <code>.hue-pine</code> set
+  <code>--hue</code> on a container. They mark a group. They don't give the hue
+  a second job. Two rules keep that true. The hue may only repeat a label the
+  component already prints — the shelf title, the sport a row belongs to — so
+  nothing is legible by colour alone. And it may only reach a border, a rail or
+  a fill, never text, which is what lets pine into the set at all.
+  The reading shelves use the same variable.
+</p>
+
 <h3>Footer</h3>
 
 <p>The statusline mirrored at the page end, stacked the same way: the colophon on
@@ -917,7 +1251,7 @@ top of the page.</p>
 </p>
 
 <h3>Colour</h3>
-<div class="scroll-x">
+<div class="scroll-x" tabindex="0" role="region" aria-label="Colour token reference">
 <table>
   <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
   <tbody>
@@ -940,9 +1274,10 @@ top of the page.</p>
   </tbody>
 </table>
 </div>
+<p class="scroll-hint sg-fit-348">Scroll the table sideways for the rest of the columns.</p>
 
 <h3>Typography</h3>
-<div class="scroll-x">
+<div class="scroll-x" tabindex="0" role="region" aria-label="Typography token reference">
 <table>
   <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
   <tbody>
@@ -964,22 +1299,25 @@ top of the page.</p>
   </tbody>
 </table>
 </div>
+<p class="scroll-hint sg-fit-366">Scroll the table sideways for the rest of the columns.</p>
 
 <h3>Spacing &amp; layout</h3>
-<div class="scroll-x">
+<div class="scroll-x" tabindex="0" role="region" aria-label="Spacing and layout token reference">
 <table>
   <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
   <tbody>
     <tr><td><code>--space-1</code> … <code>--space-6</code></td><td>0.25 / 0.5 / 1 / 1.5 / 2.5 / 4 rem</td><td>The only permitted gaps</td></tr>
     <tr><td><code>--layout-width</code></td><td>760px</td><td>Reading measure (~76ch)</td></tr>
+    <tr><td><code>--layout-width-wide</code></td><td>1272px</td><td>Page cap under <code>.wide</code> — two panes</td></tr>
     <tr><td><code>--layout-pad-x</code></td><td>1.5rem</td><td>Column side padding</td></tr>
     <tr><td><code>--layout-pad-y</code></td><td>2.5rem</td><td>Page top/bottom padding</td></tr>
   </tbody>
 </table>
 </div>
+<p class="scroll-hint sg-fit-330">Scroll the table sideways for the rest of the columns.</p>
 
 <h3>Borders &amp; motion</h3>
-<div class="scroll-x">
+<div class="scroll-x" tabindex="0" role="region" aria-label="Borders and motion token reference">
 <table>
   <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
   <tbody>
@@ -990,6 +1328,7 @@ top of the page.</p>
   </tbody>
 </table>
 </div>
+<p class="scroll-hint sg-fit-348">Scroll the table sideways for the rest of the columns.</p>
 
 <!-- ════════════════════════════════════════════════════════════ -->
 <h2 id="dodont"><span>Do &amp; don't</span></h2>
@@ -1033,9 +1372,19 @@ top of the page.</p>
   </div>
   <div class="dont">
     <p class="label">Don't</p>
-    <p>Break the 760px measure or let the page scroll sideways.</p>
+    <p>Run prose past the measure, or let the page scroll sideways.</p>
+  </div>
+  <div class="do">
+    <p class="label">Do</p>
+    <p>Reach for <code>.wide</code> when a page is scanned rather than read, and tile its sections with <code>.panes</code>.</p>
+  </div>
+  <div class="dont">
+    <p class="label">Don't</p>
+    <p>Widen a page of paragraphs, or leave prose at full width inside a wide one.</p>
   </div>
 </div>
+
+</main>
 
 <footer class="page-end">
   <div class="statusline statusline-stack">

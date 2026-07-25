@@ -31,7 +31,7 @@ test("theme.css is applied, not just linked", async ({ page }) => {
 });
 
 test("static pages share the same stylesheet", async ({ page }) => {
-  for (const urlPath of ["/style-guide.html", "/rust-quick-reference.html"]) {
+  for (const urlPath of ["/style-guide.html", "/rust-quick-reference.html", "/sports.html"]) {
     await page.goto(urlPath);
     await expect(page.locator('link[rel="stylesheet"][href="/theme.css"]'), urlPath).toHaveCount(1);
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
@@ -144,7 +144,14 @@ for (const width of [1280, 390, 320]) {
     test("every header nav link is visible and clickable", async ({ page }) => {
       await page.goto("/index.html");
       const links = page.locator("header .statusline-nav a");
-      expect(await links.count(), "header should offer home, posts, tags and about").toBe(4);
+      const labels = (await links.allTextContents()).map((t) => t.trim());
+      expect(labels, "header nav does not offer the pages it should").toEqual([
+        "~/blog",
+        "posts",
+        "tags",
+        "sports",
+        "about",
+      ]);
 
       for (const link of await links.all()) {
         const label = (await link.textContent()).trim();
@@ -224,3 +231,129 @@ test("footer navigation works from a nested tag page", async ({ page }) => {
   await expect(page).toHaveURL(/\/tags\.html$/);
   await expect(page.locator("h1")).toBeVisible();
 });
+
+// The statusline check above knows which container to look inside. This one
+// doesn't need to: it asks the general question — is any element hiding its own
+// overflow? — which is the shape of the footer bug rather than the instance of
+// it. The theme has exactly one deliberate `overflow: hidden` today
+// (.seg-shrink, guarded by the title rule in a11y.spec.js), so the next one
+// someone adds is caught here instead of shipping.
+for (const width of [1280, 700, 390, 320]) {
+  test.describe(`containment at ${width}px`, () => {
+    test.use({ viewport: { width, height: 844 } });
+
+    for (const urlPath of samplePages()) {
+      test(`no container hides its own content: ${urlPath}`, async ({ page }) => {
+        await page.goto(urlPath);
+
+        const clipped = await page.evaluate(() =>
+          [...document.querySelectorAll("body *")]
+            .filter((el) => {
+              const s = getComputedStyle(el);
+              if (s.display === "none" || s.visibility === "hidden") return false;
+              return /hidden|clip/.test(`${s.overflowX} ${s.overflowY}`);
+            })
+            // .seg-shrink truncates on purpose; it carries a matching title and
+            // is never focusable, both asserted in a11y.spec.js.
+            .filter((el) => !el.classList.contains("seg-shrink"))
+            .filter(
+              (el) =>
+                el.scrollWidth - el.clientWidth > 1 || el.scrollHeight - el.clientHeight > 1,
+            )
+            .map(
+              (el) =>
+                `${el.tagName.toLowerCase()}.${el.className} clips "${(el.textContent || "")
+                  .trim()
+                  .slice(0, 60)}"`,
+            ),
+        );
+
+        expect(clipped, "an element hides content it should show or scroll").toEqual([]);
+      });
+    }
+  });
+}
+
+// The season table carries every count twice: as the printed number a reader
+// sees, and as the bar-N class that draws the column behind it. Thirty-six
+// hand-written cells, and a chart that disagrees with its own numbers looks
+// completely normal. The bar is aria-hidden, so no accessibility check reaches
+// it either.
+test("season bars match their printed counts", async ({ page }) => {
+  await page.goto("/sports.html");
+
+  const cells = await page.$$eval(".season tbody td", (tds) =>
+    tds.map((td) => {
+      const n = td.querySelector(".n");
+      const barClass = [...(td.querySelector(".bar")?.classList ?? [])].find((c) =>
+        c.startsWith("bar-"),
+      );
+      return {
+        printed: n?.textContent.trim() ?? "",
+        // A zero month prints "0" and marks it .none — there is no column to
+        // draw, so the absent bar is correct rather than a mismatch.
+        zero: Boolean(n?.classList.contains("none")),
+        bar: barClass ? barClass.slice("bar-".length) : "",
+      };
+    }),
+  );
+
+  expect(cells.length, "no season cells found — has the markup changed?").toBeGreaterThan(0);
+  expect(
+    cells.some((c) => c.bar !== ""),
+    "no bars found at all — has the chart markup changed?",
+  ).toBe(true);
+
+  const wrong = cells.flatMap((c) => {
+    if (c.zero) {
+      // Marked empty: must print 0 and draw nothing.
+      if (c.printed !== "0" || c.bar !== "") {
+        return [`cell marked empty prints "${c.printed}" and draws bar ${c.bar || "none"}`];
+      }
+      return [];
+    }
+    if (c.bar !== c.printed) {
+      return [`printed ${c.printed || '""'}, bar ${c.bar || "none"}`];
+    }
+    return [];
+  });
+
+  expect(wrong, "the season chart disagrees with its own numbers").toEqual([]);
+});
+
+// The scroll hint is shown by a hand-measured media query, so it drifts the
+// moment a column is added or a cell gets longer. Either half of the mismatch
+// is a real failure: a table that scrolls with no hint hides half the year, and
+// a hint with nothing to scroll sends the reader looking for content that is
+// already on screen.
+for (const width of [1280, 700, 565, 390, 320]) {
+  test.describe(`season table at ${width}px`, () => {
+    test.use({ viewport: { width, height: 844 } });
+
+    test("the scroll hint appears exactly when the table scrolls", async ({ page }) => {
+      await page.goto("/sports.html");
+
+      const state = await page.evaluate(() => {
+        const box = document.querySelector(".scroll-x");
+        const hint = document.querySelector(".scroll-hint");
+        return {
+          // Any overflow at all means the reader has content off screen. The
+          // breakpoint is calibrated to the pixel — 566px fits exactly, 565px
+          // overflows by one — so a tolerance here would blind the test to the
+          // boundary it exists to watch.
+          scrolls: box ? box.scrollWidth - box.clientWidth > 0 : null,
+          hinted: hint ? getComputedStyle(hint).display !== "none" : null,
+        };
+      });
+
+      expect(state.scrolls, "no .scroll-x region found on the page").not.toBeNull();
+      expect(state.hinted, "no .scroll-hint found on the page").not.toBeNull();
+      expect(
+        state.hinted,
+        state.scrolls
+          ? "the table scrolls but no hint says so"
+          : "a scroll hint is shown but the table fits",
+      ).toBe(state.scrolls);
+    });
+  });
+}

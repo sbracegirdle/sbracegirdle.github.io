@@ -130,3 +130,85 @@ test("interactive chrome meets the minimum target size", async ({ page }) => {
     "chrome links smaller than 24×24 (SC 2.5.8)",
   ).toEqual([]);
 });
+
+// The truncation check above runs on the homepage. The hand-written pages in
+// static/ each build their own statusline with their own .seg-shrink, and none
+// of them was covered — so the rule held exactly where the generator applied it
+// and nowhere else.
+for (const urlPath of samplePages()) {
+  test(`truncating elements expose their full text: ${urlPath}`, async ({ page }) => {
+    await page.goto(urlPath);
+
+    const found = await page.evaluate(() =>
+      [...document.querySelectorAll("body *")]
+        .filter((el) => getComputedStyle(el).textOverflow === "ellipsis")
+        .filter((el) => getComputedStyle(el).display !== "none")
+        .map((el) => ({
+          what: `${el.tagName.toLowerCase()}.${el.className}`,
+          text: (el.textContent || "").trim(),
+          title: (el.getAttribute("title") || "").trim(),
+        })),
+    );
+
+    expect(
+      found.filter((el) => el.title !== el.text),
+      "an element truncates without a matching title",
+    ).toEqual([]);
+  });
+}
+
+// title is the only affordance a no-JavaScript page has for a truncated label,
+// and it reaches neither a keyboard user nor a touch user. That is why the rule
+// is to keep .seg-shrink off anything focusable rather than to paper over it
+// with a tooltip — a truncated link is unreadable for them with no way back.
+// Making the filename segment a link is a one-character diff.
+for (const urlPath of samplePages()) {
+  test(`nothing that truncates is interactive: ${urlPath}`, async ({ page }) => {
+    await page.goto(urlPath);
+
+    const interactive = await page.$$eval(".seg-shrink", (els) =>
+      els
+        .filter(
+          (el) =>
+            el.matches("a[href], button, input, select, textarea, [tabindex]") ||
+            el.querySelector("a[href], button, input, select, textarea, [tabindex]"),
+        )
+        .map((el) => `${el.tagName.toLowerCase()}.${el.className}: ${el.textContent.trim()}`),
+    );
+
+    expect(
+      interactive,
+      "a truncating element is focusable — title never reaches a keyboard or touch user",
+    ).toEqual([]);
+  });
+}
+
+// A region that scrolls is a region a keyboard user has to be able to reach and
+// scroll, which means a tabindex and a name (SC 2.1.1). sports.html gets this
+// right today; nothing kept it that way.
+test("scrollable regions are keyboard reachable and named", async ({ page }) => {
+  await page.goto("/sports.html");
+
+  const regions = await page.$$eval(".scroll-x", (els) =>
+    els.map((el) => ({
+      what: el.className,
+      scrolls: el.scrollWidth - el.clientWidth > 1,
+      tabindex: el.getAttribute("tabindex"),
+      role: el.getAttribute("role"),
+      named: Boolean(
+        el.getAttribute("aria-label") ||
+          (el.getAttribute("aria-labelledby") &&
+            document.getElementById(el.getAttribute("aria-labelledby"))),
+      ),
+    })),
+  );
+
+  expect(regions.length, "no .scroll-x region found — has the markup changed?").toBeGreaterThan(0);
+
+  for (const r of regions) {
+    if (!r.scrolls) continue;
+    expect(r.tabindex, `${r.what} scrolls but is not focusable`).toBe("0");
+    expect(r.role, `${r.what} scrolls but has no role`).toBeTruthy();
+    expect(r.named, `${r.what} scrolls but has no accessible name`).toBe(true);
+  }
+});

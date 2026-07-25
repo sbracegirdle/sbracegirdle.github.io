@@ -120,7 +120,7 @@ type readingShelf struct {
 	shelf string // Goodreads shelf slug
 	label string // heading shown on the page
 	sort  string // Goodreads RSS sort key ("" = feed default)
-	hue   string // theme.css shelf-hue modifier ("gold", "foam", "iris")
+	hue   string // theme.css hue modifier ("gold", "foam", "iris")
 }
 
 // featuredShelves are the shelves rendered in the "What I'm reading" block, in
@@ -535,9 +535,10 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 	contentBuilder.WriteString("</ul>")
 	contentBuilder.WriteString("<p><a href=\"/about.html\">More about me &rarr;</a></p>")
 	contentBuilder.WriteString(renderReadingSection(shelves))
-	contentBuilder.WriteString("<h2>Quick references</h2>")
+	contentBuilder.WriteString("<h2>Reference pages</h2>")
 	contentBuilder.WriteString("<ul class=\"post-list\">")
 	contentBuilder.WriteString("<li><a href=\"/rust-quick-reference.html\">Rust quick reference</a><p>A progressive tour of Rust — ownership, borrowing, traits, and cargo — styled like a TUI.</p></li>")
+	contentBuilder.WriteString("<li><a href=\"/sports.html\">Sports 2026</a><p>What's left of the season in the six sports I follow, from the Vuelta to the Bledisloe to the Boxing Day Test.</p></li>")
 	contentBuilder.WriteString("</ul>")
 	contentBuilder.WriteString("<h2>Latest posts</h2>")
 

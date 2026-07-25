@@ -33,7 +33,9 @@ index page listing all dated posts.
 - `.agents/skills/perf-audit/` — the performance and footprint skill (the budget spec, the Lighthouse pass, how to read the report, the budget policy, plus `references/lighthouse-audits.md`); symlinked the same way
 - `.claude/agents/design-reviewer.md`, `.codex/agents/design-reviewer.toml` — the same design reviewer for both, thin wrappers that run the `design-review` skill
 - `.claude/agents/perf-auditor.md`, `.codex/agents/perf-auditor.toml` — the same performance auditor for both, thin wrappers that run the `perf-audit` skill
+- `.agents/skills/sports-update/` — how to refresh `static/sports.html` (where each date comes from, the parts of the page derived from other parts, what's Simon's call, plus `references/sources.md`); symlinked the same way. No subagent: it edits the page rather than reviewing it
 - `static/style-guide.html` — visual design system reference (tokens, components, usage rules); deployed at `/style-guide.html`, linked from the site footer
+- `static/sports.html` — a hand-written calendar of six sports and the athletes and teams Simon follows in them, deployed at `/sports.html`, linked from the homepage and the primary nav. Dated content: it carries the date it was compiled, and nothing regenerates it, so the fixtures go stale as that date recedes. `sports-update` is the skill for putting that right
 - `.github/workflows/deploy.yml` — CI: test, build, deploy to GitHub Pages on push to `main`
 
 ## Commands
@@ -289,6 +291,26 @@ Each Lighthouse pass launches its own Chromium and Playwright runs a worker per
 core; run together they have already taken Simon's machine down hard enough to
 reboot it. Wait for each command to finish before starting the next.
 
+## The sports page has a skill
+
+`static/sports.html` is the one page on the site that goes wrong by sitting
+still. Nothing generates it, so its fixtures pass, its venues get confirmed and
+its compiled date recedes without anything failing. Use the `sports-update`
+skill at `.agents/skills/sports-update/` whenever it needs refreshing or a
+season needs adding.
+
+It isn't a gate and it has no subagent, because it edits the page and the four
+gates above review what it produces. It holds the part that isn't obvious from
+reading the page: `references/sources.md` names the organiser calendar behind
+each sport, and the skill lists the parts of the page derived from other parts.
+The season table, the glance paragraph above it, the What's next list, the head
+metadata, the homepage blurb in `main.go` and the compiled date in two formats
+all restate the same facts. Miss one and the fixture only half-lands.
+
+**The athletes are Simon's.** Names come off or go on the `.who` chips when he
+says so, not when someone retires or starts winning — the same rule as not
+inventing his opinions, applied to a list.
+
 ## Conventions
 
 - Posts live in `content/` named `yyyy-mm-dd-title.md`. The date prefix is parsed
@@ -367,6 +389,13 @@ carry a few page-specific rules inline (e.g. the quick ref's two-column TOC).
   groups; the hue only repeats the card title, so nothing rides on colour
   alone. `parseShelf` drops the cover URLs the feed still carries, and
   `TestParseShelfIgnoresCovers` keeps them out.
+- Most pages are prose on the 760px measure. A quick reference gets skimmed for
+  one thing, so it takes `.wide` on its `<body>` to lift the cap to
+  `--layout-width-wide`. `.panes` tiles its sections two-up, and `.measure`
+  puts anything still written in sentences back on the reading column. Wide
+  mode is a licence for layout, not for prose, and it belongs to `static/`:
+  posts render through `template.html`, which owns the `<body>` tag.
+  `static/rust-quick-reference.html` is the one page using it.
 - Nothing may widen the page on a phone. Inline `code`, links and `h1` break
   mid-token; code blocks scroll inside `pre`; flex rows (`.pager`, the style
   guide's specimen rows) wrap; and hidden decoration is hidden with `display`
@@ -405,8 +434,35 @@ carry a few page-specific rules inline (e.g. the quick ref's two-column TOC).
   nothing joins them for its looks. Use `.label` for a small-caps caption that
   isn't a section — the do/don't cards in the style guide were ten h4s under an
   h2, which both skipped a level and buried the real structure.
-- `static/rust-quick-reference.html` and `static/style-guide.html` are
-  standalone pages but link `/theme.css` like everything else.
+- `static/rust-quick-reference.html`, `static/style-guide.html` and
+  `static/sports.html` are standalone pages but link `/theme.css` like
+  everything else.
+- `.fixture-list` is the post index's counterpart for events that haven't
+  happened yet — gold date, event, then a subtle line with the place and the
+  reason. `.fixture-who` hangs a row of `.who` chips under one, naming who to
+  watch at that event. `.season` is the table that summarises a whole season: a
+  row per series, a column per month, the count in the cell with a column
+  behind it whose height matches the count and a wash at the same weight — a
+  bar chart that still reads in order as a table. All three
+  take `--hue` from a `.hue-*` class, which is a group marker and not a new job
+  for the hue: it may only repeat a label already printed in text, and it may
+  only reach a border, a rail or a fill. That second rule is what lets
+  `--c-pine` into the set. The reading shelves use the same variable. A list
+  that mixes kinds must also name the kind in the row — a `.tag` chip beside
+  the event — because a rail colour that repeats no printed label is exactly
+  the colour-alone signal the rule exists to prevent.
+- `.who` is a name chip with a nationality: the country code in a `.nat` span,
+  tinted by a `.hue-*` class on the chip. The flag is drawn as three letters
+  rather than fetched as an image, and the hue lands on the code it repeats, so
+  nothing is carried by colour alone. Two rules that aren't obvious. It takes no
+  rail, because `.fixture` already draws one in the same variable meaning
+  *which sport*, and a second rail nested inside it would have meant nationality
+  a few hundred pixels away. And the hue reaches text here, so `--c-pine` and
+  `--color-muted` stay out of this set even though they're fine on `.fixture`.
+  Keep the space between the code and the name in the markup — the gap is a
+  margin, and a margin isn't in the accessibility tree, so without it a screen
+  reader says "AUSJai Hindley". A chip whose label already names its country
+  doesn't need a code and isn't a `.who`; that's a plain `.tag`.
 
 ## Deployment
 

@@ -58,6 +58,8 @@ export function samplePages() {
     aTaggedPost(),
     "/about.html",
     "/style-guide.html",
+    "/rust-quick-reference.html",
+    "/sports.html",
     "/404.html",
   ].filter(Boolean);
 }

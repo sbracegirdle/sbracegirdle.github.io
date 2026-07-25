@@ -60,6 +60,12 @@
 
   /* ── Layout ── */
   --layout-width: 760px;
+  /* The wide page cap — content width, as --layout-width is. Sized to two
+     panes comfortably above their 36rem floor, and far too narrow for a third
+     column ever to form. A pane at the cap holds a code block of about 65
+     columns; anything longer scrolls inside its own `pre`, as it does
+     everywhere else on the site. */
+  --layout-width-wide: 1272px;
   --layout-pad-y: 2.5rem;
   --layout-pad-x: 1.5rem;
 
@@ -104,11 +110,56 @@ ul li::marker { color: var(--color-muted); content: "· "; }
 ol li::marker { color: var(--color-subtle); }
 .post-list li::marker,
 .book-list li::marker,
+.fixture-list li::marker,
+.tag-list li::marker,
+.tag-cloud li::marker,
 .pager li::marker { content: ""; }
 hr { border: none; border-top: 1px dashed var(--color-border); margin: var(--space-5) 0; }
 strong { font-weight: var(--weight-bold); }
 em { color: var(--c-rose); font-style: italic; }
 img { max-width: 100%; }
+
+/* ── Page layout: the measure, and the wide mode ──────────────── */
+/* A page you skim for one thing is better served by the whole window than by
+   the 760px measure. `.wide` on the body lifts the cap to
+   --layout-width-wide, `.panes` tiles the page's sections, and `.measure`
+   puts a block that is still prose back on the reading column. The Wide mode
+   section of /style-guide.html holds the reasoning and the rules; what
+   follows is only what the CSS itself needs to explain.
+
+   The extra width buys nothing until it buys the second column: below that, a
+   wide page is one pane of prose 1175px across, which is worse than the 760px
+   it started from. So the cap only lifts once two panes fit — 2 × the 36rem
+   track floor + --space-4 between them + --layout-pad-x either side. A media
+   query can't read a token, so the sum is written out; keep it in step with
+   the floor in `.panes` below. */
+body.wide { max-width: var(--layout-width); }
+@media (min-width: 1224px) {
+  body.wide { max-width: var(--layout-width-wide); }
+}
+.measure { max-width: var(--layout-width); }
+
+/* The track floor is deliberately high: much under 36rem a pane is too narrow
+   to hold a code block, so auto-fit drops back to one column rather than
+   squeezing. `min(100%, …)` keeps that floor from overflowing a phone, and
+   `min-width: 0` stops one long line widening its whole track instead of
+   scrolling inside the block it belongs to. */
+.panes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 36rem), 1fr));
+  align-items: start;
+  margin: var(--space-6) 0;
+  column-gap: var(--space-4);
+  row-gap: var(--space-6);
+}
+.panes > * { min-width: 0; }
+/* A pane is trimmed to its own content so the gaps are the grid's alone. The
+   heading's top margin and the last block's bottom margin would otherwise sit
+   inside the pane and add to every gap around it — and unlike margins in
+   normal flow, they don't collapse with anything. The grid's own margin above
+   replaces the one the first heading used to bring. */
+.panes > * > :first-child { margin-top: 0; }
+.panes > * > :last-child { margin-bottom: 0; }
 
 /* ── Headings — hierarchy by structure, not glyph prefixes.
      h1: inverted title block (a selected TUI row)
@@ -470,17 +521,29 @@ footer { margin-top: var(--space-6); }
 }
 .card-grid .card { margin: 0; }
 
+/* ── Hue carriers ─────────────────────────────────────────────── */
+/* A group marker, not a new job for the hue: these set --hue on a container so
+   a repeated component can tell its groups apart at a glance. The rule that
+   makes it legal is that the hue only ever repeats a label the component
+   already shows in text, so nothing is carried by colour alone — and a hue used
+   as a border or a fill is decoration, which is the only role --c-pine has.
+   Anything reading --hue must supply its own fallback, so an unclassed
+   instance still renders. */
+.hue-gold, .shelf-gold { --hue: var(--c-gold); }
+.hue-foam, .shelf-foam { --hue: var(--c-foam); }
+.hue-iris, .shelf-iris { --hue: var(--c-iris); }
+.hue-rose { --hue: var(--c-rose); }
+.hue-love { --hue: var(--c-love); }
+.hue-pine { --hue: var(--c-pine); }
+
 /* ── Reading shelves (book cards) ─────────────────────────────── */
 /* Each shelf card takes a hue so the groups read as groups. The hue only
    repeats the card title, which is always present, so nothing depends on
    colour alone. */
-.shelf-gold { --shelf-hue: var(--c-gold); }
-.shelf-foam { --shelf-hue: var(--c-foam); }
-.shelf-iris { --shelf-hue: var(--c-iris); }
-.shelf-gold, .shelf-foam, .shelf-iris { border-color: var(--shelf-hue); }
+.shelf-gold, .shelf-foam, .shelf-iris { border-color: var(--hue); }
 .shelf-gold > .card-title,
 .shelf-foam > .card-title,
-.shelf-iris > .card-title { border-color: var(--shelf-hue); color: var(--shelf-hue); }
+.shelf-iris > .card-title { border-color: var(--hue); color: var(--hue); }
 
 /* Cards size to their own contents — a one-book shelf shouldn't be stretched
    to the height of a three-book one. */
@@ -519,7 +582,7 @@ footer { margin-top: var(--space-6); }
   --glyph-rule-1: 12px;
   --glyph-rule-2: 8px;
   border: var(--border-width) solid var(--color-border-strong);
-  border-left: 4px solid var(--shelf-hue, var(--color-border-strong));
+  border-left: 4px solid var(--hue, var(--color-border-strong));
   background:
     linear-gradient(var(--color-border-strong) 0 0) no-repeat 4px 8px / var(--glyph-rule-1) 2px,
     linear-gradient(var(--color-border-strong) 0 0) no-repeat 4px 13px / var(--glyph-rule-2) 2px,
@@ -537,6 +600,153 @@ footer { margin-top: var(--space-6); }
 }
 .book-title { font-weight: var(--weight-medium); }
 .book-author { color: var(--color-subtle); }
+
+/* ── Fixture list (dated events, still to come) ───────────────── */
+/* .post-list's counterpart for things that haven't happened yet: a race
+   calendar, a season, a run of fixtures. One row is one event — when it runs,
+   what it is, then a subtle line carrying where and why it matters. Dates keep
+   the gold the post index gives them, so a date reads as a date sitewide.
+
+   The left rail takes --hue from a .hue-* class, on the list when every row is
+   the same kind and on the row itself when a list mixes them. The rail is
+   decoration and nothing rests on it: every row names its own kind in text. */
+.fixture-list { list-style: none; padding: 0; margin: var(--space-4) 0; }
+.fixture {
+  display: grid;
+  grid-template-columns: 10.5rem 1fr;
+  column-gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-2) 0 var(--space-2) var(--space-3);
+  border-left: var(--bar-width) solid var(--hue, var(--color-border-strong));
+}
+/* The separator goes on the following row, not as a bottom border on every
+   row: a bottom border would cut across the rail and break it into rungs. */
+.fixture + .fixture { border-top: var(--border-width) dashed var(--color-border); }
+/* Spans both rows rather than sitting in the first. A date that wraps to two
+   lines would otherwise grow row 1 and push the note away from the title it
+   belongs to — the gap tripled on the one row where that happened. */
+.fixture-when {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  color: var(--c-gold);
+  font-size: var(--text-sm);
+}
+/* Flex, not inline: a mixed list names the kind in a chip beside the event, and
+   a margin-spaced chip that wrapped to its own line sat indented off the rail. */
+.fixture-what {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-2);
+  row-gap: var(--space-1);
+  font-weight: var(--weight-medium);
+}
+.fixture-note {
+  grid-column: 2;
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-subtle);
+}
+/* The place leads the note line and is the one part of it read at full
+   strength — it answers "can I get to this?" before the prose does. */
+.fixture-where { color: var(--color-text); }
+/* Subtle, not muted: this is the component's own boundary mark, and at muted it
+   was the faintest thing on a line that also carries content. */
+.fixture-where::after { content: " · "; color: var(--color-subtle); }
+/* Who to watch at this one, as a row of .who chips under the note. It is a
+   .tag-list as well, for the flex row and the marker reset; this only places
+   it in the grid and pulls its trailing margin. */
+.fixture-who { grid-column: 2; margin: var(--space-2) 0 0; gap: var(--space-1) var(--space-2); }
+/* Below the date column's width there is no date column: two tracks whose
+   first is wider than the screen is one track with a wrapped date in it. */
+@media (max-width: 640px) {
+  .fixture { grid-template-columns: 1fr; }
+  .fixture-when,
+  .fixture-what,
+  .fixture-note,
+  .fixture-who { grid-column: 1; }
+  .fixture-when { grid-row: auto; }
+}
+
+/* ── Season grid ──────────────────────────────────────────────── */
+/* Where a calendar's weight sits: one row per strand, one column per month,
+   the number of events in the cell. It is a real table and the numbers are its
+   content, so it reads in order and adds up out loud; the column above each
+   number is decoration sized by the same count, tinted with the row's --hue.
+   Wrap it in .scroll-x — six columns of month names don't fit a phone. */
+.season {
+  /* One step of column height per event, and the column's own width. Both are
+     the chart's geometry rather than page spacing, so they live here and not
+     in the spacing scale. */
+  --season-step: 0.625rem;
+  --season-col: 1.15rem;
+}
+.season td,
+.season th[scope="col"] { text-align: center; }
+/* Month names are dates, and dates are gold sitewide. The corner cell heads
+   the sport column and is a label, so it stays at text strength. */
+.season thead th:not(:first-child) { color: var(--c-gold); }
+/* The corner cell heads the row-header column, which is left-aligned, so it
+   is the one column header that isn't centred over its numbers. */
+.season thead th:first-child { text-align: left; }
+/* Bottom-aligned with its own numbers. Left at the base `th` rule's `top` the
+   label floated nine pixels above the row it names, across an empty gap wide
+   enough to make that obvious. */
+.season th[scope="row"] { text-align: left; white-space: nowrap; vertical-align: bottom; }
+/* The base `th` rule draws the 2px column-header rule. In a body row that met
+   the 1px cell hairline in a visible step at the column boundary. */
+.season tbody th[scope="row"] { border-bottom: var(--border-width) solid var(--color-border); }
+/* A `.scroll-x` can end flush with a column boundary and then look like a
+   finished table: at 390px the season grid showed Jul to Sep, ended exactly on
+   Sep's right edge, and hid half the year with nothing to say so. A scrolling
+   table needs a cue as well as a scrollbar, so pair it with a hint.
+
+   Hidden here and revealed by the page, because the width at which a table
+   stops fitting is a fact about that table — its column count, its longest
+   cell — and not about the component. Measure it and put the one media query
+   next to the table it was measured for.
+
+   Word the hint so it holds at every width it shows at. Naming the columns
+   that are off-screen is tempting and wrong: which ones those are changes as
+   the viewport does, and a page with no JavaScript is telling you to scroll
+   for a month that has been on screen the whole time. */
+.scroll-hint {
+  display: none;
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-subtle);
+}
+
+/* Bottom-aligned so the numbers sit on one line across the row. A cell with no
+   bar is shorter than one with, and top alignment staggered them. */
+.season td { padding: var(--space-2) var(--space-1); vertical-align: bottom; }
+.season .n { font-size: var(--text-xs); }
+.season .none { color: var(--color-subtle); }
+/* A column, not a rule: height carries the count and every cell in the row
+   shares a baseline, so the grid reads as a bar chart rather than as a set of
+   unrelated dashes. Proportional now — one step per event, no banding — which
+   only works because the counts here are small and the tallest is five. */
+.season .bar {
+  display: block;
+  width: var(--season-col);
+  margin: 0 auto var(--space-1);
+  background: var(--hue, var(--color-border-strong));
+}
+.season .bar-1 { height: calc(var(--season-step) * 1); }
+.season .bar-2 { height: calc(var(--season-step) * 2); }
+.season .bar-3 { height: calc(var(--season-step) * 3); }
+.season .bar-4 { height: calc(var(--season-step) * 4); }
+.season .bar-5 { height: calc(var(--season-step) * 5); }
+/* And a wash behind the cell at the same weight, so the busy months read as
+   blocks of colour before you get to the columns. The alphas stay low: this
+   sits under text that has to hold its contrast, and it repeats a number
+   printed in the cell, so nothing is lost if it doesn't render at all. */
+.season td:has(.bar-1) { background: color-mix(in srgb, var(--hue) 6%, transparent); }
+.season td:has(.bar-2) { background: color-mix(in srgb, var(--hue) 10%, transparent); }
+.season td:has(.bar-3) { background: color-mix(in srgb, var(--hue) 14%, transparent); }
+.season td:has(.bar-4) { background: color-mix(in srgb, var(--hue) 18%, transparent); }
+.season td:has(.bar-5) { background: color-mix(in srgb, var(--hue) 22%, transparent); }
 
 /* ── Buttons ──────────────────────────────────────────────────── */
 .btn {
@@ -579,8 +789,30 @@ a.tag:hover { border-color: var(--c-rose); color: var(--c-rose); }
 .tag-list,
 .tag-cloud { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .tag-list { margin: 0 0 var(--space-4); }
+/* A chip row is a list of things, so it may be a `ul` as well as a `nav` of
+   links — a row of ten names read as one undifferentiated run of text
+   otherwise. As a `ul` it brings list padding and a marker with it; both go. */
+.tag-list, .tag-cloud { padding-left: 0; }
+.tag-list li, .tag-cloud li { margin: 0; }
 .tag-cloud { margin: var(--space-4) 0; }
 .tag-count { color: var(--c-gold); margin-left: var(--space-2); }
+/* A name chip: someone being followed, with the flag drawn as a three-letter
+   code rather than fetched as an image. The code takes --hue from a .hue-*
+   class on the chip, so the colour lands on the text it repeats and nothing is
+   legible by colour alone.
+
+   No rail here, deliberately. .fixture already draws a 3px --hue rail meaning
+   "which sport this row belongs to", and these chips sit inside one — the same
+   mark in the same variable would have meant nationality 200px from where it
+   meant sport. Putting the hue on text instead is what keeps --c-pine and
+   --color-muted out of this set: they fail AA at chip size.
+
+   Keep the space between the code and the name in the markup. The gap is a
+   margin, and a margin is not in the accessibility tree: without it a screen
+   reader reads "AUSJai Hindley". A chip whose label already names its country
+   doesn't need a code and isn't a .who — that's a plain .tag. */
+.who { color: var(--color-text); }
+.who .nat { color: var(--hue, var(--color-subtle)); margin-right: var(--space-2); }
 .tag-foam { border-color: var(--c-foam); color: var(--c-foam); }
 .tag-gold { border-color: var(--c-gold); color: var(--c-gold); }
 .tag-iris { border-color: var(--c-iris); color: var(--c-iris); }

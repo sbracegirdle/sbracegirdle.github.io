@@ -22,19 +22,24 @@
       href="/feed.xml"
     />
     <style>
-      /* Page-specific: smooth anchor scrolling and a two-column TOC. */
+      /* Page-specific: smooth anchor scrolling and a column-flowed TOC. */
       html { scroll-behavior: smooth; }
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
       }
-      .toc { columns: 2; column-gap: var(--space-4); }
-      .toc li { break-inside: avoid; }
-      @media (max-width: 560px) {
-        .toc { columns: 1; }
-      }
+      /* This is an index, so it flows in columns. column-width lets the browser
+         pick the count: four on a wide page, two on the reading measure, one
+         on a phone, with no breakpoint to keep in step. */
+      .toc { columns: 16rem; column-gap: var(--space-4); }
+      /* Every entry keeps its rule, including the last. :last-child is one item
+         in the flow, not one per column, so .post-list's bare last row knocks a
+         single hole in the grid wherever that item happens to land — and it
+         out-specifies a plain `.toc li`, so the last row is named directly. */
+      .toc li { break-inside: avoid; border-bottom: var(--border-width) dashed var(--color-border); }
+      .toc li:last-child { border-bottom: var(--border-width) dashed var(--color-border); }
     </style>
   </head>
-  <body>
+  <body class="wide">
     <header>
       <div class="statusline statusline-stack">
         <div class="statusline-row">
@@ -48,6 +53,7 @@
           <a class="seg" href="/">~/blog</a>
           <a class="seg" href="/posts.html">posts</a>
           <a class="seg" href="/tags.html">tags</a>
+          <a class="seg" href="/sports.html">sports</a>
           <a class="seg" href="/about.html">about</a>
         </nav>
       </div>
@@ -56,10 +62,12 @@
     <h1>Rust quick reference</h1>
     <a href="/" class="prompt">Simon's Blog — LetsBuild.cloud<span class="cursor" aria-hidden="true"></span></a>
 
-    <p>A progressive tour of Rust — ownership, borrowing, traits, and cargo.
+    <main>
+    <p class="measure">A progressive tour of Rust — ownership, borrowing, traits, and cargo.
     Each section builds on the ones before it, and every example is annotated
     with the gotcha that matters.</p>
 
+    <nav aria-label="Contents">
     <ul class="post-list toc">
       <li><span class="num">01</span><a href="#hello-world">Hello World</a></li>
       <li><span class="num">02</span><a href="#variables">Variables &amp; Mutability</a></li>
@@ -77,16 +85,21 @@
       <li><span class="num">14</span><a href="#lifetimes">Lifetimes</a></li>
       <li><span class="num">15</span><a href="#crates">Popular Crates</a></li>
     </ul>
+    </nav>
 
-    <h2 id="hello-world">Hello World</h2>
+    <div class="panes">
+    <section id="hello-world">
+    <h2>Hello World</h2>
     <p>Entry point is <code>fn main()</code>. <strong>println!</strong> is a
     <strong>macro</strong> (note the <code>!</code>) — it expands at compile
     time, it's not a regular function.</p>
     <script type="text/rust">fn main() {
     println!("Hello, world!");
 }</script>
+    </section>
 
-    <h2 id="variables">Variables &amp; Mutability</h2>
+    <section id="variables">
+    <h2>Variables &amp; Mutability</h2>
     <p>Bindings are <strong>immutable by default</strong>. Add
     <code>mut</code> to allow change. <strong>Shadowing</strong> lets you
     reuse a name — even with a new type.</p>
@@ -99,8 +112,10 @@ let s = "hi";          // &str
 let s = s.len();       // shadowing: same name, new type
 
 let (a, b) = (1, 2);   // destructuring bind</script>
+    </section>
 
-    <h2 id="data-types">Data Types</h2>
+    <section id="data-types">
+    <h2>Data Types</h2>
     <p>Scalars, fixed compound types, and the two string kinds:
     <code>&amp;str</code> (borrowed slice) vs <code>String</code> (heap-owned,
     growable).</p>
@@ -118,8 +133,10 @@ let arr: [i32; 3] = [1, 2, 3];   // fixed size, stack
 // two string flavors
 let borrowed: &str = "slice";          // borrowed, static
 let owned: String = String::from("heap"); // growable</script>
+    </section>
 
-    <h2 id="control-flow">Control Flow</h2>
+    <section id="control-flow">
+    <h2>Control Flow</h2>
     <p><code>if</code> is an expression. <code>loop</code> can
     <strong>return a value</strong> via <code>break</code>. Ranges:
     <code>..</code> exclusive, <code>..=</code> inclusive.</p>
@@ -138,8 +155,10 @@ while cond { }
 let n: i32 = loop {
     break 42;          // loops return a value
 };</script>
+    </section>
 
-    <h2 id="ownership">Ownership</h2>
+    <section id="ownership">
+    <h2>Ownership</h2>
     <p>Every value has <strong>one owner</strong>; when the owner leaves scope
     the value is dropped. Assignment <strong>moves</strong> non-Copy types.
     Primitives implement <code>Copy</code>.</p>
@@ -154,8 +173,10 @@ println!("{a} {b}");    // fine
 
 // explicit deep copy
 let s3 = s2.clone();</script>
+    </section>
 
-    <h2 id="borrowing">Borrowing &amp; References</h2>
+    <section id="borrowing">
+    <h2>Borrowing &amp; References</h2>
     <p>References let you use a value without taking ownership. The borrow
     checker enforces: <strong>many shared</strong> <code>&amp;T</code>
     <strong>XOR</strong> <strong>one mutable</strong> <code>&amp;mut T</code>
@@ -172,8 +193,10 @@ let r3 = &mut s;        // ERROR: can't mix &mut with &
 // slices borrow a contiguous view
 let v = vec![1, 2, 3, 4];
 let part: &[i32] = &v[1..3];   // [2, 3]</script>
+    </section>
 
-    <h2 id="structs-enums">Structs &amp; Enums</h2>
+    <section id="structs-enums">
+    <h2>Structs &amp; Enums</h2>
     <p>Structs group named fields; enums are tagged unions (variants can carry
     data). <code>impl</code> blocks attach methods. <code>Self</code> = the
     type itself.</p>
@@ -194,8 +217,10 @@ enum Shape {
 
 let u = User::new("ada");
 let s = Shape::Circle(2.0);</script>
+    </section>
 
-    <h2 id="pattern-matching">Pattern Matching</h2>
+    <section id="pattern-matching">
+    <h2>Pattern Matching</h2>
     <p><code>match</code> is exhaustive and total. <code>Option&lt;T&gt;</code>
     replaces <code>null</code> — you must handle the missing case.</p>
     <script type="text/rust">fn area(s: Shape) -> f64 {
@@ -214,8 +239,10 @@ match first(&[]) {
     Some(x) => println!("first = {x}"),
     None    => println!("empty"),
 }</script>
+    </section>
 
-    <h2 id="error-handling">Error Handling</h2>
+    <section id="error-handling">
+    <h2>Error Handling</h2>
     <p>No exceptions, no nulls. Failures are <code>Result&lt;T, E&gt;</code>.
     The <code>?</code> operator short-circuits and propagates <code>Err</code>
     upward.</p>
@@ -235,8 +262,10 @@ match double("21") {
     Ok(v)  => println!("v = {v}"),
     Err(e) => println!("error: {e}"),
 }</script>
+    </section>
 
-    <h2 id="traits-generics">Traits &amp; Generics</h2>
+    <section id="traits-generics">
+    <h2>Traits &amp; Generics</h2>
     <p>Traits are interfaces. Generics + trait bounds
     <strong>monomorphize</strong> at compile time — zero-cost abstraction, no
     vtable unless you use <code>dyn</code>.</p>
@@ -259,8 +288,10 @@ fn max<T: PartialOrd>(a: T, b: T) -> T {
 
 // dynamic dispatch via a trait object
 fn greet(g: &dyn Greet) { println!("{}", g.hello()); }</script>
+    </section>
 
-    <h2 id="cargo">Cargo</h2>
+    <section id="cargo">
+    <h2>Cargo</h2>
     <p>Cargo is the build system + package manager. <code>Cargo.toml</code>
     declares deps; <code>src/main.rs</code> is the binary entry.</p>
     <script type="text/shell">$ cargo new myproj       # scaffold a binary project
@@ -271,8 +302,10 @@ $ cargo test             # run #[test] functions
 $ cargo add serde        # add a dependency
 $ cargo fmt              # format the code
 $ cargo clippy           # lint</script>
+    </section>
 
-    <h2 id="modules">Modules &amp; Imports</h2>
+    <section id="modules">
+    <h2>Modules &amp; Imports</h2>
     <p>Code is organised with <code>mod</code>. <code>use</code> brings paths
     into scope; <code>pub</code> makes items visible outside their module.
     Paths are absolute from the crate root or relative to the current
@@ -298,8 +331,10 @@ pub use parser::parse as parse_u32;
 //  super::  — parent module
 use crate::network::connect;
 use super::parser::parse as p;</script>
+    </section>
 
-    <h2 id="closures-iterators">Closures &amp; Iterators</h2>
+    <section id="closures-iterators">
+    <h2>Closures &amp; Iterators</h2>
     <p>Closures capture their environment; annotate with <code>Fn</code> (by
     ref), <code>FnMut</code> (by mut ref), <code>FnOnce</code> (by value).
     Iterators are lazy — nothing runs until you <code>collect</code> or
@@ -323,8 +358,10 @@ let doubled: Vec<i32> = v.iter()
 [1,2,3].iter().sum::<i32>();    // 6
 (0..5).any(|x| x == 3);         // true
 (0..5).all(|x| x < 10);         // true</script>
+    </section>
 
-    <h2 id="lifetimes">Lifetimes</h2>
+    <section id="lifetimes">
+    <h2>Lifetimes</h2>
     <p>A lifetime tells the compiler how long a reference is valid. You rarely
     write them — <strong>elision</strong> infers the common cases. Write them
     when a function returns a borrow tied to an input.</p>
@@ -349,8 +386,10 @@ let s: &'static str = "I live forever";
 
 // in generics, T: 'a means T's refs outlive 'a
 fn foo<T: 'a>(x: &'a T) {}</script>
+    </section>
 
-    <h2 id="crates">Popular Crates</h2>
+    <section id="crates">
+    <h2>Popular Crates</h2>
     <p>Add with <code>cargo add &lt;name&gt;</code>. These are the
     load-bearing dependencies in most real Rust codebases.</p>
     <table>
@@ -400,6 +439,9 @@ async fn main() {
 use rayon::prelude::*;
 let sum: i32 = (0..1_000_000)
     .into_par_iter().map(|x| x * 2).sum();</script>
+    </section>
+    </div>
+    </main>
 
     <footer>
       <div class="statusline statusline-stack">
