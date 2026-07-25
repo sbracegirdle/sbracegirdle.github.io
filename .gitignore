@@ -8,3 +8,8 @@ node_modules/
 .obsidian/
 ssg
 build/
+tests/browser/.shots/
+tests/browser/test-results/
+tests/browser/playwright-report/
+tests/browser/blob-report/
+tests/browser/scratch/

@@ -1,0 +1,16 @@
+{
+  "name": "letsbuild-browser-tests",
+  "private": true,
+  "type": "module",
+  "description": "Headless browser tests for the generated site. Not part of the Go module.",
+  "scripts": {
+    "pretest": "bash ./build-site.sh",
+    "test": "playwright test",
+    "explore": "node shot.mjs",
+    "serve": "node serve.mjs",
+    "install-browser": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}
