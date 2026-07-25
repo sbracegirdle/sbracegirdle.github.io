@@ -1,5 +1,5 @@
 ---
-title: We should be writing evals
+title: Evals are useful
 description: As software engineers increasingly integrate LLMs into products, prompt evaluations—using tools like promptfoo—are essential for systematically testing and ensuring prompt reliability, much like traditional software tests.
 ---
 

@@ -412,6 +412,13 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 	var contentBuilder strings.Builder
 	contentBuilder.WriteString("<p>Notes on building software, shipping it, and the engineering practices in between.</p>")
 	contentBuilder.WriteString("<p>Hi! I'm <a href=\"https://github.com/sbracegirdle\" rel=\"author\"><em>Simon</em></a>, a software engineer and consultant in Perth, Western Australia. I've spent 20+ years building products and helping teams improve how they work — now at <a href=\"https://govconnex.com/\">GovConnex</a>, after <a href=\"https://mechanicalrock.io\">Mechanical Rock</a> and <a href=\"https://seqta.com.au\">SEQTA Software</a>.</p>")
+	contentBuilder.WriteString("<p>What I bring:</p><ul>")
+	contentBuilder.WriteString("<li><em>AI features, end to end</em> — research agents, automated briefings, semantic search; from prompt design to production infrastructure.</li>")
+	contentBuilder.WriteString("<li><em>The whole stack</em> — React/TypeScript, Node APIs, Elasticsearch, serverless AWS.</li>")
+	contentBuilder.WriteString("<li><em>Big migrations, landed</em> — an entire app from JavaScript to TypeScript, three design systems merged into one, all while shipping features.</li>")
+	contentBuilder.WriteString("<li><em>Sharper teams</em> — CI/CD, test tooling, code review, and agent-assisted workflows that make everyone faster.</li>")
+	contentBuilder.WriteString("</ul>")
+	contentBuilder.WriteString("<p><a href=\"about.html\">More about me &rarr;</a></p>")
 	contentBuilder.WriteString(renderReadingSection(shelves))
 	contentBuilder.WriteString("<h2>Quick references</h2>")
 	contentBuilder.WriteString("<ul class=\"post-list\">")
