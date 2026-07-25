@@ -25,26 +25,38 @@
   </head>
   <body>
     <header>
-      <div class="statusline">
-        <a class="seg seg-a" href="/">simon@letsbuild</a>
-        <a class="seg seg-b" href="/">~/blog</a>
-        <span class="fill"></span>
-        <span class="seg seg-c seg-shrink" title="{{file}}">{{file}}</span>
-        <span class="seg seg-b">utf-8</span>
+      <div class="statusline statusline-stack">
+        <div class="statusline-row">
+          <a class="seg seg-a" href="/">simon@letsbuild</a>
+          <span class="fill"></span>
+          <span class="seg seg-c seg-shrink" title="{{file}}">{{file}}</span>
+          <span class="seg seg-b">utf-8</span>
+        </div>
+        <nav class="statusline-row statusline-nav" aria-label="Primary">
+          <span class="seg seg-cmd" aria-hidden="true">:</span>
+          <a class="seg" href="/">~/blog</a>
+          <a class="seg" href="/posts.html">posts</a>
+          <a class="seg" href="/tags.html">tags</a>
+          <a class="seg" href="/about.html">about</a>
+        </nav>
       </div>
     </header>
     <h1>{{heading}}</h1>
     <a href="/" class="prompt">Simon's Blog — LetsBuild.cloud<span class="cursor" aria-hidden="true"></span></a>
     <main>{{content}}</main>
     <footer>
-      <div class="statusline">
-        <span class="seg seg-a">eof</span>
-        <a class="seg seg-b seg-grow" href="/2025-03-01-simplest-static-site-generator.html" title="built with the world's simplest static site generator">built with the world's simplest static site generator</a>
-        <a class="seg seg-b" href="#top">&uarr; top</a>
-        <a class="seg seg-b" href="/">~/blog</a>
-        <a class="seg seg-b" href="/tags.html">tags</a>
-        <a class="seg seg-b" href="/feed.xml">feed</a>
-        <a class="seg seg-b" href="/style-guide.html">style guide</a>
+      <div class="statusline statusline-stack">
+        <div class="statusline-row">
+          <span class="seg seg-a">eof</span>
+          <a class="seg seg-b seg-note" href="/2025-03-01-simplest-static-site-generator.html">built with the world's simplest static site generator</a>
+        </div>
+        <nav class="statusline-row statusline-nav" aria-label="Footer">
+          <span class="seg seg-cmd" aria-hidden="true">:</span>
+          <a class="seg" href="#top">&uarr; top</a>
+          <a class="seg" href="/">~/blog</a>
+          <a class="seg" href="/feed.xml">feed</a>
+          <a class="seg" href="/style-guide.html">style guide</a>
+        </nav>
       </div>
     </footer>
   </body>

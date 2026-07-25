@@ -36,12 +36,20 @@
   </head>
   <body>
     <header>
-      <div class="statusline">
-        <a class="seg seg-a" href="/">simon@letsbuild</a>
-        <a class="seg seg-b" href="/">~/blog</a>
-        <span class="fill"></span>
-        <span class="seg seg-c">rust-quick-reference.html</span>
-        <span class="seg seg-b">utf-8</span>
+      <div class="statusline statusline-stack">
+        <div class="statusline-row">
+          <a class="seg seg-a" href="/">simon@letsbuild</a>
+          <span class="fill"></span>
+          <span class="seg seg-c seg-shrink" title="rust-quick-reference.html">rust-quick-reference.html</span>
+          <span class="seg seg-b">utf-8</span>
+        </div>
+        <nav class="statusline-row statusline-nav" aria-label="Primary">
+          <span class="seg seg-cmd" aria-hidden="true">:</span>
+          <a class="seg" href="/">~/blog</a>
+          <a class="seg" href="/posts.html">posts</a>
+          <a class="seg" href="/tags.html">tags</a>
+          <a class="seg" href="/about.html">about</a>
+        </nav>
       </div>
     </header>
 
@@ -394,12 +402,18 @@ let sum: i32 = (0..1_000_000)
     .into_par_iter().map(|x| x * 2).sum();</script>
 
     <footer>
-      <div class="statusline">
-        <span class="seg seg-a">eof</span>
-        <a class="seg seg-b" href="/">~/blog</a>
-        <span class="fill"></span>
-        <a class="seg seg-b" href="#top">&uarr; top</a>
-        <span class="seg seg-b">rust 1.96.0</span>
+      <div class="statusline statusline-stack">
+        <div class="statusline-row">
+          <span class="seg seg-a">eof</span>
+          <span class="seg seg-b seg-note">rust 1.96.0</span>
+        </div>
+        <nav class="statusline-row statusline-nav" aria-label="Footer">
+          <span class="seg seg-cmd" aria-hidden="true">:</span>
+          <a class="seg" href="#top">&uarr; top</a>
+          <a class="seg" href="/">~/blog</a>
+          <a class="seg" href="/feed.xml">feed</a>
+          <a class="seg" href="/style-guide.html">style guide</a>
+        </nav>
       </div>
     </footer>
   </body>

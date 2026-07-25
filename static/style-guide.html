@@ -101,12 +101,20 @@
 </head>
 <body>
 
-<header class="statusline" aria-label="Site header">
-  <a class="seg seg-a" href="/">simon@letsbuild</a>
-  <a class="seg seg-b" href="/">~/blog</a>
-  <span class="fill"></span>
-  <span class="seg seg-c">style-guide.html</span>
-  <span class="seg seg-b">utf-8</span>
+<header class="statusline statusline-stack">
+  <div class="statusline-row">
+    <a class="seg seg-a" href="/">simon@letsbuild</a>
+    <span class="fill"></span>
+    <span class="seg seg-c seg-shrink" title="style-guide.html">style-guide.html</span>
+    <span class="seg seg-b">utf-8</span>
+  </div>
+  <nav class="statusline-row statusline-nav" aria-label="Primary">
+    <span class="seg seg-cmd" aria-hidden="true">:</span>
+    <a class="seg" href="/">~/blog</a>
+    <a class="seg" href="/posts.html">posts</a>
+    <a class="seg" href="/tags.html">tags</a>
+    <a class="seg" href="/about.html">about</a>
+  </nav>
 </header>
 
 <h1>Style guide</h1>
@@ -400,8 +408,8 @@
   The site's chrome, top and bottom of every page: solid segments in the vim
   mould. Foam segment for identity, overlay segments for context, surface fill
   between. Segments can be links. Every page header carries the same pattern:
-  identity and <code>~/blog</code> both link home, and the current page's
-  filename sits in a surface segment after the fill.
+  identity links home, and the current page's filename sits in a surface
+  segment after the fill.
 </p>
 
 <p>
@@ -409,29 +417,6 @@
   with more content than room used to hide its tail behind
   <code>overflow: hidden</code> — the page width stayed correct and the last
   links were simply unreachable. Segments now drop to a second row instead.
-</p>
-
-<p>
-  Two modifiers let a label give ground so the links don't have to. Both
-  truncate to an ellipsis; neither belongs on anything you can click through to.
-  <code>.seg-grow</code> takes the leftover space and truncates to fit it, which
-  keeps a long label from pushing links onto another row.
-  <code>.seg-shrink</code> keeps its natural width until the row is tight, then
-  yields. Below 640px both are hidden outright — a label truncated to a sliver
-  is noise, and a phone has room for the links or the label, not both.
-</p>
-
-<p>
-  <strong>A truncating segment must carry a <code>title</code> holding the same
-  text.</strong> The ellipsis is a CSS effect, so the string stays whole in the
-  accessibility tree and a screen reader reads all of it — the person who loses
-  information is the sighted mouse user, and on a page with no JavaScript
-  <code>title</code> is the only hover affordance there is.
-  <code>cursor: help</code> signals it. <code>title</code> never reaches a
-  keyboard or touch user, though, which is why the rule above says to keep these
-  modifiers off anything clickable rather than to paper over one with a tooltip. The footer colophon is the standing exception,
-  and it is a link, so it stays on the list of things to shorten rather than
-  truncate.
 </p>
 
 <div class="frame" data-label="statusline">
@@ -443,6 +428,84 @@
     <span class="seg seg-b">7 min read</span>
   </div>
 </div>
+
+<h4>The nav row</h4>
+
+<p>
+  When a bar carries links as well as status, give it a second line. Add
+  <code>.statusline-stack</code> to the bar and wrap each line in
+  <code>.statusline-row</code>; the row draws the surface tone itself, so a
+  stacked bar needs no trailing <code>.fill</code>. Both the header and the
+  footer are built this way — status above, links below.
+</p>
+
+<p>
+  <strong>The second row is the command line, not a second status bar.</strong>
+  <code>.statusline-nav</code> drops the fill tone, the foam block and the
+  segment chips, leaving a foam <code>:</code> prompt and plain subtle links
+  that go foam and underline on hover. Two rows of solid segments read as
+  equals, and the row naming the page should win. It also drops the segment
+  padding and spaces itself with a gap, so the <code>:</code> lands on the
+  page's left rail — the same column as the <code>❯</code> prompt, the
+  <code>h1</code> block and every line of prose.
+</p>
+
+<p>
+  The real thing is a <code>&lt;nav&gt;</code> with an <code>aria-label</code>:
+  a page with two of them needs to say which is which, so the header's is
+  <em>Primary</em> and the footer's is <em>Footer</em>. The specimens below are
+  plain <code>div</code>s — a landmark that exists to be looked at is one more
+  thing for a screen reader to walk past.
+</p>
+
+<div class="frame" data-label="statusline-stack">
+  <div class="statusline statusline-stack">
+    <div class="statusline-row">
+      <span class="seg seg-a">simon@letsbuild</span>
+      <span class="fill"></span>
+      <span class="seg seg-c seg-shrink" title="markdown">markdown</span>
+      <span class="seg seg-b">7 min read</span>
+    </div>
+    <div class="statusline-row statusline-nav">
+      <span class="seg seg-cmd" aria-hidden="true">:</span>
+      <a class="seg" href="#components">~/blog</a>
+      <a class="seg" href="#components">posts</a>
+      <a class="seg" href="#components">tags</a>
+      <a class="seg" href="#components">about</a>
+    </div>
+  </div>
+</div>
+
+<h4>Segments that don't fit</h4>
+
+<p>
+  <strong>Give a link a row before you make it give ground.</strong> The footer
+  colophon used to wear a modifier that truncated it to fit alongside the links
+  — at 1280px it showed 308 of its 449 pixels, and a link whose name is cut off
+  can't be identified before it's followed. It now sits on the status row with
+  the links below it, and <code>.seg-note</code> lets it wrap inside its own box
+  instead: prose in a bar of <code>nowrap</code> segments, read in full at
+  320px.
+</p>
+
+<p>
+  <code>.seg-shrink</code> is what's left for the case that genuinely can't
+  wrap: a one-token label like a filename. It keeps its natural width until the
+  row is tight, then yields to an ellipsis, and it's hidden outright below 640px
+  where a label truncated to a sliver is only noise. Never put it on a link or
+  anything else focusable.
+</p>
+
+<p>
+  <strong>A truncating segment must carry a <code>title</code> holding the same
+  text.</strong> The ellipsis is a CSS effect, so the string stays whole in the
+  accessibility tree and a screen reader reads all of it — the person who loses
+  information is the sighted mouse user, and on a page with no JavaScript
+  <code>title</code> is the only hover affordance there is.
+  <code>cursor: help</code> signals it. <code>title</code> never reaches a
+  keyboard or touch user, though, which is why the rule is to keep the modifier
+  off anything clickable rather than to paper over one with a tooltip.
+</p>
 
 <h3>Prompt</h3>
 
@@ -746,16 +809,24 @@
 
 <h3>Footer</h3>
 
-<p>The statusline mirrored at the page end, carrying the colophon and the way
-back — every footer links home and <code>&uarr; top</code>. The footer carries
-more links than the header, so its colophon takes <code>.seg-grow</code> and
-absorbs the slack in their place.</p>
+<p>The statusline mirrored at the page end, stacked the same way: the colophon on
+the status row, the way back on the nav row below it. Every footer links home
+and <code>&uarr; top</code>. Where the header nav points at the content — posts,
+tags, about — the footer nav points at the way out: the feed, this guide, the
+top of the page.</p>
 
 <div class="frame" data-label="footer">
-  <div class="statusline">
-    <span class="seg seg-a">eof</span>
-    <a class="seg seg-b seg-grow" href="#components" title="built with 500 lines of go">built with 500 lines of go</a>
-    <span class="seg seg-b">© 2026</span>
+  <div class="statusline statusline-stack">
+    <div class="statusline-row">
+      <span class="seg seg-a">eof</span>
+      <a class="seg seg-b seg-note" href="#components">built with 500 lines of go</a>
+    </div>
+    <div class="statusline-row statusline-nav">
+      <span class="seg seg-cmd" aria-hidden="true">:</span>
+      <a class="seg" href="#top">&uarr; top</a>
+      <a class="seg" href="#components">~/blog</a>
+      <a class="seg" href="#components">feed</a>
+    </div>
   </div>
 </div>
 
@@ -923,14 +994,18 @@ absorbs the slack in their place.</p>
 </div>
 
 <footer class="page-end">
-  <div class="statusline">
-    <span class="seg seg-a">eof</span>
-    <a class="seg seg-b" href="/">~/blog</a>
-    <span class="seg seg-b">style guide v2 — night terminal</span>
-    <span class="fill"></span>
-    <a class="seg seg-b" href="#top">&uarr; top</a>
-    <a class="seg seg-b" href="https://rosepinetheme.com/palette/">palette: rosé pine</a>
-    <span class="seg seg-c">applied</span>
+  <div class="statusline statusline-stack">
+    <div class="statusline-row">
+      <span class="seg seg-a">eof</span>
+      <span class="seg seg-b seg-note">style guide v2 — night terminal</span>
+    </div>
+    <nav class="statusline-row statusline-nav" aria-label="Footer">
+      <span class="seg seg-cmd" aria-hidden="true">:</span>
+      <a class="seg" href="#top">&uarr; top</a>
+      <a class="seg" href="/">~/blog</a>
+      <a class="seg" href="/feed.xml">feed</a>
+      <a class="seg" href="https://rosepinetheme.com/palette/">palette: rosé pine</a>
+    </nav>
   </div>
 </footer>
 

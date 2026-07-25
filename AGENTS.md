@@ -296,17 +296,30 @@ carry a few page-specific rules inline (e.g. the quick ref's two-column TOC).
 - Nothing may clip navigation either. A page-width check can't see a container
   hiding its own overflow, which is how the footer statusline lost `style guide`
   and half of `feed` at every width, desktop included. The statusline wraps
-  instead: `.seg-grow` and `.seg-shrink` let a label truncate to an ellipsis so
-  the links keep their room, and below 640px those labels are hidden outright.
-  Prefer wrapping to `overflow: hidden` on any row that holds links.
+  instead, and prefer wrapping to `overflow: hidden` on any row that holds
+  links.
+- **Give a link a row before you make it give ground.** A bar that carries links
+  as well as status gets a second row: `.statusline-stack` on the bar, each line
+  wrapped in a `.statusline-row` that draws the surface tone itself, so no
+  trailing `.fill` is needed. Header and footer both do this — status above,
+  links below. The colophon was a *truncated link* at every desktop width
+  (308 of 449 pixels at 1280) until it got a row of its own.
+- The nav row is the command line beneath the status bar. `.statusline-nav`
+  drops the fill tone, the foam block and the chips for a foam `:` and plain
+  links, and drops the segment padding so the `:` sits on the page's left rail
+  with `❯`, the `h1` block and the prose. Two rows of solid segments read as
+  equals. Each nav is a landmark and needs its own `aria-label` — `Primary` and
+  `Footer`.
+- `.seg-note` wraps inside its own box rather than truncating; it's for prose in
+  a bar of `nowrap` segments. `.seg-shrink` is for the one-token label that
+  genuinely can't wrap (a filename), truncates to an ellipsis, is hidden below
+  640px, and never goes on a link or anything else focusable.
 - Anything that truncates carries a `title` with the same text. The ellipsis is
   a CSS effect, so the whole string stays in the accessibility tree and a screen
   reader reads it — the person left with a stub is the sighted mouse user, and a
   page with no JavaScript has no other hover affordance. `title` never reaches a
-  keyboard or touch user, which is why the rule is to keep `.seg-grow` and
-  `.seg-shrink` off anything clickable rather than to paper over one with a
-  tooltip. The footer colophon is the standing exception and wants shortening,
-  not a better tooltip.
+  keyboard or touch user, which is why the rule is to keep `.seg-shrink` off
+  anything clickable rather than to paper over one with a tooltip.
 - Heading levels are the document outline, so they descend one at a time and
   nothing joins them for its looks. Use `.label` for a small-caps caption that
   isn't a section — the do/don't cards in the style guide were ten h4s under an

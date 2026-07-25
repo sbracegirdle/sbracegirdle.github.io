@@ -298,44 +298,87 @@ tbody tr:hover { background: var(--color-surface); }
   line-height: 2.2;
   user-select: none;
 }
+/* An optional second line, for a bar carrying more than one row will hold.
+   Wrap each line in `.statusline-row` and put `.statusline-stack` on the bar.
+   The footer uses it: the links get a row to themselves, so a long colophon
+   can no longer crowd them, and nothing has to truncate to make room. Giving
+   the links a row beats making a label yield, which beats an ellipsis.
+   The 1px gap lets the page background through, so the two lines read as two
+   bars in the vim mould rather than one tall one. */
+.statusline-stack { flex-direction: column; gap: var(--border-width); }
+/* The row carries the surface tone itself, so a stacked bar needs no trailing
+   `.fill` element. That matters more than it sounds: a fill is a flex item, and
+   on a narrow screen it wraps onto a line of its own and leaves an empty bar
+   sitting under the content. */
+.statusline-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+  background: var(--color-surface);
+}
 .statusline .seg { padding: 0 var(--space-3); white-space: nowrap; }
 .statusline .seg-a { background: var(--c-foam); color: var(--color-bg); font-weight: var(--weight-bold); }
 .statusline .seg-b { background: var(--color-overlay); color: var(--color-subtle); }
 .statusline .seg-c { background: var(--color-surface); color: var(--color-muted); }
 .statusline .fill { flex: 1 1 0; min-width: 0; background: var(--color-surface); }
-/* The two flexible segments carry labels, not navigation, so they are the ones
-   allowed to lose text — visibly, to an ellipsis. min-width: 0 is what lets a
-   nowrap segment shrink at all.
+/* A segment long enough to be prose rather than a label. It wraps inside its
+   own box instead of truncating, which is why the footer colophon can be a link
+   and still be read in full at 320px.
 
-   Anything wearing these classes must also carry a `title` holding the same
-   text. The ellipsis is a CSS effect, so the full string stays in the
-   accessibility tree and a screen reader still reads it — but a sighted mouse
-   user sees only the stub, and `title` is the one hover affordance available to
-   a page with no JavaScript. `cursor: help` says the tooltip is there. */
-.statusline .seg-grow,
+   flex-basis 0 keeps its natural width out of the wrap calculation, so it never
+   pushes itself onto a line of its own; grow then hands it the space that is
+   actually free, and `max-content` stops it stretching past its own text on a
+   wide screen. */
+.statusline .seg-note {
+  flex: 1 1 0;
+  max-width: max-content;
+  min-width: 0;
+  white-space: normal;
+}
+/* Keeps its natural width until the row is tight, then gives ground — visibly,
+   to an ellipsis. min-width: 0 is what lets a nowrap segment shrink at all.
+
+   Only ever on a label, never on a link or anything else focusable: a control
+   whose name is cut off can't be identified before it's used, and the `title`
+   below never reaches a keyboard or touch user. Anything wearing this must
+   carry a `title` holding the same text. The ellipsis is a CSS effect, so the
+   full string stays in the accessibility tree and a screen reader still reads
+   it — the person left with a stub is the sighted mouse user, and on a page
+   with no JavaScript `title` is the only hover affordance there is.
+   `cursor: help` says the tooltip is there. */
 .statusline .seg-shrink {
+  flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: help;
 }
-.statusline a.seg-grow,
-.statusline a.seg-shrink { cursor: pointer; }
-/* Takes whatever space is left and truncates, instead of pushing links onto
-   another row: flex-basis 0 keeps its full text out of the wrap calculation,
-   so the links decide where the row breaks and the label fits around them. */
-.statusline .seg-grow { flex: 1 1 0; }
-/* Keeps its natural width until the row is tight, then gives ground. */
-.statusline .seg-shrink { flex: 0 1 auto; }
 .statusline a.seg { border-bottom: none; }
 .statusline a.seg-a { color: var(--color-bg); }
 .statusline a.seg-a:hover { background: var(--c-rose); color: var(--color-bg); }
 .statusline a.seg-b:hover { color: var(--color-accent); }
-/* On a phone the bar has only enough room for the links. A label truncated to
-   a few pixels is noise, so it goes rather than sitting there as a sliver.
-   display, not opacity — an invisible box still occupies layout. */
+/* The nav row is the command line under the status bar, not a second status
+   bar: no surface tone, no foam block, no chips — a `:` prompt and plain links.
+   Two rows of solid segments read as equals, and the row that names the page is
+   the one that should win. Declared after the segment tones so it overrides
+   them; the links carry no `.seg-*` tone of their own.
+
+   A solid segment aligns by the edge of its block, so its text sits inset by
+   its own padding. Plain text has no block to align by, so the nav row drops
+   the segment padding and spaces itself with a gap instead: the `:` then lands
+   on the page's left rail, in the same column as the `❯` prompt, the h1 block
+   and every line of prose. Two text columns 16px apart looked like a mistake. */
+.statusline-nav { background: none; gap: var(--space-1) var(--space-3); }
+.statusline-nav .seg { background: none; color: var(--color-subtle); padding: 0; }
+.statusline-nav .seg-cmd { color: var(--c-foam); }
+.statusline-nav a.seg:hover { color: var(--color-accent); text-decoration: underline; }
+/* On a phone the header bar has only enough room for identity and the way home.
+   A filename truncated to a few pixels is noise, so it goes rather than sitting
+   there as a sliver. display, not opacity — an invisible box still occupies
+   layout. Nothing in the footer is dropped: its rows are stacked, so a phone
+   gets the same colophon and the same links a desktop does. */
 @media (max-width: 640px) {
-  .statusline .seg-grow,
   .statusline .seg-shrink { display: none; }
 }
 

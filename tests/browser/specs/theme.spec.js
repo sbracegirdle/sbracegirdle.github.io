@@ -116,13 +116,13 @@ for (const width of [1280, 390, 320]) {
   test.describe(`footer links at ${width}px`, () => {
     test.use({ viewport: { width, height: 844 } });
 
-    // .seg-grow is the colophon label, which is allowed to truncate and is
-    // hidden outright on a phone. Everything else in the bar navigates.
+    // The colophon lives on the status row and the links on the nav row below
+    // it, so the two can no longer compete for the same space at any width.
     test("every footer link is visible and clickable", async ({ page }) => {
       await page.goto("/index.html");
-      const links = page.locator("footer .statusline a:not(.seg-grow)");
+      const links = page.locator("footer .statusline-nav a");
       const count = await links.count();
-      expect(count, "footer should offer top, home, tags, feed and style guide").toBe(5);
+      expect(count, "footer should offer top, home, feed and style guide").toBe(4);
 
       for (let i = 0; i < count; i++) {
         const link = links.nth(i);
@@ -132,6 +132,60 @@ for (const width of [1280, 390, 320]) {
         expect(box, `footer link "${label}" has no box`).not.toBeNull();
         expect(box.width, `footer link "${label}" is ${box.width}px wide`).toBeGreaterThan(8);
       }
+    });
+  });
+}
+
+// The header carries the way in — the key pages — on a nav row of its own.
+for (const width of [1280, 390, 320]) {
+  test.describe(`header nav at ${width}px`, () => {
+    test.use({ viewport: { width, height: 844 } });
+
+    test("every header nav link is visible and clickable", async ({ page }) => {
+      await page.goto("/index.html");
+      const links = page.locator("header .statusline-nav a");
+      expect(await links.count(), "header should offer home, posts, tags and about").toBe(4);
+
+      for (const link of await links.all()) {
+        const label = (await link.textContent()).trim();
+        await expect(link, `header link "${label}" is not visible`).toBeVisible();
+        const box = await link.boundingBox();
+        expect(box.width, `header link "${label}" is ${box.width}px wide`).toBeGreaterThan(8);
+      }
+    });
+  });
+}
+
+// The two nav landmarks are distinct destinations, so each needs its own name;
+// "navigation" twice tells a screen reader user nothing about which is which.
+test("the two nav landmarks are named and distinct", async ({ page }) => {
+  await page.goto("/index.html");
+  const names = await page
+    .locator("nav")
+    .evaluateAll((els) => els.map((el) => el.getAttribute("aria-label")));
+  expect(names.length, "expected a header nav and a footer nav").toBe(2);
+  expect(names.filter(Boolean).length, "every nav needs an accessible name").toBe(2);
+  expect(new Set(names).size, `nav labels are not distinct: ${names.join(", ")}`).toBe(2);
+});
+
+// Giving the links their own row is what buys this: the colophon used to be a
+// truncated *link* at every desktop width, 308px of its 449px shown at 1280.
+for (const width of [1280, 768, 390, 320]) {
+  test.describe(`footer colophon at ${width}px`, () => {
+    test.use({ viewport: { width, height: 844 } });
+
+    test("the colophon is shown whole, not truncated", async ({ page }) => {
+      await page.goto("/index.html");
+      const colophon = page.locator("footer .seg-note");
+      await expect(colophon).toBeVisible();
+
+      const cut = await colophon.evaluate((el) => ({
+        x: el.scrollWidth - el.clientWidth,
+        y: el.scrollHeight - el.clientHeight,
+        text: el.textContent.trim(),
+      }));
+      expect(cut.x, `colophon clipped horizontally: "${cut.text}"`).toBeLessThanOrEqual(1);
+      expect(cut.y, `colophon clipped vertically: "${cut.text}"`).toBeLessThanOrEqual(1);
     });
   });
 }
