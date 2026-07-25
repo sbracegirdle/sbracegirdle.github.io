@@ -4,13 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
-<title>Style Guide — LetsBuild.cloud</title>
+<title>Style guide — LetsBuild.cloud</title>
 <meta name="description" content="The visual design system behind LetsBuild.cloud — tokens, components, and the rules that hold the night-terminal theme together." />
 <meta name="author" content="Simon Bracegirdle" />
 <link rel="canonical" href="https://letsbuild.cloud/style-guide.html" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="LetsBuild.cloud" />
-<meta property="og:title" content="Style Guide — LetsBuild.cloud" />
+<meta property="og:title" content="Style guide — LetsBuild.cloud" />
 <meta property="og:description" content="The visual design system behind LetsBuild.cloud — tokens, components, and the rules that hold the night-terminal theme together." />
 <meta property="og:url" content="https://letsbuild.cloud/style-guide.html" />
 <meta name="twitter:card" content="summary" />
@@ -348,7 +348,7 @@
 <p>
   When a caption wants that look but isn't a section, use <code>.label</code> on
   a paragraph instead of reaching for an h4. Heading levels are the document
-  outline, and a repeated card caption padding it out — ten alternating
+  outline. A repeated card caption padding it out — ten alternating
   <em>do</em> and <em>don't</em> in the section below — is noise a screen reader
   has to walk past to find the real structure. Levels also have to descend one
   at a time: an h2 followed by an h4 leaves a hole in the outline.
@@ -388,7 +388,7 @@
 
 <div class="measure-demo">
   <div class="measure-inner">
-    ← --layout-width: 760px — everything the reader reads lives between these
+    ← --layout-width: 760px — every line of prose lives between these
     dashed edges. Full-bleed elements (statusline, panels) may escape, but
     their text stays on the measure.
   </div>
@@ -416,7 +416,7 @@
   The bar wraps rather than clips. Segments are <code>nowrap</code>, so a bar
   with more content than room used to hide its tail behind
   <code>overflow: hidden</code> — the page width stayed correct and the last
-  links were simply unreachable. Segments now drop to a second row instead.
+  links were unreachable. Segments now drop to a second row instead.
 </p>
 
 <div class="frame" data-label="statusline">
@@ -499,7 +499,7 @@
 <p>
   <strong>A truncating segment must carry a <code>title</code> holding the same
   text.</strong> The ellipsis is a CSS effect, so the string stays whole in the
-  accessibility tree and a screen reader reads all of it — the person who loses
+  accessibility tree and a screen reader reads all of it. The person who loses
   information is the sighted mouse user, and on a page with no JavaScript
   <code>title</code> is the only hover affordance there is.
   <code>cursor: help</code> signals it. <code>title</code> never reaches a
@@ -580,12 +580,12 @@
 </p>
 
 <div class="frame" data-label="tag-list · tag-cloud">
-  <nav class="tag-list">
+  <nav class="tag-list" aria-label="Tags">
     <a class="tag" href="#">devops</a>
     <a class="tag" href="#">aws</a>
     <a class="tag" href="#">observability</a>
   </nav>
-  <nav class="tag-cloud">
+  <nav class="tag-cloud" aria-label="All tags">
     <a class="tag" href="#">devops<span class="tag-count">8</span></a>
     <a class="tag" href="#">aws<span class="tag-count">6</span></a>
     <a class="tag" href="#">ci<span class="tag-count">5</span></a>
@@ -645,10 +645,10 @@
 <h3>Code</h3>
 
 <p>
-  One code component, everywhere: every block — fenced in a post, or sourced
-  from a static page — is rendered at build time by the SSG's own tiny
-  tokenizer (<code>highlight.go</code> — rust, go, python, shell, yaml, js;
-  anything else stays plain) into the same line-numbered
+  One code component, everywhere. The SSG's own tiny tokenizer
+  (<code>highlight.go</code> — rust, go, python, shell, yaml, js; anything else
+  stays plain) renders every block at build time, whether it's fenced in a post
+  or sourced from a static page. They all come out as the same line-numbered
   <code>pre.code</code> rows: muted gutter, overlay row hover, surface fill,
   hairline border. An optional title bar names the file and language. Inline
   code gets the same treatment at <code>0.9em</code>. Syntax inks, one job per
@@ -819,13 +819,14 @@ top of the page.</p>
   <div class="statusline statusline-stack">
     <div class="statusline-row">
       <span class="seg seg-a">eof</span>
-      <a class="seg seg-b seg-note" href="#components">built with 500 lines of go</a>
+      <a class="seg seg-b seg-note" href="#components">built with the world's simplest static site generator</a>
     </div>
     <div class="statusline-row statusline-nav">
       <span class="seg seg-cmd" aria-hidden="true">:</span>
       <a class="seg" href="#top">&uarr; top</a>
       <a class="seg" href="#components">~/blog</a>
       <a class="seg" href="#components">feed</a>
+      <a class="seg" href="#components">style guide</a>
     </div>
   </div>
 </div>
@@ -867,8 +868,8 @@ top of the page.</p>
 
 <p>
   The complete set — every value the theme uses, grouped by concern. The live
-  copy is the <code>:root</code> block in <a href="/theme.css">/theme.css</a>
-  — the single stylesheet every page on the site (including this one) links.
+  copy is the <code>:root</code> block in <a href="/theme.css">/theme.css</a>,
+  the single stylesheet every page on the site (including this one) links.
   Change a token there and it changes everywhere at once.
 </p>
 
