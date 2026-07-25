@@ -245,3 +245,57 @@ func TestGenerateTagPagesUntagged(t *testing.T) {
 		t.Error("tags.html should not exist when nothing is tagged")
 	}
 }
+
+// TestSlugifyTagCannotEscapeBuildDir asserts the property that matters rather
+// than the folding rules that deliver it: a tag comes from post frontmatter and
+// its slug is joined onto the build directory to make a filename, so no tag may
+// produce a path that climbs out of build/tags/.
+func TestSlugifyTagCannotEscapeBuildDir(t *testing.T) {
+	hostile := []string{
+		"../../etc/passwd",
+		"/abs/path",
+		"a/../b",
+		"..",
+		"....//....//",
+		`..\..\windows`,
+		"tags/../../secret",
+		"日本語",
+	}
+
+	for _, in := range hostile {
+		slug := slugifyTag(in)
+		if strings.Contains(slug, "/") || strings.Contains(slug, `\`) || strings.Contains(slug, "..") {
+			t.Errorf("slugifyTag(%q) = %q, which carries a path separator or a parent reference", in, slug)
+		}
+		if slug == "" {
+			continue // an empty slug never reaches a filename
+		}
+
+		path := tagPagePath(slug)
+		if filepath.Dir(path) != "tags" {
+			t.Errorf("tagPagePath(slugifyTag(%q)) = %q, which lands outside tags/", in, path)
+		}
+		if cleaned := filepath.Clean(path); cleaned != path {
+			t.Errorf("tagPagePath(slugifyTag(%q)) = %q, which is not already a clean path", in, path)
+		}
+	}
+}
+
+// TestPluralPosts covers the count suffix on generated tag-page descriptions.
+// Every other tag test uses one post per tag, so the plural branch never ran.
+func TestPluralPosts(t *testing.T) {
+	tests := []struct {
+		n    int
+		want string
+	}{
+		{0, "0 posts"},
+		{1, "1 post"},
+		{2, "2 posts"},
+		{11, "11 posts"},
+	}
+	for _, tt := range tests {
+		if got := pluralPosts(tt.n); got != tt.want {
+			t.Errorf("pluralPosts(%d) = %q, want %q", tt.n, got, tt.want)
+		}
+	}
+}

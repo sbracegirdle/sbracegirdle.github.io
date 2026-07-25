@@ -15,6 +15,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/adrg/frontmatter"
 )
@@ -210,12 +211,18 @@ func (c *shelfCache) get(userID string, ttl time.Duration) []ShelfBooks {
 	return c.shelves
 }
 
+// goodreadsBaseURL is the origin the shelf feeds are fetched from. It is a var
+// rather than a const solely so tests can point it at an httptest server —
+// without that seam every test that builds the whole site makes three live
+// requests to goodreads.com.
+var goodreadsBaseURL = "https://www.goodreads.com"
+
 // fetchShelf retrieves a public Goodreads shelf as RSS at build time, sorted by
 // the given key (empty for the feed default) and truncated to limit books. No
 // authentication is involved; the feed is public. Failures are returned to the
 // caller so the build can carry on without the section rather than aborting.
 func fetchShelf(userID, shelf, sort string, limit int) ([]Book, error) {
-	url := fmt.Sprintf("https://www.goodreads.com/review/list_rss/%s?shelf=%s", userID, shelf)
+	url := fmt.Sprintf("%s/review/list_rss/%s?shelf=%s", goodreadsBaseURL, userID, shelf)
 	if sort != "" {
 		// order=d gives newest-first for date-based sorts.
 		url += fmt.Sprintf("&sort=%s&order=d", sort)
@@ -345,8 +352,14 @@ func processMarkdownFile(filePath, template string) (string, string, *BlogPost, 
 	var meta FrontMatter
 	content, err := frontmatter.Parse(strings.NewReader(string(fileContent)), &meta)
 	if err != nil {
-		// If frontmatter parsing fails, use the whole content
-		content = fileContent
+		// A file with no frontmatter at all parses cleanly, so an error here
+		// means the YAML between the --- delimiters is genuinely broken — an
+		// unquoted colon in a title being the classic. The old behaviour was to
+		// fall back to the whole file as the body, which published the
+		// delimiters and the frontmatter keys as prose and made the first of
+		// them the meta description. Refusing the file is louder and cheaper to
+		// notice: the caller logs it and skips the post.
+		return "", "", nil, fmt.Errorf("error parsing frontmatter in %s: %w", filePath, err)
 	}
 
 	// Get filename and extract date
@@ -443,18 +456,24 @@ func extractDescription(content []byte) string {
 	for _, p := range paragraphs {
 		p = strings.TrimSpace(p)
 		if p != "" {
-			if len(p) > 150 {
-				return p[:147] + "..."
-			}
-			return p
+			return truncateRunes(p, 150)
 		}
 	}
 
 	// Fallback to first 150 chars if no paragraph found
-	if len(text) > 150 {
-		return strings.TrimSpace(text[:147]) + "..."
+	return truncateRunes(strings.TrimSpace(text), 150)
+}
+
+// truncateRunes shortens s to at most limit characters, appending an ellipsis
+// when it cuts. It counts runes rather than bytes: this text lands in
+// <meta description> and og:description, and slicing a multi-byte rune down the
+// middle — an em dash or a curly quote straddling the cut — emits invalid UTF-8
+// that escaping cannot repair.
+func truncateRunes(s string, limit int) string {
+	if utf8.RuneCountInString(s) <= limit {
+		return s
 	}
-	return strings.TrimSpace(text)
+	return string([]rune(s)[:limit-3]) + "..."
 }
 
 // latestPostCount is how many posts the landing page lists before linking out
@@ -470,8 +489,16 @@ func datedPostsNewestFirst(posts []*BlogPost) []*BlogPost {
 			dated = append(dated, post)
 		}
 	}
-	sort.Slice(dated, func(i, j int) bool {
-		return dated[i].Date.After(dated[j].Date)
+	// Two posts can share a date — content/ has a pair on 2021-12-20 — so the
+	// comparator falls back to the output filename. Without a total order the
+	// result would rest on sort.Slice's unspecified behaviour over directory
+	// order, and a Go upgrade could silently reshuffle the index, the archive
+	// and the feed.
+	sort.SliceStable(dated, func(i, j int) bool {
+		if !dated[i].Date.Equal(dated[j].Date) {
+			return dated[i].Date.After(dated[j].Date)
+		}
+		return dated[i].OutputFile < dated[j].OutputFile
 	})
 	return dated
 }

@@ -166,3 +166,142 @@ func TestSubagentsReferenceTheirSkill(t *testing.T) {
 		}
 	}
 }
+
+// TestEveryWrapperNamesAKnownSkill is the derived counterpart to
+// TestSubagentsReferenceTheirSkill above. That one pins the exact pairing for
+// the wrappers someone remembered to list; this one covers wrappers that don't
+// exist yet, so adding a fifth subagent can't ship with no guard at all — the
+// half-applied-convention failure this file exists to catch.
+func TestEveryWrapperNamesAKnownSkill(t *testing.T) {
+	skills := skillNames(t)
+
+	for _, dir := range []struct{ path, ext string }{
+		{claudeAgents, ".md"},
+		{codexAgents, ".toml"},
+	} {
+		for name := range agentSet(t, dir.path, dir.ext) {
+			path := filepath.Join(dir.path, name+dir.ext)
+			body, err := os.ReadFile(path)
+			if err != nil {
+				t.Errorf("%s: %v", path, err)
+				continue
+			}
+
+			named := false
+			for _, skill := range skills {
+				if strings.Contains(string(body), skill) {
+					named = true
+					break
+				}
+			}
+			if !named {
+				t.Errorf("%s: names none of the skills under %s (%s) — a wrapper should say which skill it runs",
+					path, sharedSkills, strings.Join(skills, ", "))
+			}
+		}
+	}
+}
+
+// TestSkillsHaveFrontmatterDescription guards the one line an agent sees when
+// deciding whether to load a skill. A skill with no description is effectively
+// invisible to both agents, and every other check in this file still passes.
+func TestSkillsHaveFrontmatterDescription(t *testing.T) {
+	const minDescription = 40
+
+	for _, skill := range skillNames(t) {
+		path := filepath.Join(sharedSkills, skill, "SKILL.md")
+		body, err := os.ReadFile(path)
+		if err != nil {
+			t.Errorf("%s: %v", path, err)
+			continue
+		}
+
+		front, ok := frontmatterBlock(string(body))
+		if !ok {
+			t.Errorf("%s: should open with a --- frontmatter block", path)
+			continue
+		}
+
+		desc := ""
+		for _, line := range strings.Split(front, "\n") {
+			if after, found := strings.CutPrefix(strings.TrimSpace(line), "description:"); found {
+				desc = strings.TrimSpace(after)
+				break
+			}
+		}
+		if desc == "" {
+			t.Errorf("%s: frontmatter has no description — that line is all an agent sees when deciding to load the skill", path)
+			continue
+		}
+		if len(desc) < minDescription {
+			t.Errorf("%s: description is %d characters; it should say when to use the skill (at least %d)",
+				path, len(desc), minDescription)
+		}
+	}
+}
+
+// TestSkillReferencesResolve checks that the references/*.md files a SKILL.md
+// mentions actually exist. Each gate keeps its detail in references/ so the
+// skill itself stays short enough to read every time; a rename turns that
+// detail into a dead link with nothing to notice.
+//
+// A skill may cite another skill's reference by name — sports-update points at
+// the prose review's ai-tells.md — so a mention resolves if it exists under any
+// skill, not just the one doing the mentioning. That still fails on a rename,
+// which is the case worth catching.
+func TestSkillReferencesResolve(t *testing.T) {
+	skills := skillNames(t)
+
+	for _, skill := range skills {
+		dir := filepath.Join(sharedSkills, skill)
+		body, err := os.ReadFile(filepath.Join(dir, "SKILL.md"))
+		if err != nil {
+			t.Errorf("%s: %v", dir, err)
+			continue
+		}
+
+		for _, ref := range referencePaths(string(body)) {
+			found := false
+			for _, owner := range skills {
+				if _, err := os.Stat(filepath.Join(sharedSkills, owner, ref)); err == nil {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("%s/SKILL.md mentions %s, which exists under no skill in %s",
+					dir, ref, sharedSkills)
+			}
+		}
+	}
+}
+
+// frontmatterBlock returns the contents of a leading --- delimited block.
+func frontmatterBlock(body string) (string, bool) {
+	if !strings.HasPrefix(body, "---\n") {
+		return "", false
+	}
+	rest := body[len("---\n"):]
+	end := strings.Index(rest, "\n---")
+	if end < 0 {
+		return "", false
+	}
+	return rest[:end], true
+}
+
+// referencePaths pulls every references/<name>.md mentioned in a skill body.
+func referencePaths(body string) []string {
+	var out []string
+	seen := map[string]bool{}
+	for _, field := range strings.FieldsFunc(body, func(r rune) bool {
+		return r == ' ' || r == '\n' || r == '\t' || r == '(' || r == ')' ||
+			r == '`' || r == '"' || r == ',' || r == '[' || r == ']'
+	}) {
+		field = strings.TrimSuffix(field, ".")
+		if strings.HasPrefix(field, "references/") && strings.HasSuffix(field, ".md") && !seen[field] {
+			seen[field] = true
+			out = append(out, field)
+		}
+	}
+	return out
+}

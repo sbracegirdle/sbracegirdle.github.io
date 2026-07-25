@@ -215,3 +215,101 @@ func TestGenerateRobots(t *testing.T) {
 		}
 	}
 }
+
+// TestGeneratedOutputIsStableAcrossRebuilds encodes the documented guarantee
+// that an unchanged site rebuilds byte-identically: the feed's lastBuildDate
+// tracks the newest post rather than the wall clock. Asserting it on the bytes
+// catches a wall-clock value creeping into the sitemap too, which a check on
+// the feed struct alone would miss.
+func TestGeneratedOutputIsStableAcrossRebuilds(t *testing.T) {
+	posts := []*BlogPost{
+		{
+			Title:       "A Post",
+			OutputFile:  "2024-01-02-a-post.html",
+			Description: "Something happened.",
+			Date:        time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			Title:       "An Older Post",
+			OutputFile:  "2023-05-06-older.html",
+			Description: "Something else happened.",
+			Date:        time.Date(2023, 5, 6, 0, 0, 0, 0, time.UTC),
+		},
+	}
+	staticPages := []string{"style-guide.html"}
+
+	build := func() (string, string) {
+		dir := t.TempDir()
+		if err := generateFeed(posts, dir); err != nil {
+			t.Fatalf("generateFeed: %v", err)
+		}
+		if err := generateSitemap(posts, staticPages, dir); err != nil {
+			t.Fatalf("generateSitemap: %v", err)
+		}
+		feed, err := os.ReadFile(filepath.Join(dir, "feed.xml"))
+		if err != nil {
+			t.Fatalf("reading feed.xml: %v", err)
+		}
+		sitemap, err := os.ReadFile(filepath.Join(dir, "sitemap.xml"))
+		if err != nil {
+			t.Fatalf("reading sitemap.xml: %v", err)
+		}
+		return string(feed), string(sitemap)
+	}
+
+	firstFeed, firstSitemap := build()
+	time.Sleep(1100 * time.Millisecond) // cross a second boundary
+	secondFeed, secondSitemap := build()
+
+	if firstFeed != secondFeed {
+		t.Error("feed.xml changed between two builds of identical content")
+	}
+	if firstSitemap != secondSitemap {
+		t.Error("sitemap.xml changed between two builds of identical content")
+	}
+}
+
+// TestGenerateSitemapNoURLs covers the "nothing to list, write nothing"
+// branch, so a fresh clone with no content doesn't ship an empty sitemap.
+func TestGenerateSitemapNoURLs(t *testing.T) {
+	dir := t.TempDir()
+
+	if err := generateSitemap(nil, nil, dir); err != nil {
+		t.Fatalf("generateSitemap: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "sitemap.xml")); !os.IsNotExist(err) {
+		t.Error("sitemap.xml was written even though there were no URLs to list")
+	}
+}
+
+// TestGenerateFeedAtomNamespace asserts the atom:link on the marshalled bytes,
+// not on the struct. The prefix depends on encoding/xml's namespace handling,
+// which is the version-sensitive part — a Go upgrade that rendered it as
+// <link xmlns="atom"> would leave every struct-level assertion passing.
+func TestGenerateFeedAtomNamespace(t *testing.T) {
+	dir := t.TempDir()
+	posts := []*BlogPost{{
+		Title:       "A Post",
+		OutputFile:  "2024-01-02-a-post.html",
+		Description: "Something happened.",
+		Date:        time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC),
+	}}
+
+	if err := generateFeed(posts, dir); err != nil {
+		t.Fatalf("generateFeed: %v", err)
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, "feed.xml"))
+	if err != nil {
+		t.Fatalf("reading feed.xml: %v", err)
+	}
+
+	for _, want := range []string{
+		`xmlns:atom="http://www.w3.org/2005/Atom"`,
+		"<atom:link ",
+		`rel="self"`,
+	} {
+		if !strings.Contains(string(raw), want) {
+			t.Errorf("feed.xml is missing %q\n%s", want, raw)
+		}
+	}
+}

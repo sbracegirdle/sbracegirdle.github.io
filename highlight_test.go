@@ -316,3 +316,113 @@ func TestRenderStaticCodeScriptsNoBlocksPassThrough(t *testing.T) {
 		t.Errorf("page without code scripts should be unchanged, got %q", got)
 	}
 }
+
+// TestHighlightPreservesNonASCII guards against mojibake in code blocks. The
+// tokenizer walks bytes, so emitting a byte >= 0x80 via string(c) would
+// re-encode it and turn "café" into "cafÃ©".
+func TestHighlightPreservesNonASCII(t *testing.T) {
+	for _, lang := range []string{"python", "rust", "go", "js", "shell", "yaml"} {
+		t.Run(lang, func(t *testing.T) {
+			got := highlightCode("x = café ÷ naïve", lang)
+			assertContains(t, got, "café", "÷", "naïve")
+			assertNotContains(t, got, "Ã©", "Ã·", "Ã¯")
+		})
+	}
+}
+
+// TestHighlightStringEscapesDontTerminate covers the backslash-escape branch.
+// Without it a `\"` ends the string early, the rest of the literal highlights
+// as code, and the closing quote opens a new string that runs to end of line —
+// a visibly broken code block.
+func TestHighlightStringEscapesDontTerminate(t *testing.T) {
+	for _, lang := range []string{"go", "python", "js", "rust"} {
+		t.Run(lang, func(t *testing.T) {
+			got := highlightCode(`s = "say \"hi\" now" if x`, lang)
+			assertContains(t, got, `<span class="t-str">&#34;say \&#34;hi\&#34; now&#34;</span>`)
+			// `if` sits outside the literal, so it must still be a keyword;
+			// the point is that the string ended where it should.
+			assertNotContains(t, got, `<span class="t-str">&#34; if x`)
+		})
+	}
+}
+
+// TestHighlightUnterminatedStringStopsAtEOL keeps one stray quote from
+// swallowing every following line of a block.
+func TestHighlightUnterminatedStringStopsAtEOL(t *testing.T) {
+	got := highlightCode("let s = \"oops\nlet n = 1;", "rust")
+
+	if n := strings.Count(got, `<span class="t-kw">let</span>`); n != 2 {
+		t.Errorf("got %d `let` keywords, want 2 — line two stopped tokenizing", n)
+	}
+	assertContains(t, got, `<span class="t-num">1</span>`)
+}
+
+// TestHighlightUnterminatedTokensRunToEOF pins the "no closer found"
+// fall-throughs for block comments, raw strings and triple-quoted strings.
+// Each defaults to consuming the rest of the input; a regression that consumed
+// nothing, or sliced past the end, would panic at build time.
+func TestHighlightUnterminatedTokensRunToEOF(t *testing.T) {
+	tests := []struct {
+		name string
+		src  string
+		lang string
+		want string
+	}{
+		{
+			name: "block comment",
+			src:  "/* forever\nand ever",
+			lang: "rust",
+			want: `<span class="t-comment">/* forever
+and ever</span>`,
+		},
+		{
+			name: "raw string",
+			src:  `let r = r#"abc`,
+			lang: "rust",
+			want: `<span class="t-str">r#&#34;abc</span>`,
+		},
+		{
+			name: "triple quote",
+			src:  `doc = """abc`,
+			lang: "python",
+			want: `<span class="t-str">&#34;&#34;&#34;abc</span>`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assertContains(t, highlightCode(tt.src, tt.lang), tt.want)
+		})
+	}
+}
+
+// TestHighlightRustEscapedCharLiteral covers the branch that tells a char
+// literal from a lifetime — the distinction the rust spec's lifetimes flag
+// exists for, and one the quick reference exercises for real.
+func TestHighlightRustEscapedCharLiteral(t *testing.T) {
+	got := highlightCode(`let nl = '\n'; let t = '\t';`, "rust")
+
+	assertContains(t,
+		got,
+		`<span class="t-num">&#39;\n&#39;</span>`,
+		`<span class="t-num">&#39;\t&#39;</span>`,
+	)
+	assertNotContains(t, got, "t-lifetime")
+}
+
+// TestSpecForResolvesEveryAlias checks every language alias resolves. A dropped
+// map entry degrades silently to plain text, which no other test would notice.
+func TestSpecForResolvesEveryAlias(t *testing.T) {
+	for alias, want := range langSpecs {
+		if got := specFor(alias); got != want {
+			t.Errorf("specFor(%q) resolved to the wrong spec", alias)
+		}
+	}
+	// The info string comes off a markdown fence, so it is trimmed and folded.
+	if specFor("  RUST  ") != rustSpec {
+		t.Error("specFor does not trim and lowercase the fence info string")
+	}
+	if specFor("cmake") != nil {
+		t.Error("an unknown language should resolve to no spec, so it stays plain")
+	}
+}

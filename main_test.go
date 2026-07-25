@@ -1,12 +1,15 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/adrg/frontmatter"
 	"github.com/gomarkdown/markdown"
@@ -983,4 +986,577 @@ func TestDevHandlerResolvesLikeGitHubPages(t *testing.T) {
 			t.Errorf("GET %s: livereload injected = %v, want %v", tc.path, got, tc.wantScript)
 		}
 	}
+}
+
+// TestExtractDescriptionTruncatesOnRuneBoundary guards the meta description
+// against invalid UTF-8. The description reaches <meta name="description"> and
+// og:description as an attribute value; truncating it mid-rune emits a partial
+// byte sequence that html.EscapeString has no way to repair, and the site's
+// prose is full of em dashes and curly quotes.
+func TestExtractDescriptionTruncatesOnRuneBoundary(t *testing.T) {
+	// Position an em dash (3 bytes) so it straddles the old 147-byte cut.
+	para := strings.Repeat("a", 146) + "—" + strings.Repeat("b", 60)
+
+	got := extractDescription([]byte(para))
+
+	if !utf8.ValidString(got) {
+		t.Errorf("description is not valid UTF-8: %q", got)
+	}
+	if !strings.HasSuffix(got, "...") {
+		t.Errorf("expected a truncated description ending in an ellipsis, got %q", got)
+	}
+	if n := utf8.RuneCountInString(got); n > 150 {
+		t.Errorf("description is %d runes, want at most 150", n)
+	}
+}
+
+// TestExtractDescriptionFallbackIsRuneSafe covers the no-paragraph branch,
+// which does its own truncation.
+func TestExtractDescriptionFallbackIsRuneSafe(t *testing.T) {
+	// One long line with no blank line, so the paragraph split yields a single
+	// oversized chunk of multi-byte runes.
+	got := extractDescription([]byte(strings.Repeat("é", 400)))
+
+	if !utf8.ValidString(got) {
+		t.Errorf("description is not valid UTF-8: %q", got)
+	}
+	if n := utf8.RuneCountInString(got); n > 150 {
+		t.Errorf("description is %d runes, want at most 150", n)
+	}
+}
+
+// TestDatedPostsSameDateOrderIsDeterministic pins the ordering of posts that
+// share a date. content/ already has a pair on 2021-12-20, and sort.Slice is
+// explicitly not stable, so without a total order the index, the archive and
+// the feed could reshuffle on a Go upgrade with no source change.
+func TestDatedPostsSameDateOrderIsDeterministic(t *testing.T) {
+	day := time.Date(2021, 12, 20, 0, 0, 0, 0, time.UTC)
+	older := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	mk := func(file string, d time.Time) *BlogPost {
+		return &BlogPost{Title: file, OutputFile: file, Date: d}
+	}
+
+	forward := []*BlogPost{
+		mk("2021-12-20-cdk-cr.html", day),
+		mk("2021-12-20-robo-devops.html", day),
+		mk("2020-01-01-old.html", older),
+	}
+	reversed := []*BlogPost{
+		mk("2020-01-01-old.html", older),
+		mk("2021-12-20-robo-devops.html", day),
+		mk("2021-12-20-cdk-cr.html", day),
+	}
+
+	order := func(posts []*BlogPost) []string {
+		got := datedPostsNewestFirst(posts)
+		names := make([]string, len(got))
+		for i, p := range got {
+			names[i] = p.OutputFile
+		}
+		return names
+	}
+
+	want := []string{
+		"2021-12-20-cdk-cr.html",
+		"2021-12-20-robo-devops.html",
+		"2020-01-01-old.html",
+	}
+
+	for _, tc := range []struct {
+		name  string
+		posts []*BlogPost
+	}{
+		{"forward", forward},
+		{"reversed", reversed},
+	} {
+		got := order(tc.posts)
+		if strings.Join(got, ",") != strings.Join(want, ",") {
+			t.Errorf("%s input: got %v, want %v", tc.name, got, want)
+		}
+	}
+}
+
+// TestGenerateIndexLimitsToLatest covers the homepage's "latest 5, then link to
+// the archive" rule. Every other index test uses one to three posts, so the
+// truncation and the archive link — the production path, with 15 posts live —
+// never ran.
+func TestGenerateIndexLimitsToLatest(t *testing.T) {
+	mk := func(n int, day int) *BlogPost {
+		return &BlogPost{
+			Title:       fmt.Sprintf("Post %d", n),
+			OutputFile:  fmt.Sprintf("2023-01-%02d-post-%d.html", day, n),
+			Date:        time.Date(2023, 1, day, 0, 0, 0, 0, time.UTC),
+			Description: "A description.",
+		}
+	}
+
+	t.Run("more posts than the limit", func(t *testing.T) {
+		buildDir := t.TempDir()
+		// Seven posts, newest is Post 7.
+		posts := make([]*BlogPost, 0, 7)
+		for i := 1; i <= 7; i++ {
+			posts = append(posts, mk(i, i))
+		}
+
+		if err := generateIndex(posts, testMetaTemplate, buildDir, nil); err != nil {
+			t.Fatalf("generateIndex: %v", err)
+		}
+		body := readFile(t, filepath.Join(buildDir, "index.html"))
+
+		for _, want := range []string{"Post 7", "Post 6", "Post 5", "Post 4", "Post 3"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("index is missing %q", want)
+			}
+		}
+		for _, notWant := range []string{"Post 2", "Post 1"} {
+			if strings.Contains(body, notWant) {
+				t.Errorf("index lists %q, but should stop at the latest %d", notWant, latestPostCount)
+			}
+		}
+		if !strings.Contains(body, `href="/posts.html"`) {
+			t.Error("index does not link to the archive at /posts.html")
+		}
+		// Newest first.
+		if strings.Index(body, "Post 7") > strings.Index(body, "Post 3") {
+			t.Error("index is not ordered newest first")
+		}
+	})
+
+	t.Run("fewer posts than the limit", func(t *testing.T) {
+		buildDir := t.TempDir()
+		posts := []*BlogPost{mk(1, 1), mk(2, 2)}
+
+		if err := generateIndex(posts, testMetaTemplate, buildDir, nil); err != nil {
+			t.Fatalf("generateIndex: %v", err)
+		}
+		body := readFile(t, filepath.Join(buildDir, "index.html"))
+
+		if strings.Contains(body, `href="/posts.html"`) {
+			t.Error("index links to the archive even though it lists every post")
+		}
+	})
+}
+
+// readFile is a small helper for the assertions below.
+func readFile(t *testing.T, path string) string {
+	t.Helper()
+	b, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading %s: %v", path, err)
+	}
+	return string(b)
+}
+
+// shelfRSS builds a minimal Goodreads-shaped feed for the fake server below.
+func shelfRSS(titles ...string) string {
+	var b strings.Builder
+	b.WriteString(`<?xml version="1.0"?><rss><channel>`)
+	for i, title := range titles {
+		fmt.Fprintf(&b,
+			`<item><title>%s</title><book_id>%d</book_id><author_name>An Author</author_name></item>`,
+			title, i+1)
+	}
+	b.WriteString(`</channel></rss>`)
+	return b.String()
+}
+
+// TestFetchShelfHandlesFailure covers the error paths fetchShelf promises the
+// caller it will return rather than abort on. None of them were reachable
+// before goodreadsBaseURL became a seam, because the URL was built inline.
+func TestFetchShelfHandlesFailure(t *testing.T) {
+	tests := []struct {
+		name    string
+		handler http.HandlerFunc
+	}{
+		{
+			name: "non-200 response",
+			handler: func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusServiceUnavailable)
+			},
+		},
+		{
+			name: "malformed XML",
+			handler: func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprint(w, "<rss><channel><item></rss")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := httptest.NewServer(tt.handler)
+			defer srv.Close()
+			defer withGoodreadsBase(t, srv.URL)()
+
+			if _, err := fetchShelf("123", "read", "", 5); err == nil {
+				t.Fatal("expected an error, got nil")
+			}
+		})
+	}
+}
+
+// TestFetchShelfLimits checks the truncation to maxBooksPerShelf.
+func TestFetchShelfLimits(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, shelfRSS("One", "Two", "Three", "Four"))
+	}))
+	defer srv.Close()
+	defer withGoodreadsBase(t, srv.URL)()
+
+	books, err := fetchShelf("123", "read", "date_read", 2)
+	if err != nil {
+		t.Fatalf("fetchShelf: %v", err)
+	}
+	if len(books) != 2 {
+		t.Fatalf("got %d books, want 2", len(books))
+	}
+	if books[0].Title != "One" {
+		t.Errorf("got first book %q, want %q", books[0].Title, "One")
+	}
+}
+
+// TestFetchFeaturedShelvesSkipsFailingShelf pins the behaviour the comment on
+// fetchFeaturedShelves promises: one bad shelf is logged and skipped, and the
+// rest of the section still renders.
+func TestFetchFeaturedShelvesSkipsFailingShelf(t *testing.T) {
+	// Serve the first shelf and fail the rest, whichever order they arrive in.
+	var served int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		served++
+		if served == 1 {
+			fmt.Fprint(w, shelfRSS("A Good Book"))
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer srv.Close()
+	defer withGoodreadsBase(t, srv.URL)()
+
+	groups := fetchFeaturedShelves("123")
+
+	if len(groups) != 1 {
+		t.Fatalf("got %d shelf groups, want 1 (the others failed and should be skipped)", len(groups))
+	}
+	if len(groups[0].Books) != 1 || groups[0].Books[0].Title != "A Good Book" {
+		t.Errorf("unexpected books in the surviving shelf: %+v", groups[0].Books)
+	}
+}
+
+// withGoodreadsBase points the shelf fetcher at a test server and returns a
+// func that restores the real origin.
+func withGoodreadsBase(t *testing.T, base string) func() {
+	t.Helper()
+	original := goodreadsBaseURL
+	goodreadsBaseURL = base
+	return func() { goodreadsBaseURL = original }
+}
+
+// TestSSEHubFanout exercises the live-reload hub's subscribe/notify/unsubscribe
+// cycle, which had no coverage at all. The concurrent half exists to give
+// `go test -race` something to inspect: the hub is shared between the file
+// watcher and every connected browser.
+func TestSSEHubFanout(t *testing.T) {
+	hub := newSSEHub()
+
+	a := hub.subscribe()
+	b := hub.subscribe()
+
+	hub.notify()
+	for i, ch := range []chan struct{}{a, b} {
+		select {
+		case <-ch:
+		default:
+			t.Errorf("subscriber %d did not receive the reload notification", i)
+		}
+	}
+
+	hub.unsubscribe(a)
+	hub.notify()
+	select {
+	case <-b:
+	default:
+		t.Error("the remaining subscriber did not receive the second notification")
+	}
+
+	// Concurrent churn against a shared map — the shape -race is here to check.
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for i := 0; i < 50; i++ {
+			hub.notify()
+		}
+	}()
+	for i := 0; i < 50; i++ {
+		ch := hub.subscribe()
+		hub.unsubscribe(ch)
+	}
+	<-done
+}
+
+// TestPostMetadataEscapedEndToEnd checks escaping at the seam, not just in the
+// unit. TestRenderPageEscaping proves renderPage escapes; it does not prove
+// processMarkdownFile still goes through renderPage. Reintroducing a raw
+// strings.Replace there — the exact regression AGENTS.md warns about — would
+// break the <head> of every post with every existing test green.
+func TestPostMetadataEscapedEndToEnd(t *testing.T) {
+	nasty := `Do you slap a "LGTM!" on it? Tom & Jerry <script>alert(1)</script>`
+
+	tests := []struct {
+		name string
+		body string
+	}{
+		{
+			name: "description from frontmatter",
+			body: "---\ntitle: Escaping\ndescription: " + nasty + "\n---\n\nBody text.\n",
+		},
+		{
+			name: "description extracted from the first paragraph",
+			body: "---\ntitle: Escaping\n---\n\n" + nasty + "\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dir := t.TempDir()
+			path := filepath.Join(dir, "2024-01-01-escaping.md")
+			if err := os.WriteFile(path, []byte(tt.body), 0644); err != nil {
+				t.Fatalf("writing fixture: %v", err)
+			}
+
+			_, output, post, err := processMarkdownFile(path, testMetaTemplate)
+			if err != nil {
+				t.Fatalf("processMarkdownFile: %v", err)
+			}
+
+			head := output[:strings.Index(output, "</head>")]
+
+			// The quote must be escaped, or it closes the content attribute
+			// early and takes the rest of the <head> with it.
+			if strings.Contains(head, `"LGTM!"`) {
+				t.Error("an unescaped double quote reached a head attribute value")
+			}
+			if !strings.Contains(head, "&#34;LGTM!&#34;") {
+				t.Errorf("expected the quote to be escaped in the head:\n%s", head)
+			}
+			if strings.Contains(head, "<script>") {
+				t.Error("an unescaped <script> tag reached the head")
+			}
+			if !strings.Contains(head, "&amp;") {
+				t.Error("the ampersand was not escaped")
+			}
+			// The head must still be intact: one description meta, one og:description.
+			if n := strings.Count(head, `name="description"`); n != 1 {
+				t.Errorf("found %d description meta tags, want 1 — the head is malformed", n)
+			}
+			if !strings.Contains(head, `property="og:description"`) {
+				t.Error("og:description was lost, so the head broke early")
+			}
+			// The raw text should survive intact on the post itself.
+			if !strings.Contains(post.Description, `"LGTM!"`) {
+				t.Errorf("post description lost its content: %q", post.Description)
+			}
+		})
+	}
+}
+
+// TestMalformedFrontmatterDoesNotLeakIntoPage pins what happens when the YAML
+// fails to parse — the classic being an unquoted colon in a title. The parser
+// error is swallowed and the whole file becomes the body, so the delimiters and
+// the frontmatter keys render as prose and become the meta description.
+func TestMalformedFrontmatterDoesNotLeakIntoPage(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "2024-01-01-broken.md")
+	body := "---\ntitle: Foo: bar\n---\n\nReal body text.\n"
+	if err := os.WriteFile(path, []byte(body), 0644); err != nil {
+		t.Fatalf("writing fixture: %v", err)
+	}
+
+	_, output, _, err := processMarkdownFile(path, testMetaTemplate)
+
+	if err == nil {
+		t.Fatalf("expected an error for malformed frontmatter, got none.\noutput:\n%s", output)
+	}
+	if !strings.Contains(err.Error(), "frontmatter") {
+		t.Errorf("error should name the frontmatter as the cause, got: %v", err)
+	}
+	// The file must not be published with its YAML as the body.
+	if strings.Contains(output, "title: Foo") {
+		t.Error("the raw frontmatter line rendered as page content")
+	}
+}
+
+// TestNoFrontmatterIsNotAnError keeps the check above from over-reaching: a
+// post with no --- block at all is legitimate, and the title falls back to the
+// filename.
+func TestNoFrontmatterIsNotAnError(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "2024-01-01-plain-post.md")
+	if err := os.WriteFile(path, []byte("# Plain\n\nBody text.\n"), 0644); err != nil {
+		t.Fatalf("writing fixture: %v", err)
+	}
+
+	_, output, post, err := processMarkdownFile(path, testMetaTemplate)
+	if err != nil {
+		t.Fatalf("a post with no frontmatter should build, got: %v", err)
+	}
+	if !strings.Contains(output, "Body text.") {
+		t.Error("the post body was lost")
+	}
+	if post.Title != "plain post" {
+		t.Errorf("got title %q, want the filename-derived %q", post.Title, "plain post")
+	}
+}
+
+// TestInvalidFilenameDateDropsPostFromIndex documents what an impossible date
+// costs: the page is still written, but a zero date drops it from the index,
+// the archive, the tag pages and the feed, reachable only by direct URL.
+func TestInvalidFilenameDateDropsPostFromIndex(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "2023-02-30-impossible.md")
+	if err := os.WriteFile(path, []byte("---\ntitle: Impossible\n---\n\nBody.\n"), 0644); err != nil {
+		t.Fatalf("writing fixture: %v", err)
+	}
+
+	outName, _, post, err := processMarkdownFile(path, testMetaTemplate)
+	if err != nil {
+		t.Fatalf("processMarkdownFile: %v", err)
+	}
+
+	if outName != "2023-02-30-impossible.html" {
+		t.Errorf("got output file %q, want the page to still be written", outName)
+	}
+	if !post.Date.IsZero() {
+		t.Errorf("expected a zero date for an impossible calendar date, got %v", post.Date)
+	}
+	if got := datedPostsNewestFirst([]*BlogPost{post}); len(got) != 0 {
+		t.Error("a post with an unparseable date should be dropped from the dated listing")
+	}
+}
+
+// TestGenerateSiteStaticPagesAndCollisions covers the wiring between
+// copyStaticDir and the rest of the build. copyStaticDir is tested in
+// isolation, but every other end-to-end test runs in a temp dir with no
+// static/, so staticPages is always nil: drop the append that feeds them to the
+// sitemap and /style-guide.html, /sports.html and the quick reference vanish
+// from it with a green suite. The collision rule — generated pages win — is
+// enforced only by statement order, and nothing asserted it.
+func TestGenerateSiteStaticPagesAndCollisions(t *testing.T) {
+	testDir, cleanup := setupTestEnv(t)
+	defer cleanup()
+
+	staticDir := filepath.Join(testDir, "static")
+	if err := os.Mkdir(staticDir, 0755); err != nil {
+		t.Fatalf("creating static dir: %v", err)
+	}
+	files := map[string]string{
+		"guide.html": "<html><body>the guide</body></html>",
+		"theme.css":  "body { color: red }",
+		// A decoy the generated homepage must win against.
+		"index.html": "<html><body>DECOY HOMEPAGE</body></html>",
+	}
+	for name, body := range files {
+		if err := os.WriteFile(filepath.Join(staticDir, name), []byte(body), 0644); err != nil {
+			t.Fatalf("writing %s: %v", name, err)
+		}
+	}
+
+	originalWd, _ := os.Getwd()
+	if err := os.Chdir(testDir); err != nil {
+		t.Fatalf("Could not change to test directory: %v", err)
+	}
+	defer os.Chdir(originalWd)
+
+	buildDir := filepath.Join(testDir, "build")
+	err := generateSite(
+		filepath.Join(testDir, "content"),
+		buildDir,
+		filepath.Join(testDir, "template.html"),
+		nil,
+	)
+	if err != nil {
+		t.Fatalf("generateSite: %v", err)
+	}
+
+	// Static assets are copied verbatim.
+	if got := readFile(t, filepath.Join(buildDir, "theme.css")); got != files["theme.css"] {
+		t.Errorf("theme.css was not copied verbatim, got %q", got)
+	}
+	if got := readFile(t, filepath.Join(buildDir, "guide.html")); got != files["guide.html"] {
+		t.Errorf("guide.html was not copied verbatim, got %q", got)
+	}
+
+	// Static HTML pages reach the sitemap; a stylesheet does not.
+	sitemap := readFile(t, filepath.Join(buildDir, "sitemap.xml"))
+	if !strings.Contains(sitemap, "guide.html") {
+		t.Errorf("sitemap.xml omits the static page guide.html:\n%s", sitemap)
+	}
+	if strings.Contains(sitemap, "theme.css") {
+		t.Error("sitemap.xml lists a stylesheet, which is not a page")
+	}
+
+	// The generated homepage wins the collision.
+	index := readFile(t, filepath.Join(buildDir, "index.html"))
+	if strings.Contains(index, "DECOY HOMEPAGE") {
+		t.Error("a static index.html overwrote the generated homepage")
+	}
+	if !strings.Contains(index, "First Post") {
+		t.Error("the generated homepage is missing its post list")
+	}
+}
+
+// TestGenerateSiteWithNoPosts covers a fresh clone: an empty content directory
+// should still produce the machine-readable files and the 404 page, and should
+// not leave an empty index or archive behind.
+func TestGenerateSiteWithNoPosts(t *testing.T) {
+	testDir := t.TempDir()
+	for _, dir := range []string{"content", "build"} {
+		if err := os.Mkdir(filepath.Join(testDir, dir), 0755); err != nil {
+			t.Fatalf("creating %s: %v", dir, err)
+		}
+	}
+	templatePath := filepath.Join(testDir, "template.html")
+	if err := os.WriteFile(templatePath, []byte(testMetaTemplate), 0644); err != nil {
+		t.Fatalf("writing template: %v", err)
+	}
+
+	originalWd, _ := os.Getwd()
+	if err := os.Chdir(testDir); err != nil {
+		t.Fatalf("Could not change to test directory: %v", err)
+	}
+	defer os.Chdir(originalWd)
+
+	buildDir := filepath.Join(testDir, "build")
+	if err := generateSite(filepath.Join(testDir, "content"), buildDir, templatePath, nil); err != nil {
+		t.Fatalf("generateSite on an empty site: %v", err)
+	}
+
+	for _, name := range []string{"404.html", "robots.txt"} {
+		if _, err := os.Stat(filepath.Join(buildDir, name)); err != nil {
+			t.Errorf("%s was not written: %v", name, err)
+		}
+	}
+	for _, name := range []string{"index.html", "posts.html"} {
+		if _, err := os.Stat(filepath.Join(buildDir, name)); !os.IsNotExist(err) {
+			t.Errorf("%s was written even though there are no posts", name)
+		}
+	}
+}
+
+// TestMain points the shelf fetcher at a local server for the whole package, so
+// no test reaches goodreads.com. TestFileGeneration calls main(), which fetches
+// every featured shelf; against the real origin that is three live HTTPS
+// requests per run, each with a 15-second timeout — slow, flaky, and dependent
+// on a third party being up for the suite to pass. Individual tests still
+// override the base URL for their own fixtures.
+func TestMain(m *testing.M) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, shelfRSS("A Cached Book"))
+	}))
+	goodreadsBaseURL = srv.URL
+
+	code := m.Run()
+
+	srv.Close()
+	os.Exit(code)
 }

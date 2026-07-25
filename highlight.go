@@ -426,7 +426,11 @@ func tokenize(src string, spec *langSpec) []token {
 			continue
 		}
 
-		push(tokPlain, string(c))
+		// Slice rather than convert: c is a byte, and string(c) on anything
+		// >= 0x80 re-encodes that integer as its own two-byte UTF-8 sequence,
+		// turning "café" into "cafÃ©". Slicing keeps the raw byte, and
+		// consecutive plain tokens merge, so a multi-byte rune reassembles.
+		push(tokPlain, src[i:i+1])
 		i++
 		lineStart = false
 	}

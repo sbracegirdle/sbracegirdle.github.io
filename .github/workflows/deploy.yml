@@ -29,8 +29,11 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
+      # -race is the point of running these twice: the live-reload hub shares a
+      # subscriber map between the file watcher and every connected browser, and
+      # without the detector no data race in this repo is ever caught.
       - name: Run tests
-        run: go test -v ./...
+        run: go test -race -v ./...
 
       - name: Build static site generator
         run: go build -o ssg .
@@ -49,8 +52,54 @@ jobs:
         with:
           path: "./build"
 
+  # The browser suite is a mandatory gate per AGENTS.md, with the same standing
+  # as the Go tests — but it only ever ran when someone remembered to run it
+  # locally, so a theme or markup regression could reach Pages unchallenged.
+  # It regenerates build/ itself (npm pretest), so it needs Go as well as Node.
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/browser/package-lock.json
+
+      - name: Install dependencies
+        working-directory: tests/browser
+        run: npm ci
+
+      - name: Install Chromium
+        working-directory: tests/browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run the browser suite
+        working-directory: tests/browser
+        run: npm test
+
+      # The CI reporters are github + list, so there is no HTML report to keep.
+      # test-results/ is where Playwright puts the screenshot and trace for each
+      # failure, which is what you actually need to diagnose one from a log.
+      - name: Upload failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: tests/browser/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
   deploy:
-    needs: build
+    needs: [build, browser]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
