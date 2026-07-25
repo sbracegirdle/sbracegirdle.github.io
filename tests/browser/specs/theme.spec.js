@@ -321,39 +321,67 @@ test("season bars match their printed counts", async ({ page }) => {
   expect(wrong, "the season chart disagrees with its own numbers").toEqual([]);
 });
 
-// The scroll hint is shown by a hand-measured media query, so it drifts the
-// moment a column is added or a cell gets longer. Either half of the mismatch
-// is a real failure: a table that scrolls with no hint hides half the year, and
-// a hint with nothing to scroll sends the reader looking for content that is
-// already on screen.
-for (const width of [1280, 700, 565, 390, 320]) {
-  test.describe(`season table at ${width}px`, () => {
-    test.use({ viewport: { width, height: 844 } });
+// The scroll hint is shown by a media query, so it drifts the moment the table
+// or the page gutters change width. Either half of the mismatch is a real
+// failure: a table that scrolls with no hint hides half the year, and a hint
+// with nothing to scroll sends the reader looking for content that is already
+// on screen.
+//
+// Both grids are checked either side of their own boundary — the last width
+// that fits and the first that doesn't. That pair is what fails when a media
+// query and the table it was written for stop agreeing, and it only works
+// because `.season` states its width: a content-sized table lands on a
+// different fraction of a pixel on every machine, which is how the sports grid
+// passed here and failed on CI.
+const seasonGrids = [
+  {
+    what: "the sports grid",
+    url: "/sports.html",
+    // Six months at --season-month behind a --season-label, plus the page's
+    // gutters: 34rem + 3rem.
+    box: ".scroll-x",
+    hint: ".scroll-hint",
+    widths: [1280, 700, 592, 591, 390, 320],
+  },
+  {
+    what: "the style guide's demo grid",
+    url: "/style-guide.html",
+    // Four months, and the demo frame's 50px on top of the same gutters.
+    box: '.frame[data-label="season"] .scroll-x',
+    hint: ".sg-fit-514",
+    widths: [1280, 700, 514, 513, 390, 320],
+  },
+];
 
-    test("the scroll hint appears exactly when the table scrolls", async ({ page }) => {
-      await page.goto("/sports.html");
+for (const grid of seasonGrids) {
+  for (const width of grid.widths) {
+    test.describe(`${grid.what} at ${width}px`, () => {
+      test.use({ viewport: { width, height: 844 } });
 
-      const state = await page.evaluate(() => {
-        const box = document.querySelector(".scroll-x");
-        const hint = document.querySelector(".scroll-hint");
-        return {
-          // Any overflow at all means the reader has content off screen. The
-          // breakpoint is calibrated to the pixel — 566px fits exactly, 565px
-          // overflows by one — so a tolerance here would blind the test to the
-          // boundary it exists to watch.
-          scrolls: box ? box.scrollWidth - box.clientWidth > 0 : null,
-          hinted: hint ? getComputedStyle(hint).display !== "none" : null,
-        };
+      test("the scroll hint appears exactly when the table scrolls", async ({ page }) => {
+        await page.goto(grid.url);
+
+        const state = await page.evaluate(({ box: boxSel, hint: hintSel }) => {
+          const box = document.querySelector(boxSel);
+          const hint = document.querySelector(hintSel);
+          return {
+            // Any overflow at all means the reader has content off screen, so
+            // no tolerance here: a tolerance would blind the test to the
+            // boundary it exists to watch.
+            scrolls: box ? box.scrollWidth - box.clientWidth > 0 : null,
+            hinted: hint ? getComputedStyle(hint).display !== "none" : null,
+          };
+        }, grid);
+
+        expect(state.scrolls, `no ${grid.box} region found on ${grid.url}`).not.toBeNull();
+        expect(state.hinted, `no ${grid.hint} found on ${grid.url}`).not.toBeNull();
+        expect(
+          state.hinted,
+          state.scrolls
+            ? "the table scrolls but no hint says so"
+            : "a scroll hint is shown but the table fits",
+        ).toBe(state.scrolls);
       });
-
-      expect(state.scrolls, "no .scroll-x region found on the page").not.toBeNull();
-      expect(state.hinted, "no .scroll-hint found on the page").not.toBeNull();
-      expect(
-        state.hinted,
-        state.scrolls
-          ? "the table scrolls but no hint says so"
-          : "a scroll hint is shown but the table fits",
-      ).toBe(state.scrolls);
     });
-  });
+  }
 }

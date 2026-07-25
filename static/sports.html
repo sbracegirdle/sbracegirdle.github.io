@@ -18,10 +18,13 @@
 <link rel="alternate" type="application/rss+xml" title="LetsBuild.cloud" href="/feed.xml" />
 <style>
 /* The one page-specific rule here: where the season grid stops fitting, and so
-   where its scroll hint has to appear. Measured — seven columns fit at 566px
-   and clip at 565 — so re-measure if the table gains a column or a cell gets
-   wider. theme.css styles the hint and leaves the breakpoint to the page. */
-@media (max-width: 565px) { .scroll-hint { display: block; } }
+   where its scroll hint has to appear. Arithmetic, not measured: six months at
+   --season-month (4rem) behind a --season-label of 10rem make the table 34rem,
+   and the page adds --layout-pad-x either side, so the grid needs 37rem — 592px
+   — of viewport and scrolls below that. A media query can't read a token, so
+   the sum is written out; redo it if the table gains a month. theme.css styles
+   the hint and leaves the breakpoint to the page. */
+@media (max-width: 591px) { .scroll-hint { display: block; } }
 </style>
 </head>
 <body>

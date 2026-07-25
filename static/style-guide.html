@@ -26,11 +26,16 @@
   /* ── Scroll hints ── */
   /* theme.css styles the hint and hides it; the width at which a table stops
      fitting is a fact about that table, so the query lives with the page. Each
-     class is named for the measured width at which its scroller first fits, and
-     fires one pixel below it. Re-measure if a table gains a column or a cell
-     gets wider — a hint pointing at nothing is as wrong as no hint at all. */
+     class is named for the width at which its scroller first fits, and fires one
+     pixel below it. Re-measure if a table gains a column or a cell gets wider —
+     a hint pointing at nothing is as wrong as no hint at all.
+     The season demo is the one that isn't measured: `.season` states its own
+     width, so its number is arithmetic — four months at --season-month behind a
+     --season-label of 10rem is 26rem, plus the frame's 50px and the page's
+     gutters. Set --season-months with it or the two disagree. */
   @media (max-width: 469px) { .sg-fit-470 { display: block; } }  /* text & interactive */
-  @media (max-width: 444px) { .sg-fit-445 { display: block; } }  /* season demo */
+  @media (max-width: 513px) { .sg-fit-514 { display: block; } }  /* season demo */
+  .frame[data-label="season"] .season { --season-months: 4; }
   @media (max-width: 442px) { .sg-fit-443 { display: block; } }  /* hues */
   @media (max-width: 365px) { .sg-fit-366 { display: block; } }  /* typography ref */
   @media (max-width: 347px) { .sg-fit-348 { display: block; } }  /* colour, borders & motion */
@@ -932,9 +937,13 @@
 <p>
   Two rules come with it. The width where a table stops fitting is a fact
   about that table, so <code>theme.css</code> hides the hint and the page
-  reveals it — measure your table and put the one media query beside it. And
-  word the hint so it's true at every width it shows at: naming the columns
-  that are off to the right is tempting and wrong, because which ones those
+  reveals it — work out your table's width and put the one media query beside
+  it. Work it out rather than measure it where you can: a measured breakpoint
+  holds only for the font it was measured in, and this stack starts with three
+  fonts a visitor has to install. The season grid states its own width in
+  <code>--season-label</code> and <code>--season-month</code>, so its number is
+  a sum. And word the hint so it's true at every width it shows at: naming the
+  columns that are off to the right is tempting and wrong, because which ones those
   are changes as the viewport does, and without JavaScript the page ends up
   telling you to scroll for a month that never left the screen.
 </p>
@@ -1133,6 +1142,16 @@
 </p>
 
 <p>
+  The columns are fixed, not sized by their contents: the grid is
+  <code>--season-label</code> wide plus <code>--season-months</code> at
+  <code>--season-month</code> each, and comes out that wide in any monospace.
+  A grid with a different number of months sets <code>--season-months</code>,
+  as the four-month demo below does. That's what makes the scroll hint's
+  breakpoint a sum instead of a measurement. Measured, it came out a fraction
+  of a pixel wider here than on CI, and the hint fired a column early.
+</p>
+
+<p>
   The label goes in a <code>.label</code> above the scroller, not in a
   <code>&lt;caption&gt;</code>. A caption is a child of the table, so it takes
   the table's width and slides off the screen with it: the table is allowed to
@@ -1169,7 +1188,7 @@
       </tbody>
     </table>
   </div>
-  <p class="scroll-hint sg-fit-445">Scroll the table sideways for the rest of it.</p>
+  <p class="scroll-hint sg-fit-514">Scroll the table sideways for the rest of it.</p>
 </div>
 
 <h3 id="hues">Hue carriers</h3>

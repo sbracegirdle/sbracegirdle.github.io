@@ -681,7 +681,25 @@ footer { margin-top: var(--space-6); }
      in the spacing scale. */
   --season-step: 0.625rem;
   --season-col: 1.15rem;
+  /* The width the grid holds itself to, stated rather than left to the content.
+     `table-layout: fixed` takes the columns off the text, so the table comes out
+     exactly this wide — or its container's width, whichever is greater — in
+     whatever monospace the visitor turns out to have. Sized by the content it
+     was 517.7px here and a shade under 517px on CI, and that fraction of a pixel
+     is the whole difference between a scroll hint that fires with the table and
+     one that fires a column early.
+
+     A grid with a different number of months says so: `--season-months`. Both
+     the table's width and the page's hint breakpoint follow from it, so they
+     can't drift apart. 10rem holds "Marathon majors" with room for a font a
+     quarter again as wide; 4rem holds a month name and a column under it. */
+  --season-label: 10rem;
+  --season-month: 4rem;
+  --season-months: 6;
+  table-layout: fixed;
+  min-width: calc(var(--season-label) + var(--season-months) * var(--season-month));
 }
+.season thead th:first-child { width: var(--season-label); }
 .season td,
 .season th[scope="col"] { text-align: center; }
 /* Month names are dates, and dates are gold sitewide. The corner cell heads
@@ -703,9 +721,13 @@ footer { margin-top: var(--space-6); }
    table needs a cue as well as a scrollbar, so pair it with a hint.
 
    Hidden here and revealed by the page, because the width at which a table
-   stops fitting is a fact about that table — its column count, its longest
-   cell — and not about the component. Measure it and put the one media query
-   next to the table it was measured for.
+   stops fitting is a fact about that table — its own width plus the page's
+   gutters — and not about the component. Work it out and put the one media
+   query next to the table it belongs to. Work it out rather than measure it:
+   a measured breakpoint is only true for the font the person measuring had
+   installed, and this stack starts with three a visitor has to install. A
+   table that states its own width — as `.season` does — turns the breakpoint
+   into a sum instead.
 
    Word the hint so it holds at every width it shows at. Naming the columns
    that are off-screen is tempting and wrong: which ones those are changes as
