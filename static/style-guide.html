@@ -612,6 +612,51 @@
   </div>
 </div>
 
+<h3 id="reading-shelves">Reading shelves</h3>
+
+<p>
+  The homepage reading block: one card per Goodreads shelf, each tinted by a
+  <code>.shelf-gold</code>, <code>.shelf-foam</code> or <code>.shelf-iris</code>
+  modifier so the three groups read as three groups. This is the one place a hue
+  means <em>which group</em> rather than its usual job. The card title always
+  says the same thing, so nothing rides on colour alone.
+</p>
+
+<p>
+  <code>.book-glyph</code> is a book drawn in CSS: a coloured spine down the
+  left edge and two rules for the title on the cover, varying by position so a
+  shelf isn't one book repeated. It replaced a hot-linked Goodreads cover that
+  ran up to 750 KB for a 26px slot. It's decoration, so it's
+  <code>aria-hidden</code> — the title and author sit beside it as text.
+  <code>.reading .card-grid</code> aligns to <code>start</code> so a one-book
+  shelf doesn't stretch to the height of a three-book one.
+</p>
+
+<section class="reading">
+<div class="card-grid">
+  <div class="card shelf-gold">
+    <span class="card-title">Currently reading</span>
+    <ul class="book-list">
+      <li class="book"><a href="#reading-shelves" class="book-link"><span class="book-glyph" aria-hidden="true"></span><div class="book-meta"><span class="book-title">Rhythm of War (The Stormlight Archive, #4)</span><span class="book-author">Brandon Sanderson</span></div></a></li>
+    </ul>
+  </div>
+  <div class="card shelf-foam">
+    <span class="card-title">Want to read</span>
+    <ul class="book-list">
+      <li class="book"><a href="#reading-shelves" class="book-link"><span class="book-glyph" aria-hidden="true"></span><div class="book-meta"><span class="book-title">House of Suns</span><span class="book-author">Alastair Reynolds</span></div></a></li>
+      <li class="book"><a href="#reading-shelves" class="book-link"><span class="book-glyph" aria-hidden="true"></span><div class="book-meta"><span class="book-title">Worm (Parahumans, #1)</span><span class="book-author">Wildbow</span></div></a></li>
+    </ul>
+  </div>
+  <div class="card shelf-iris">
+    <span class="card-title">Recently finished</span>
+    <ul class="book-list">
+      <li class="book"><a href="#reading-shelves" class="book-link"><span class="book-glyph" aria-hidden="true"></span><div class="book-meta"><span class="book-title">Oathbringer (The Stormlight Archive, #3)</span><span class="book-author">Brandon Sanderson</span></div></a></li>
+      <li class="book"><a href="#reading-shelves" class="book-link"><span class="book-glyph" aria-hidden="true"></span><div class="book-meta"><span class="book-title">Edgedancer (The Stormlight Archive, #2.5)</span><span class="book-author">Brandon Sanderson</span></div></a></li>
+    </ul>
+  </div>
+</div>
+</section>
+
 <h3>Callouts</h3>
 
 <div class="frame" data-label="callouts">

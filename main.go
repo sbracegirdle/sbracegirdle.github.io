@@ -113,33 +113,41 @@ const defaultGoodreadsUserID = "28429269"
 const maxBooksPerShelf = 3
 
 // readingShelf describes one Goodreads shelf to feature, with the label shown
-// on the page and the RSS sort key used to pick the most relevant books.
+// on the page, the RSS sort key used to pick the most relevant books, and the
+// theme hue that tints its card.
 type readingShelf struct {
 	shelf string // Goodreads shelf slug
 	label string // heading shown on the page
 	sort  string // Goodreads RSS sort key ("" = feed default)
+	hue   string // theme.css shelf-hue modifier ("gold", "foam", "iris")
 }
 
 // featuredShelves are the shelves rendered in the "What I'm reading" block, in
 // display order. "to-read" is sorted by when it was added and "read" by when it
-// was finished, so each group shows the most recent few.
+// was finished, so each group shows the most recent few. Each shelf carries a
+// distinct hue so the three cards read as three groups; the hue only repeats
+// the label, which is always on the card, so nothing is carried by colour alone.
 var featuredShelves = []readingShelf{
-	{shelf: "currently-reading", label: "Currently reading", sort: ""},
-	{shelf: "to-read", label: "Want to read", sort: "date_added"},
-	{shelf: "read", label: "Recently finished", sort: "date_read"},
+	{shelf: "currently-reading", label: "Currently reading", sort: "", hue: "gold"},
+	{shelf: "to-read", label: "Want to read", sort: "date_added", hue: "foam"},
+	{shelf: "read", label: "Recently finished", sort: "date_read", hue: "iris"},
 }
 
-// Book is a single book pulled from a public Goodreads shelf.
+// Book is a single book pulled from a public Goodreads shelf. Covers are
+// deliberately not carried: the page draws a CSS book glyph instead of
+// hot-linking Goodreads artwork, which ran to hundreds of kilobytes a cover for
+// a 26px slot.
 type Book struct {
-	Title    string
-	Author   string
-	Link     string
-	ImageURL string
+	Title  string
+	Author string
+	Link   string
 }
 
-// ShelfBooks is a labelled group of books from one shelf.
+// ShelfBooks is a labelled group of books from one shelf, with the hue that
+// tints its card.
 type ShelfBooks struct {
 	Label string
+	Hue   string
 	Books []Book
 }
 
@@ -149,11 +157,9 @@ type goodreadsFeed struct {
 }
 
 type goodreadsItem struct {
-	Title          string `xml:"title"`
-	BookID         string `xml:"book_id"`
-	AuthorName     string `xml:"author_name"`
-	BookImageURL   string `xml:"book_image_url"`
-	BookLargeImage string `xml:"book_large_image_url"`
+	Title      string `xml:"title"`
+	BookID     string `xml:"book_id"`
+	AuthorName string `xml:"author_name"`
 }
 
 // fetchFeaturedShelves pulls every shelf in featuredShelves, capped at
@@ -171,7 +177,7 @@ func fetchFeaturedShelves(userID string) []ShelfBooks {
 		if len(books) == 0 {
 			continue
 		}
-		groups = append(groups, ShelfBooks{Label: s.label, Books: books})
+		groups = append(groups, ShelfBooks{Label: s.label, Hue: s.hue, Books: books})
 	}
 	return groups
 }
@@ -249,12 +255,6 @@ func parseShelf(data []byte) ([]Book, error) {
 
 	books := make([]Book, 0, len(feed.Items))
 	for _, item := range feed.Items {
-		// Prefer the larger cover; fall back to the thumbnail.
-		image := strings.TrimSpace(item.BookLargeImage)
-		if image == "" {
-			image = strings.TrimSpace(item.BookImageURL)
-		}
-
 		// Build a clean canonical book link from the ID, dropping the
 		// tracking parameters Goodreads attaches to the RSS <link>.
 		link := ""
@@ -263,10 +263,9 @@ func parseShelf(data []byte) ([]Book, error) {
 		}
 
 		books = append(books, Book{
-			Title:    strings.TrimSpace(item.Title),
-			Author:   strings.TrimSpace(item.AuthorName),
-			Link:     link,
-			ImageURL: image,
+			Title:  strings.TrimSpace(item.Title),
+			Author: strings.TrimSpace(item.AuthorName),
+			Link:   link,
 		})
 	}
 	return books, nil
@@ -297,7 +296,11 @@ func renderReadingSection(groups []ShelfBooks) string {
 		if len(group.Books) == 0 {
 			continue
 		}
-		b.WriteString("<div class=\"card\">")
+		cardClass := "card"
+		if group.Hue != "" {
+			cardClass += " shelf-" + html.EscapeString(group.Hue)
+		}
+		b.WriteString(fmt.Sprintf("<div class=\"%s\">", cardClass))
 		b.WriteString(fmt.Sprintf("<span class=\"card-title\">%s</span>", html.EscapeString(group.Label)))
 		b.WriteString("<ul class=\"book-list\">")
 		for _, book := range group.Books {
@@ -307,11 +310,9 @@ func renderReadingSection(groups []ShelfBooks) string {
 			if openLink {
 				b.WriteString(fmt.Sprintf("<a href=\"%s\" class=\"book-link\">", html.EscapeString(book.Link)))
 			}
-			if book.ImageURL != "" {
-				b.WriteString(fmt.Sprintf(
-					"<img class=\"book-cover\" src=\"%s\" alt=\"Cover of %s\" loading=\"lazy\" />",
-					html.EscapeString(book.ImageURL), html.EscapeString(book.Title)))
-			}
+			// A CSS-drawn book, not an image: no request, no third party, and
+			// nothing to announce, so it stays out of the accessibility tree.
+			b.WriteString("<span class=\"book-glyph\" aria-hidden=\"true\"></span>")
 
 			b.WriteString("<div class=\"book-meta\">")
 			b.WriteString(fmt.Sprintf("<span class=\"book-title\">%s</span>", html.EscapeString(book.Title)))

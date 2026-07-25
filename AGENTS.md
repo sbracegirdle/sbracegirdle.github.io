@@ -347,6 +347,14 @@ carry a few page-specific rules inline (e.g. the quick ref's two-column TOC).
   line height. Post prose may hot-link images, which is the author's call —
   the "no external requests" rule is about the theme, and the browser suite
   only fails on off-origin *code*.
+- The generator's own markup hot-links nothing. The homepage reading shelves used to pull a
+  Goodreads cover per book — up to 750 KB each, for a 26px slot, from a third
+  party that can change or vanish. They now draw `.book-glyph`, a book in CSS:
+  a spine in the shelf's hue and two rules for the title. Each shelf card takes
+  a `.shelf-gold`/`.shelf-foam`/`.shelf-iris` modifier so the groups read as
+  groups; the hue only repeats the card title, so nothing rides on colour
+  alone. `parseShelf` drops the cover URLs the feed still carries, and
+  `TestParseShelfIgnoresCovers` keeps them out.
 - Nothing may widen the page on a phone. Inline `code`, links and `h1` break
   mid-token; code blocks scroll inside `pre`; flex rows (`.pager`, the style
   guide's specimen rows) wrap; and hidden decoration is hidden with `display`

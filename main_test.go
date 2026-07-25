@@ -489,10 +489,7 @@ const sampleGoodreadsRSS = `<?xml version="1.0" encoding="UTF-8"?>
       <author_name>Brandon Sanderson</author_name>
     </item>
     <item>
-      <title><![CDATA[A Book Without A Large Cover]]></title>
-      <book_id>999</book_id>
-      <book_image_url><![CDATA[https://example.com/only-small.jpg]]></book_image_url>
-      <book_large_image_url></book_large_image_url>
+      <title><![CDATA[A Book Without A Link]]></title>
       <author_name>Some Author</author_name>
     </item>
   </channel>
@@ -516,17 +513,30 @@ func TestParseShelf(t *testing.T) {
 	if first.Author != "Brandon Sanderson" {
 		t.Errorf("unexpected author: %q", first.Author)
 	}
-	if first.ImageURL != "https://example.com/large.jpg" {
-		t.Errorf("expected large cover to be preferred, got %q", first.ImageURL)
-	}
 	if first.Link != "https://www.goodreads.com/book/show/34002132" {
 		t.Errorf("expected canonical book link, got %q", first.Link)
 	}
 
-	// Second book has no large cover, so the parser should fall back to the
-	// thumbnail.
-	if books[1].ImageURL != "https://example.com/only-small.jpg" {
-		t.Errorf("expected fallback to small cover, got %q", books[1].ImageURL)
+	// Second item carries no book_id, so it should parse with an empty link
+	// rather than a broken one.
+	if books[1].Link != "" {
+		t.Errorf("expected empty link without a book_id, got %q", books[1].Link)
+	}
+}
+
+// TestParseShelfIgnoresCovers pins the decision to stop hot-linking Goodreads
+// artwork: the feed still carries cover URLs and the parser must drop them, so
+// no page can pick one up again by accident.
+func TestParseShelfIgnoresCovers(t *testing.T) {
+	books, err := parseShelf([]byte(sampleGoodreadsRSS))
+	if err != nil {
+		t.Fatalf("parseShelf returned error: %v", err)
+	}
+	section := renderReadingSection([]ShelfBooks{{Label: "Currently reading", Books: books}})
+	for _, unwanted := range []string{"example.com", "<img", "book-cover"} {
+		if strings.Contains(section, unwanted) {
+			t.Errorf("reading section should carry no cover images, found %q\ngot: %s", unwanted, section)
+		}
 	}
 }
 
@@ -554,15 +564,16 @@ func TestRenderReadingSection(t *testing.T) {
 	shelves := []ShelfBooks{
 		{
 			Label: "Currently reading",
+			Hue:   "gold",
 			Books: []Book{{
-				Title:    "Oathbringer",
-				Author:   "Brandon Sanderson",
-				Link:     "https://www.goodreads.com/book/show/34002132",
-				ImageURL: "https://example.com/large.jpg",
+				Title:  "Oathbringer",
+				Author: "Brandon Sanderson",
+				Link:   "https://www.goodreads.com/book/show/34002132",
 			}},
 		},
 		{
 			Label: "Want to read",
+			Hue:   "foam",
 			Books: []Book{{Title: "Wind and Truth", Author: "Brandon Sanderson"}},
 		},
 	}
@@ -572,10 +583,14 @@ func TestRenderReadingSection(t *testing.T) {
 		"What I'm reading",
 		"Currently reading",
 		"Want to read",
-		"https://example.com/large.jpg",
 		"Oathbringer",
 		"Wind and Truth",
 		"https://www.goodreads.com/book/show/34002132",
+		// The CSS book glyph replaces the cover, and is decoration only.
+		`<span class="book-glyph" aria-hidden="true"></span>`,
+		// Each shelf card carries its hue modifier.
+		`class="card shelf-gold"`,
+		`class="card shelf-foam"`,
 	} {
 		if !strings.Contains(html, want) {
 			t.Errorf("rendered section missing %q\ngot: %s", want, html)

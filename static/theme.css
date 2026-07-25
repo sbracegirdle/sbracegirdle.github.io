@@ -471,6 +471,21 @@ footer { margin-top: var(--space-6); }
 .card-grid .card { margin: 0; }
 
 /* ── Reading shelves (book cards) ─────────────────────────────── */
+/* Each shelf card takes a hue so the groups read as groups. The hue only
+   repeats the card title, which is always present, so nothing depends on
+   colour alone. */
+.shelf-gold { --shelf-hue: var(--c-gold); }
+.shelf-foam { --shelf-hue: var(--c-foam); }
+.shelf-iris { --shelf-hue: var(--c-iris); }
+.shelf-gold, .shelf-foam, .shelf-iris { border-color: var(--shelf-hue); }
+.shelf-gold > .card-title,
+.shelf-foam > .card-title,
+.shelf-iris > .card-title { border-color: var(--shelf-hue); color: var(--shelf-hue); }
+
+/* Cards size to their own contents — a one-book shelf shouldn't be stretched
+   to the height of a three-book one. */
+.reading .card-grid { align-items: start; }
+
 .book-list {
   list-style: none;
   margin: 0;
@@ -489,13 +504,31 @@ footer { margin-top: var(--space-6); }
 }
 .book-link:hover { color: inherit; border-bottom-color: transparent; }
 .book-link:hover .book-title { color: var(--color-accent); }
-.book-cover {
-  width: 44px;
-  height: auto;
-  flex-shrink: 0;
-  border-radius: var(--radius);
-  border: var(--border-width) solid var(--color-border-strong);
+.book-link:hover .book-glyph {
+  border-left-color: var(--c-rose);
+  background-color: var(--color-surface);
 }
+/* A book drawn in CSS: coloured spine down the left, two rules for the title
+   on the cover. Decorative and aria-hidden — the title and author sit beside
+   it as text. Replaces a hot-linked cover that cost up to 750 KB a book. */
+.book-glyph {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 26px;
+  height: 36px;
+  --glyph-rule-1: 12px;
+  --glyph-rule-2: 8px;
+  border: var(--border-width) solid var(--color-border-strong);
+  border-left: 4px solid var(--shelf-hue, var(--color-border-strong));
+  background:
+    linear-gradient(var(--color-border-strong) 0 0) no-repeat 4px 8px / var(--glyph-rule-1) 2px,
+    linear-gradient(var(--color-border-strong) 0 0) no-repeat 4px 13px / var(--glyph-rule-2) 2px,
+    var(--color-overlay);
+  transition: border-color var(--transition), background-color var(--transition);
+}
+/* Vary the cover rules so a shelf isn't one book repeated. */
+.book:nth-child(2) .book-glyph { --glyph-rule-1: 9px; --glyph-rule-2: 11px; }
+.book:nth-child(3) .book-glyph { --glyph-rule-1: 13px; --glyph-rule-2: 6px; }
 .book-meta {
   display: flex;
   flex-direction: column;
