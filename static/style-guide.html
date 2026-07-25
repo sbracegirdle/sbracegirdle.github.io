@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
 <title>Style guide — LetsBuild.cloud</title>
-<meta name="description" content="The visual design system behind LetsBuild.cloud — tokens, components, and the rules that hold the night-terminal theme together." />
+<meta name="description" content="The visual design system behind LetsBuild.cloud — tokens, components, and the usage rules for the night-terminal theme." />
 <meta name="author" content="Simon Bracegirdle" />
 <link rel="canonical" href="https://letsbuild.cloud/style-guide.html" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="LetsBuild.cloud" />
 <meta property="og:title" content="Style guide — LetsBuild.cloud" />
-<meta property="og:description" content="The visual design system behind LetsBuild.cloud — tokens, components, and the rules that hold the night-terminal theme together." />
+<meta property="og:description" content="The visual design system behind LetsBuild.cloud — tokens, components, and the usage rules for the night-terminal theme." />
 <meta property="og:url" content="https://letsbuild.cloud/style-guide.html" />
 <meta name="twitter:card" content="summary" />
 <link rel="stylesheet" href="/theme.css" />
@@ -125,9 +125,8 @@
   light mode, and neither does this site. Built on the
   <a href="https://rosepinetheme.com/palette/">Rosé Pine</a> palette: deep
   violet-black surfaces with six muted pastel inks, in place of v1's saturated
-  gruvbox primaries. Identity comes from structure — a statusline, an inverted
-  title row, numbered section rules, a tree TOC — not from glyphs stuck in
-  front of every heading. Zero JavaScript, one shared stylesheet
+  gruvbox primaries. Identity comes from structure: a statusline, an
+  inverted title row, numbered section rules, a tree TOC. Zero JavaScript, one shared stylesheet
 (<code>/theme.css</code>).
 </p>
 
@@ -149,7 +148,7 @@
 <h2 id="principles"><span>Principles</span></h2>
 
 <ol>
-  <li><strong>A terminal application, not a document with terminal makeup.</strong>
+  <li><strong>The interface is a terminal application.</strong>
     The chrome is a statusline; the title is a selected row; the index is a
     dated listing; panels are bordered frames with tab labels. Structure does
     the theming.</li>
@@ -163,7 +162,7 @@
     column.</li>
   <li><strong>Zero external requests, zero JavaScript.</strong> System font
     stacks, CSS-only components, one shared same-origin stylesheet
-    (<code>/theme.css</code>) — nothing fetched from anywhere else.</li>
+    (<code>/theme.css</code>).</li>
 </ol>
 
 <!-- ════════════════════════════════════════════════════════════ -->
@@ -339,7 +338,7 @@
 </div>
 
 <p>
-  Hierarchy is typographic, not glyphic: the h1 is an inverted block, h2s are
+  Hierarchy is typographic: the h1 is an inverted block, h2s are
   numbered small-caps with a rule filling the line, h3s carry an iris sidebar,
   h4s are small-caps labels. Uppercase + <code>--tracking-wide</code> is the
   signature for anything label-like.
@@ -440,7 +439,7 @@
 </p>
 
 <p>
-  <strong>The second row is the command line, not a second status bar.</strong>
+  <strong>The second row is the command line.</strong>
   <code>.statusline-nav</code> drops the fill tone, the foam block and the
   segment chips, leaving a foam <code>:</code> prompt and plain subtle links
   that go foam and underline on hover. Two rows of solid segments read as
@@ -479,10 +478,10 @@
 <h4>Segments that don't fit</h4>
 
 <p>
-  <strong>Give a link a row before you make it give ground.</strong> The footer
-  colophon used to wear a modifier that truncated it to fit alongside the links
-  — at 1280px it showed 308 of its 449 pixels, and a link whose name is cut off
-  can't be identified before it's followed. It now sits on the status row with
+  <strong>A link gets its own row before it gets truncated.</strong> The footer
+  colophon used to wear a modifier that truncated it to fit alongside the links:
+  at 1280px it showed 308 of its 449 pixels. You can't tell where a link goes
+  when its name is cut off. It now sits on the status row with
   the links below it, and <code>.seg-note</code> lets it wrap inside its own box
   instead: prose in a bar of <code>nowrap</code> segments, read in full at
   320px.
@@ -704,8 +703,8 @@
 <p>
   Inputs sit on the surface colour with strong borders; focus swaps the border
   to foam and doubles it with a ring. Checks, radios and ranges use
-  <code>accent-color: var(--c-iris)</code> — native controls, correctly themed,
-  zero markup tax.
+  <code>accent-color: var(--c-iris)</code> — native controls, themed without
+  extra markup.
 </p>
 
 <h3>Breadcrumbs &amp; pagination</h3>
@@ -791,7 +790,7 @@
 <h3>Post index</h3>
 
 <p>
-  The homepage lists posts as a dated list: gold ISO dates, foam titles, subtle
+  The homepage lists posts by date: gold ISO dates, foam titles, subtle
   one-line descriptions, dashed hairlines between entries. No glyph prefixes —
   the date column and separators carry the structure.
 </p>
@@ -799,7 +798,7 @@
 <div class="frame" data-label="post index">
   <ul class="post-list">
     <li><span class="date">2026-07-01</span><a href="#components">Building a static site generator in Go</a>
-      <p>What it takes to replace a framework with 500 lines of Go.</p></li>
+      <p>What it takes to replace a framework with the standard library.</p></li>
     <li><span class="date">2026-06-14</span><a href="#components">Live reload without the toolchain</a>
       <p>File watching and server-sent events, standard library only.</p></li>
     <li><span class="date">2026-05-02</span><a href="#components">Terminal aesthetics on the web</a>
@@ -847,7 +846,7 @@ top of the page.</p>
   <li><strong>Semantics.</strong> One h1, ordered heading levels, native
     controls (<code>button</code>, <code>details</code>, <code>progress</code>
     roles), real <code>nav</code> landmarks. Decoration lives in CSS generated
-    content, invisible to screen readers.</li>
+    content, kept out of the markup.</li>
   <li><strong>Keyboard.</strong> Everything interactive is a native focusable
     element; tooltips open on focus, not just hover.</li>
 </ul>
@@ -859,8 +858,7 @@ top of the page.</p>
   The theme frames the words; <code>style.md</code> governs them: concise,
   approachable, informal but professional. Active voice, no weasel words, no
   clichés. Short paragraphs, concrete examples, code where code explains
-  better than prose. The design should feel like the writing — direct, a
-  little nocturnal, nothing wasted.
+  better than prose. The design should feel like the writing.
 </p>
 
 <!-- ════════════════════════════════════════════════════════════ -->

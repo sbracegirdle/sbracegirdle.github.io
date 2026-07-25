@@ -29,14 +29,28 @@ file paths, CSS, test fixtures, generated output under `build/`.
 ## Process
 
 1. Read `style.md`.
-2. Get the changed text — `git diff` for unstaged work, `git diff --cached` for
-   staged, `git diff main...HEAD` for a branch. If the caller named specific
-   files or passages, review those instead.
-3. Apply the three rule sets to each changed passage. Read surrounding
-   paragraphs to judge flow, but report only on what the diff touched.
+2. Establish the review scope. The caller sets it; there are two shapes.
+   - **Named scope** — the caller named files, sections, or passages ("review
+     the style guide prose", "review the intro to post X"). What they named is
+     the scope, in full. Age is irrelevant: a line that has sat in the file for
+     a year is in scope exactly like one written this morning, and "it was
+     already there" is not a reason to pass over a rule hit.
+   - **Diff scope** — the default when the caller named nothing. `git diff` for
+     unstaged work, `git diff --cached` for staged, `git diff main...HEAD` for a
+     branch. Only the changed lines are in scope.
+
+   State which shape you used in one line at the top of the report, so the
+   caller can tell a clean diff from a clean file.
+3. Apply the three rule sets to every passage in scope. Read surrounding
+   paragraphs to judge flow, but report only on what's in scope.
    - `references/write-good.md` — the mechanical prose checks
    - `references/ai-tells.md` — the machine-generated-writing catalogue
    - House voice, below
+
+   Under a named scope, walk the rule sets against the text rather than reading
+   for what jumps out. The tells that survive longest are the ones that read
+   well — negative parallelism and aphorisms in particular, which like the
+   bolded lead-in and the end of a paragraph.
 4. Report in the output format below. Do not edit the files — propose the
    replacement text and let the caller apply it.
 
@@ -71,7 +85,9 @@ these is a false positive, and reporting them wastes the author's attention:
 - Passive voice where the actor is unknown or irrelevant.
 - Quoted material, book and article titles, error messages — never rewrite a
   quote.
-- Prose the diff didn't touch. Adjacent lines are context, not scope.
+- Prose outside the review scope. Under diff scope, adjacent lines are context,
+  not scope. This never applies under a named scope — there, everything the
+  caller named is fair game however old it is.
 - Style preferences with no rule behind them. If you can't name the rule from
   this skill, drop the finding.
 
@@ -80,9 +96,11 @@ than forty they scroll past.
 
 ## Output
 
-Start with a verdict line, then the findings, worst first:
+Start with the scope you reviewed and a verdict line, then the findings, worst
+first:
 
 ```
+SCOPE: named — static/style-guide.html, whole file    (or: diff — git diff, 3 files)
 VERDICT: pass | changes requested  (N must-fix, N should-fix, N optional)
 ```
 
@@ -103,6 +121,6 @@ Severities:
 - **should-fix** — a clear rule-set hit that makes the writing weaker.
 - **optional** — a judgement call worth the author's glance.
 
-If the diff is clean, say so in one line and stop. Do not manufacture findings
-to look thorough, and do not pad the report with a summary of what the prose
-does well.
+If everything in scope is clean, say so in one line and stop. Do not manufacture
+findings to look thorough, and do not pad the report with a summary of what the
+prose does well.
