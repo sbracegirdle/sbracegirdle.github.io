@@ -44,7 +44,9 @@ What the specs cover:
 | `metadata.spec.js` | title, description, canonical, Open Graph, Twitter card, feed discovery; `article` vs `website` og:type; the escaping regression a quoted description would cause |
 | `theme.spec.js` | theme.css actually applies, monospace body, no horizontal overflow at 390px **or 320px** on any post or listing, tag chips navigate, tag index counts |
 | `links.spec.js` | no internal link 404s anywhere on the site, generator-emitted links are root-absolute, external links open safely |
+| `a11y.spec.js` | the mechanical accessibility floor — `lang`, one `h1`, heading order, accessible names, `alt`, no `aria-label` on a bare generic, nothing focusable inside `aria-hidden` |
 | `machine-readable.spec.js` | feed.xml parses and every item link resolves, sitemap.xml URLs resolve, robots.txt points at the sitemap, unknown paths return a real 404 |
+| `footprint.spec.js` | same-origin page weight, request count and theme.css size against the budgets in `lib/budgets.js`. The cheap half of the `perf-audit` skill — a breach here belongs to that gate, not this one |
 
 When a spec fails, diagnose before changing anything. Failures leave a
 screenshot and a trace under `tests/browser/test-results/`; read the screenshot.

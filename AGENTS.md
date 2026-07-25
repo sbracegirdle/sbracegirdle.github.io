@@ -17,7 +17,7 @@ index page listing all dated posts.
 - `highlight.go` — tiny dependency-free syntax highlighter (rust, go, python, shell, yaml, js; unknown languages stay plain). At build time it renders every code block — fenced blocks in posts and `<script type="text/rust|shell">` blocks in static HTML — as the same line-numbered `pre.code` component
 - `main_test.go`, `tags_test.go`, `feed_test.go`, `highlight_test.go`, `benchmark_test.go` — Go tests and benchmarks
 - `agents_test.go` — guards the cross-agent wiring below: every skill symlinked into both agent directories, every subagent shipped for both
-- `tests/browser/` — headless Playwright suite (`specs/`) plus the exploratory tooling (`shot.mjs` screenshots and reports, `serve.mjs` a GitHub-Pages-shaped static server). Its own npm package; not part of the Go module
+- `tests/browser/` — headless Playwright suite (`specs/`) plus the exploratory tooling (`shot.mjs` screenshots and reports, `lighthouse.mjs` Lighthouse and footprint audits, `serve.mjs` a GitHub-Pages-shaped static server). `lib/budgets.js` holds the performance budget the spec and the runner share. Its own npm package; not part of the Go module
 - `content/` — blog posts as Markdown, named `yyyy-mm-dd-title.md`
 - `static/` — standalone resources (e.g. self-contained HTML pages) copied verbatim into `build/` without going through the markdown/template pipeline; link to them from the homepage or posts
 - `template.html` — HTML template with `{{title}}` (tab title and `og:title`), `{{heading}}` (visible h1), `{{file}}` (statusline filename), `{{description}}`, `{{canonical}}`, `{{ogtype}}`, `{{head_extra}}` (raw extra `<head>` markup) and `{{content}}` placeholders; links `/theme.css`
@@ -30,7 +30,9 @@ index page listing all dated posts.
 - `.agents/skills/design-review/` — the design review skill (design-system fidelity, hierarchy, fit and containment, responsive, semantics and the WCAG 2.2 AA floor, plus `references/design-standards.md` and `references/accessibility.md`); symlinked the same way
 - `.claude/agents/prose-reviewer.md`, `.codex/agents/prose-reviewer.toml` — the same reviewer subagent for Claude Code and Codex; both are thin wrappers that run the `prose-review` skill
 - `.claude/agents/browser-tester.md`, `.codex/agents/browser-tester.toml` — the same tester subagent for both, thin wrappers that run the `browser-test` skill
+- `.agents/skills/perf-audit/` — the performance and footprint skill (the budget spec, the Lighthouse pass, how to read the report, the budget policy, plus `references/lighthouse-audits.md`); symlinked the same way
 - `.claude/agents/design-reviewer.md`, `.codex/agents/design-reviewer.toml` — the same design reviewer for both, thin wrappers that run the `design-review` skill
+- `.claude/agents/perf-auditor.md`, `.codex/agents/perf-auditor.toml` — the same performance auditor for both, thin wrappers that run the `perf-audit` skill
 - `static/style-guide.html` — visual design system reference (tokens, components, usage rules); deployed at `/style-guide.html`, linked from the site footer
 - `.github/workflows/deploy.yml` — CI: test, build, deploy to GitHub Pages on push to `main`
 
@@ -49,6 +51,7 @@ npm install                  # first time only
 npx playwright install chromium
 npm test                     # rebuild the site, then run the headless suite
 node shot.mjs --both /       # exploratory: screenshot pages and report on them
+node lighthouse.mjs --sample # Lighthouse scores + page footprint vs the budget
 ```
 
 ## Cross-agent skills and subagents
@@ -149,7 +152,8 @@ Two phases, both required:
    runs every spec against it: pages rendering, head metadata, theme applied,
    layout at 390px and 320px, statusline segments neither clipped nor lost, the
    accessibility floor (`a11y.spec.js` — semantics, accessible names, heading
-   order, truncation, focus ring, target size), tag navigation, internal links,
+   order, truncation, focus ring, target size), the page-weight budget
+   (`footprint.spec.js`), tag navigation, internal links,
    feed/sitemap/robots/404.
 2. **An exploratory pass** — `node shot.mjs --both <paths>`, then *look at* the
    screenshots. The suite only catches what someone already thought to assert;
@@ -215,6 +219,63 @@ light mode"). `a11y.spec.js` in the browser suite fixes the mechanical half of
 it in place.
 
 Headless only, exactly as above. The reviewer reports; it doesn't fix the site.
+
+## Performance auditing is mandatory
+
+Any significant non-textual change must go through the `perf-auditor` subagent
+before you report the work as done. Fourth gate, same standing as the other
+three.
+
+That means `static/theme.css`, `template.html`, a new page or component in
+`static/`, a generator change to emitted markup — and any new asset, request,
+image, font or dependency. Rewording a post is not a footprint change; adding
+the component that renders the post is.
+
+The other three gates ask whether a page works, whether it's right, and whether
+it reads well. This one asks what it costs. The site's whole argument is that a
+blog is HTML and one stylesheet, and nothing enforces that on its own: weight
+arrives one reasonable decision at a time, each defensible in isolation.
+
+Two phases, both required:
+
+1. **The budget** — `npx playwright test specs/footprint.spec.js`, part of
+   `npm test`. Loads each sample page with off-origin requests blocked and adds
+   up what we serve: same-origin bytes, request count, and `theme.css` on its
+   own because every page loads it. Fast, deterministic, and it keeps checking
+   long after the review is over.
+2. **The Lighthouse pass** — `node lighthouse.mjs --sample` from
+   `tests/browser/`. Category scores, Core Web Vitals, the page's footprint
+   largest-asset-first, and every failed audit. Mobile by default because it is
+   the harsher measurement; `--both` adds desktop.
+
+The budgets live in one place, `tests/browser/lib/budgets.js`, at roughly
+1.5–2x what the site ships today. **Raising one is Simon's decision, never the
+auditor's or yours** — raise a budget to make a change pass and it will never
+fire again. `scoreExemptions` is the same rule with sharper edges:
+an entry needs a reason that still reads as true in a year. There is one today,
+for the deliberately-noindex 404 page.
+
+Half of what Lighthouse reports is advice for somebody else's site. Minify CSS,
+unused CSS, cache lifetimes, server response time and render-blocking
+`theme.css` fire on every single run and mean nothing here;
+`references/lighthouse-audits.md` says why, and reporting them buries the
+finding that mattered. Accessibility is the exception — Lighthouse runs axe,
+and a failure there is a floor breach worth reporting even when it is
+pre-existing.
+
+The process lives in the `perf-audit` skill at `.agents/skills/perf-audit/`,
+wired for both agents per the standard above. Delegate to `perf-auditor` in
+Claude Code, spawn `perf-auditor` in Codex, or invoke the skill yourself if you
+have no subagents.
+
+Headless only, exactly as above. The auditor reports; it doesn't fix the site
+and it doesn't touch the budgets.
+
+**One browser workload at a time.** Run the phases one after the other, and
+never alongside `npm test`, another audit, or anything else driving a browser.
+Each Lighthouse pass launches its own Chromium and Playwright runs a worker per
+core; run together they have already taken Simon's machine down hard enough to
+reboot it. Wait for each command to finish before starting the next.
 
 ## Conventions
 

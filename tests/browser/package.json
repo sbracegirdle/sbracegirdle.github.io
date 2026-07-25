@@ -11,6 +11,7 @@
     "install-browser": "playwright install chromium"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0"
+    "@playwright/test": "^1.49.0",
+    "lighthouse": "^13.4.1"
   }
 }

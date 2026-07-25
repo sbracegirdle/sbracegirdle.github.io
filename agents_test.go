@@ -152,6 +152,8 @@ func TestSubagentsReferenceTheirSkill(t *testing.T) {
 		{filepath.Join(codexAgents, "browser-tester.toml"), "browser-test"},
 		{filepath.Join(claudeAgents, "design-reviewer.md"), "design-review"},
 		{filepath.Join(codexAgents, "design-reviewer.toml"), "design-review"},
+		{filepath.Join(claudeAgents, "perf-auditor.md"), "perf-audit"},
+		{filepath.Join(codexAgents, "perf-auditor.toml"), "perf-audit"},
 	}
 	for _, c := range cases {
 		body, err := os.ReadFile(c.file)

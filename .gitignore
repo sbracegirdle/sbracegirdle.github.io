@@ -9,6 +9,7 @@ node_modules/
 ssg
 build/
 tests/browser/.shots/
+tests/browser/.lighthouse/
 tests/browser/test-results/
 tests/browser/playwright-report/
 tests/browser/blob-report/
