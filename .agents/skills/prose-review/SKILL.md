@@ -51,6 +51,12 @@ file paths, CSS, test fixtures, generated output under `build/`.
    for what jumps out. The tells that survive longest are the ones that read
    well — negative parallelism and aphorisms in particular, which like the
    bolded lead-in and the end of a paragraph.
+
+   Two passes are worth making on their own, because both need you to look
+   somewhere other than the sentence in front of you. Collect every first-person
+   claim in scope and ask of each one where Simon said it. Then read each
+   section's opening line against the heading above it and the page title, and
+   cut what they already said.
 4. Report in the output format below. Do not edit the files — propose the
    replacement text and let the caller apply it.
 
@@ -61,6 +67,12 @@ existing corpus shows:
 
 - **First person, singular.** Simon writes "I" and "you". Not "we" (unless it
   genuinely means Simon and a team), not "one", not "the reader".
+- **"I" is a real person's word.** Every sentence in Simon's voice reporting
+  what he feels, prefers, ranks, plans or can get to has to trace back to
+  something he actually said. Inventing one is a must-fix, not a style note —
+  see *invented stance* and *manufactured stakes* in `references/ai-tells.md`.
+  When a passage needs a stance the source doesn't supply, the fix is to state
+  the fact and stop, not to find a milder feeling.
 - **Opinions stated plainly**, hedged honestly. "I think X is a mistake" over
   "some might argue that X could be suboptimal".
 - **Concrete over abstract.** Name the tool, show the command, give the number.
@@ -116,8 +128,9 @@ Each finding:
 Severities:
 
 - **must-fix** — model artefacts, assistant voice, lexical illusions, broken
-  meaning, an unverified number or claim about Simon's own work, or anything
-  that reads as machine-generated to a casual reader.
+  meaning, an unverified number or claim about Simon's own work, an opinion or
+  feeling attributed to him that he never expressed, or anything that reads as
+  machine-generated to a casual reader.
 - **should-fix** — a clear rule-set hit that makes the writing weaker.
 - **optional** — a judgement call worth the author's glance.
 

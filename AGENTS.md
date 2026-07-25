@@ -116,6 +116,18 @@ Prose means: `content/*.md` body text and the `title`/`description` frontmatter;
 `static/*.html`; and Go string literals that render as page text. Code,
 identifiers, and code fences are not prose. The skill has the exact scope.
 
+**Don't invent Simon's opinions.** This site publishes in the first person
+under a real person's name, so every sentence saying what he feels, prefers,
+ranks, plans or can get to has to come from something he actually said —
+his words in the request, an earlier post, a quote. Not from what would make
+the paragraph land. "October has the race I care most about" and "the dates I
+don't want to miss" are the failure: both read well, both were made up. The fix
+is never a milder feeling; it's the fact underneath, stated once. Interest is
+free — a page about six sports may say Simon follows those six sports, because
+that's why it exists — but ranking them is not. The same goes for restating
+what a heading already established: a section may open on its first real fact
+rather than on a run-up. `references/ai-tells.md` holds the detail.
+
 The review itself lives in the `prose-review` skill at
 `.agents/skills/prose-review/`, symlinked into `.claude/skills/` and
 `.codex/skills/`. One copy, both agents.

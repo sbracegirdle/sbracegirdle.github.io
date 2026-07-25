@@ -162,6 +162,63 @@ ask him, or cut back to the claim he can stand behind. Two unquantified boasts
 about one achievement ("cut costs", "paid for itself") usually mean nobody ever
 measured it.
 
+## Invented stance
+
+The worst tell on this site, and the easiest to write without noticing. A
+sentence that reports what Simon feels, prefers, ranks, plans or is able to do,
+where he never said it:
+
+> October has the race I care most about. That's the comeback I want most.
+> This is the one. I follow these as races rather than for anyone in
+> particular. Perth opens it, which is the leg I can get to. Both worth the
+> early alarm. Which I'm not ready for.
+
+These read beautifully, which is the problem. They give a page a point of view
+and make a list feel like writing — and every one is a fact about a real
+person's inner life that the writer made up. It is the same fault as
+**unverifiable precision** above, in a place no reader can check and Simon
+can't easily spot in his own voice.
+
+The test is not "is this plausible?" — it is *"can I point at where he said
+it?"* His own words in the request, a quote, an earlier post. If you can't,
+you have two honest moves:
+
+- Cut to the fact underneath. "October has the race I care most about: the
+  Gravel Worlds are in Nannup" → "The Gravel Worlds are in Nannup."
+- Keep the reason and drop the feeling. Proximity, timing and cost are facts;
+  caring about them is not. "three hours from home" survives, "this is the one"
+  doesn't.
+
+Interest is the one thing that carries for free: a page about six sports may
+say Simon follows those six sports, because that's why the page exists.
+Ranking them isn't included. Always a must-fix.
+
+## Manufactured stakes
+
+The same instinct at lower intensity — inflating an interest into an
+appointment:
+
+> the dates I don't want to miss, can't-miss, unmissable, must-watch, the one
+> to watch, worth setting an alarm for, mark your calendar, don't sleep on
+
+Wanting to know when something is on is not the same as needing to be there
+for it, and a reference page is allowed to just be a reference page. Say what's
+on and when. Let the reader supply the enthusiasm.
+
+## Restating the frame
+
+Prose that re-establishes what the title, heading or opening line already
+established. Models re-anchor at the top of every section because each one is
+generated as if it might be read alone:
+
+> Sports 2026 › "Everything below starts before the end of the year."
+> Season at a glance › "What's left of the year, by sport and by month."
+
+Read each opening sentence against the heading directly above it and the page
+title. If the heading already says it, the sentence is doing nothing but
+occupying the slot where a first sentence goes — delete it and start with the
+first real fact. A section is allowed to begin without a runway.
+
 ## Model artefacts
 
 Leftover markers such as `contentReference`, `oaicite`, `turn0search0`,
