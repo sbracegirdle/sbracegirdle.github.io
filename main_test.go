@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -443,8 +444,9 @@ func TestGenerateIndex(t *testing.T) {
 		t.Fatalf("Error reading index file: %v", err)
 	}
 
-	// Check title
-	if !strings.Contains(string(content), "<title>Let's Build</title>") {
+	// Check title. Titles are HTML-escaped on the way into the template — the
+	// apostrophe becomes an entity, which browsers render back as "Let's Build".
+	if !strings.Contains(string(content), "<title>Let&#39;s Build</title>") {
 		t.Error("Index page does not have the correct title")
 	}
 
@@ -655,6 +657,11 @@ func TestFullSiteGeneration(t *testing.T) {
 		"2023-03-20-second-post.html",
 		"2023-02-10-third-post.html",
 		"index.html",
+		"posts.html",
+		"feed.xml",
+		"sitemap.xml",
+		"robots.txt",
+		"404.html",
 	}
 
 	for _, filename := range expectedFiles {
@@ -680,5 +687,285 @@ func TestFullSiteGeneration(t *testing.T) {
 		t.Error("One or more posts not found in index page")
 	} else if !(secondIndex < thirdIndex && thirdIndex < firstIndex) {
 		t.Error("Posts not sorted correctly by date in descending order in the index")
+	}
+}
+
+// testMetaTemplate mirrors the head of the real template closely enough to
+// exercise every placeholder renderPage fills.
+const testMetaTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>{{title}}</title>
+<meta name="description" content="{{description}}" />
+<link rel="canonical" href="{{canonical}}" />
+<meta property="og:type" content="{{ogtype}}" />
+<meta property="og:title" content="{{title}}" />
+<meta property="og:description" content="{{description}}" />
+<meta property="og:url" content="{{canonical}}" />
+{{head_extra}}
+</head>
+<body>
+<span class="seg seg-c">{{file}}</span>
+<h1>{{heading}}</h1>
+<main>{{content}}</main>
+</body>
+</html>`
+
+// TestCanonicalURL checks that the home page collapses to the bare root while
+// every other page keeps its filename.
+func TestCanonicalURL(t *testing.T) {
+	tests := []struct{ in, want string }{
+		{"index.html", "https://letsbuild.cloud/"},
+		{"posts.html", "https://letsbuild.cloud/posts.html"},
+		{"tags/aws.html", "https://letsbuild.cloud/tags/aws.html"},
+		{"/already-rooted.html", "https://letsbuild.cloud/already-rooted.html"},
+	}
+	for _, tt := range tests {
+		if got := canonicalURL(tt.in); got != tt.want {
+			t.Errorf("canonicalURL(%q) = %q, want %q", tt.in, got, tt.want)
+		}
+	}
+}
+
+// TestRenderPageEscaping is the regression guard for metadata: a description
+// containing a quote used to be impossible, but now that descriptions land in
+// attribute values an unescaped one would close the attribute early and break
+// the whole head.
+func TestRenderPageEscaping(t *testing.T) {
+	out := renderPage(testMetaTemplate, pageMeta{
+		Title:       `Ampersands & "quotes"`,
+		File:        "post.html",
+		Description: `Do you slap the trusty "LGTM!" on pull requests? Tom & Jerry <script>`,
+		Canonical:   "https://letsbuild.cloud/post.html",
+		OGType:      "article",
+		Content:     "<p>Body &amp; content</p>",
+	})
+
+	if strings.Contains(out, `content="Do you slap the trusty "LGTM!"`) {
+		t.Error("description was inserted unescaped and broke out of the attribute")
+	}
+	if !strings.Contains(out, `Do you slap the trusty &#34;LGTM!&#34; on pull requests?`) {
+		t.Errorf("expected an escaped description, got:\n%s", out)
+	}
+	if strings.Contains(out, "<script>") {
+		t.Error("markup from a description reached the page unescaped")
+	}
+	// Content is trusted, pre-rendered HTML and must survive verbatim.
+	if !strings.Contains(out, "<p>Body &amp; content</p>") {
+		t.Error("page content should be inserted raw")
+	}
+	// Heading defaults to the title.
+	if !strings.Contains(out, `<h1>Ampersands &amp; &#34;quotes&#34;</h1>`) {
+		t.Errorf("heading should default to the title, got:\n%s", out)
+	}
+	if !strings.Contains(out, `content="article"`) {
+		t.Error("og:type was not filled")
+	}
+}
+
+// TestRenderPageDefaults checks the two fields that fall back.
+func TestRenderPageDefaults(t *testing.T) {
+	out := renderPage(testMetaTemplate, pageMeta{Title: "Plain", Content: "x"})
+
+	if !strings.Contains(out, "<h1>Plain</h1>") {
+		t.Error("heading should default to the title")
+	}
+	if !strings.Contains(out, `content="website"`) {
+		t.Error("og:type should default to website")
+	}
+	if strings.Contains(out, "{{") {
+		t.Errorf("template placeholders were left unfilled:\n%s", out)
+	}
+}
+
+// TestPostMetadata checks the head a real post ends up with: its own
+// description, canonical URL, article type and published time.
+func TestPostMetadata(t *testing.T) {
+	testDir, cleanup := setupTestEnv(t)
+	defer cleanup()
+
+	post := "---\ntitle: Tagged Post\ndescription: A short summary.\ntags: devops AWS code_review\n---\n\nBody text."
+	postPath := filepath.Join(testDir, "content", "2024-05-01-tagged.md")
+	if err := os.WriteFile(postPath, []byte(post), 0644); err != nil {
+		t.Fatalf("writing post: %v", err)
+	}
+
+	_, output, meta, err := processMarkdownFile(postPath, testMetaTemplate)
+	if err != nil {
+		t.Fatalf("processMarkdownFile: %v", err)
+	}
+
+	for _, want := range []string{
+		`content="A short summary."`,
+		`href="https://letsbuild.cloud/2024-05-01-tagged.html"`,
+		`content="article"`,
+		`content="2024-05-01T00:00:00Z"`,
+		`href="/tags/devops.html"`,
+		`href="/tags/code-review.html"`,
+	} {
+		if !strings.Contains(output, want) {
+			t.Errorf("post head missing %q", want)
+		}
+	}
+
+	wantTags := []string{"aws", "code-review", "devops"}
+	if len(meta.Tags) != len(wantTags) {
+		t.Fatalf("tags = %v, want %v", meta.Tags, wantTags)
+	}
+	for i, tag := range wantTags {
+		if meta.Tags[i] != tag {
+			t.Errorf("tags = %v, want %v", meta.Tags, wantTags)
+			break
+		}
+	}
+}
+
+// TestUndatedPageMetadata checks that a page without a date is not advertised
+// as an article with a publication time.
+func TestUndatedPageMetadata(t *testing.T) {
+	testDir, cleanup := setupTestEnv(t)
+	defer cleanup()
+
+	page := "---\ntitle: About me\ndescription: A mini CV.\n---\n\nBody text."
+	pagePath := filepath.Join(testDir, "content", "about.md")
+	if err := os.WriteFile(pagePath, []byte(page), 0644); err != nil {
+		t.Fatalf("writing page: %v", err)
+	}
+
+	_, output, _, err := processMarkdownFile(pagePath, testMetaTemplate)
+	if err != nil {
+		t.Fatalf("processMarkdownFile: %v", err)
+	}
+
+	if !strings.Contains(output, `content="website"`) {
+		t.Error("an undated page should be og:type website")
+	}
+	if strings.Contains(output, "article:published_time") {
+		t.Error("an undated page should not claim a publication time")
+	}
+}
+
+// TestGenerateNotFound checks the 404 page is written and kept out of the index.
+func TestGenerateNotFound(t *testing.T) {
+	buildDir := t.TempDir()
+
+	if err := generateNotFound(testMetaTemplate, buildDir); err != nil {
+		t.Fatalf("generateNotFound: %v", err)
+	}
+
+	raw, err := os.ReadFile(filepath.Join(buildDir, "404.html"))
+	if err != nil {
+		t.Fatalf("reading 404 page: %v", err)
+	}
+	body := string(raw)
+	if !strings.Contains(body, `name="robots" content="noindex"`) {
+		t.Error("404 page should be noindex")
+	}
+	if !strings.Contains(body, "<h1>404</h1>") {
+		t.Error("404 page should head with 404")
+	}
+	if !strings.Contains(body, `href="/posts.html"`) {
+		t.Error("404 page should offer a way back")
+	}
+}
+
+// TestCopyStaticDirReportsPages checks the HTML pages reported for the sitemap.
+func TestCopyStaticDirReportsPages(t *testing.T) {
+	tempDir := t.TempDir()
+	staticDir := filepath.Join(tempDir, "static")
+	buildDir := filepath.Join(tempDir, "build")
+	if err := os.MkdirAll(filepath.Join(staticDir, "nested"), 0755); err != nil {
+		t.Fatalf("creating static dir: %v", err)
+	}
+	if err := os.MkdirAll(buildDir, 0755); err != nil {
+		t.Fatalf("creating build dir: %v", err)
+	}
+
+	files := map[string]string{
+		"guide.html":        "<p>guide</p>",
+		"theme.css":         "body{}",
+		"nested/inner.html": "<p>inner</p>",
+	}
+	for name, body := range files {
+		if err := os.WriteFile(filepath.Join(staticDir, filepath.FromSlash(name)), []byte(body), 0644); err != nil {
+			t.Fatalf("writing %s: %v", name, err)
+		}
+	}
+
+	pages, err := copyStaticDir(staticDir, buildDir)
+	if err != nil {
+		t.Fatalf("copyStaticDir: %v", err)
+	}
+
+	want := []string{"guide.html", "nested/inner.html"}
+	if len(pages) != len(want) {
+		t.Fatalf("pages = %v, want %v", pages, want)
+	}
+	for i := range want {
+		if pages[i] != want[i] {
+			t.Fatalf("pages = %v, want %v (HTML only, forward slashes, sorted)", pages, want)
+		}
+	}
+
+	// Non-HTML files still copy, they just aren't reported as pages.
+	if _, err := os.Stat(filepath.Join(buildDir, "theme.css")); err != nil {
+		t.Errorf("static asset was not copied: %v", err)
+	}
+}
+
+// TestDevHandlerResolvesLikeGitHubPages guards the URL rules the watch server
+// shares with production: extensionless paths resolve to .html, directories to
+// index.html, and anything else falls back to the 404 page. The footer links to
+// /2025-03-01-simplest-static-site-generator with no extension, so an
+// extensionless miss is a broken link only in local preview.
+func TestDevHandlerResolvesLikeGitHubPages(t *testing.T) {
+	buildDir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(buildDir, "tags"), 0755); err != nil {
+		t.Fatalf("creating tags dir: %v", err)
+	}
+	files := map[string]string{
+		"index.html":      "<p>home</p>",
+		"a-post.html":     "<p>post</p>",
+		"404.html":        "<p>not found</p>",
+		"theme.css":       "body{}",
+		"tags/index.html": "<p>tags</p>",
+	}
+	for name, body := range files {
+		if err := os.WriteFile(filepath.Join(buildDir, filepath.FromSlash(name)), []byte(body), 0644); err != nil {
+			t.Fatalf("writing %s: %v", name, err)
+		}
+	}
+
+	handler := devHandler(buildDir)
+	cases := []struct {
+		path       string
+		wantStatus int
+		wantBody   string
+		wantScript bool
+	}{
+		{"/", 200, "<p>home</p>", true},
+		{"/a-post.html", 200, "<p>post</p>", true},
+		{"/a-post", 200, "<p>post</p>", true},
+		{"/tags/", 200, "<p>tags</p>", true},
+		{"/tags", 200, "<p>tags</p>", true},
+		{"/theme.css", 200, "body{}", false},
+		{"/nope", 404, "<p>not found</p>", true},
+		{"/nope.html", 404, "<p>not found</p>", true},
+		{"/../secret", 404, "<p>not found</p>", true},
+	}
+	for _, tc := range cases {
+		req := httptest.NewRequest("GET", tc.path, nil)
+		rec := httptest.NewRecorder()
+		handler(rec, req)
+		if rec.Code != tc.wantStatus {
+			t.Errorf("GET %s: status = %d, want %d", tc.path, rec.Code, tc.wantStatus)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, tc.wantBody) {
+			t.Errorf("GET %s: body = %q, want to contain %q", tc.path, body, tc.wantBody)
+		}
+		if got := strings.Contains(body, livereloadScript); got != tc.wantScript {
+			t.Errorf("GET %s: livereload injected = %v, want %v", tc.path, got, tc.wantScript)
+		}
 	}
 }

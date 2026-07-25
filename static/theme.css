@@ -92,6 +92,8 @@ a {
   text-decoration: none;
   border-bottom: var(--border-width) solid transparent;
   transition: color var(--transition), border-color var(--transition);
+  /* A bare URL used as its own link text has no break opportunity. */
+  overflow-wrap: break-word;
 }
 a:hover { color: var(--c-rose); border-bottom-color: currentColor; }
 :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
@@ -122,6 +124,11 @@ h1 {
   letter-spacing: var(--tracking-tight);
   padding: var(--space-1) var(--space-3);
   margin: var(--space-4) 0 var(--space-3);
+  /* Titles collect long unbreakable words — "CloudFormation",
+     "infrastructure-as-code" — which push past 320px screens. `anywhere`
+     rather than `break-word` because only `anywhere` shrinks the min-content
+     width this inline-block is sized from. */
+  overflow-wrap: anywhere;
 }
 h1:empty { display: none; }
 h2 {
@@ -162,6 +169,18 @@ h4 {
   color: var(--color-subtle);
   margin: var(--space-4) 0 var(--space-2);
 }
+/* Looks like an h4 and deliberately isn't one. A caption on a repeated card —
+   "Do", "Don't" — names the card rather than opening a section, and ten of them
+   in the document outline is noise a screen reader has to walk past on its way
+   to the real structure. Reach for this whenever the small-caps look is wanted
+   but the outline shouldn't grow. */
+.label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-subtle);
+  margin: 0 0 var(--space-2);
+}
 
 /* ── Code ─────────────────────────────────────────────────────── */
 code {
@@ -171,6 +190,9 @@ code {
   border-radius: var(--radius);
   padding: 0.1em 0.4em;
   font-size: 0.9em;
+  /* Inline code is often a path or a command with no break opportunity; let it
+     break mid-token rather than widening the page on a phone. */
+  overflow-wrap: anywhere;
 }
 pre {
   background: var(--color-surface);
@@ -264,23 +286,58 @@ th {
 tbody tr:hover { background: var(--color-surface); }
 
 /* ── Statusline (header + footer chrome) ──────────────────────── */
+/* Segments wrap to a second row rather than being cut off. This used to be
+   `overflow: hidden`, which clipped the tail of the bar at every width — the
+   page never overflowed, so nothing caught it, and the last links were simply
+   unreachable. A statusline that loses navigation is worse than a tall one. */
 .statusline {
   display: flex;
+  flex-wrap: wrap;
   align-items: stretch;
   font-size: var(--text-xs);
   line-height: 2.2;
   user-select: none;
-  overflow: hidden;
 }
 .statusline .seg { padding: 0 var(--space-3); white-space: nowrap; }
 .statusline .seg-a { background: var(--c-foam); color: var(--color-bg); font-weight: var(--weight-bold); }
 .statusline .seg-b { background: var(--color-overlay); color: var(--color-subtle); }
 .statusline .seg-c { background: var(--color-surface); color: var(--color-muted); }
-.statusline .fill { flex: 1; background: var(--color-surface); }
+.statusline .fill { flex: 1 1 0; min-width: 0; background: var(--color-surface); }
+/* The two flexible segments carry labels, not navigation, so they are the ones
+   allowed to lose text — visibly, to an ellipsis. min-width: 0 is what lets a
+   nowrap segment shrink at all.
+
+   Anything wearing these classes must also carry a `title` holding the same
+   text. The ellipsis is a CSS effect, so the full string stays in the
+   accessibility tree and a screen reader still reads it — but a sighted mouse
+   user sees only the stub, and `title` is the one hover affordance available to
+   a page with no JavaScript. `cursor: help` says the tooltip is there. */
+.statusline .seg-grow,
+.statusline .seg-shrink {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: help;
+}
+.statusline a.seg-grow,
+.statusline a.seg-shrink { cursor: pointer; }
+/* Takes whatever space is left and truncates, instead of pushing links onto
+   another row: flex-basis 0 keeps its full text out of the wrap calculation,
+   so the links decide where the row breaks and the label fits around them. */
+.statusline .seg-grow { flex: 1 1 0; }
+/* Keeps its natural width until the row is tight, then gives ground. */
+.statusline .seg-shrink { flex: 0 1 auto; }
 .statusline a.seg { border-bottom: none; }
 .statusline a.seg-a { color: var(--color-bg); }
 .statusline a.seg-a:hover { background: var(--c-rose); color: var(--color-bg); }
 .statusline a.seg-b:hover { color: var(--color-accent); }
+/* On a phone the bar has only enough room for the links. A label truncated to
+   a few pixels is noise, so it goes rather than sitting there as a sliver.
+   display, not opacity — an invisible box still occupies layout. */
+@media (max-width: 640px) {
+  .statusline .seg-grow,
+  .statusline .seg-shrink { display: none; }
+}
 
 /* ── Prompt (site identity, under the page title) ─────────────── */
 .prompt {
@@ -439,6 +496,15 @@ footer { margin-top: var(--space-6); }
   border: var(--border-width) solid var(--color-border-strong);
   color: var(--color-subtle);
 }
+/* Linked chips: the tag row at the head of a post, and the tag index.
+   Hover follows the sitewide link rule (rose), outlining the whole chip
+   rather than just underlining its text. */
+a.tag:hover { border-color: var(--c-rose); color: var(--c-rose); }
+.tag-list,
+.tag-cloud { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.tag-list { margin: 0 0 var(--space-4); }
+.tag-cloud { margin: var(--space-4) 0; }
+.tag-count { color: var(--c-gold); margin-left: var(--space-2); }
 .tag-foam { border-color: var(--c-foam); color: var(--c-foam); }
 .tag-gold { border-color: var(--c-gold); color: var(--c-gold); }
 .tag-iris { border-color: var(--c-iris); color: var(--c-iris); }
@@ -525,7 +591,7 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
 .crumbs .here { color: var(--color-text); }
 
 /* ── Pagination ───────────────────────────────────────────────── */
-.pager { display: flex; gap: var(--space-2); list-style: none; padding: 0; font-size: var(--text-sm); }
+.pager { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; padding: 0; font-size: var(--text-sm); }
 .pager li { margin: 0; }
 .pager a, .pager .gap, .pager .now {
   display: inline-block;
@@ -587,12 +653,22 @@ input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color:
   font-size: var(--text-xs);
   line-height: var(--leading-tight);
   padding: var(--space-1) var(--space-2);
-  white-space: nowrap;
+  width: max-content;
+  max-width: min(32ch, 60vw);
+  /* Hidden with `display`, not opacity alone: an invisible bubble still sits in
+     the scrollable overflow, and one anchored near the right edge widened the
+     whole page on a phone. `allow-discrete` keeps the fade. */
+  display: none;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--transition);
+  transition: opacity var(--transition), display var(--transition) allow-discrete;
 }
-[data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; }
+[data-tip]:hover::after,
+[data-tip]:focus-visible::after { display: block; opacity: 1; }
+@starting-style {
+  [data-tip]:hover::after,
+  [data-tip]:focus-visible::after { opacity: 0; }
+}
 
 /* ── Disclosure ───────────────────────────────────────────────── */
 details {
@@ -625,7 +701,6 @@ details > :not(summary) { padding: 0 var(--space-3); }
 }
 .dd .do { border-left: var(--bar-width) solid var(--c-foam); }
 .dd .dont { border-left: var(--bar-width) solid var(--c-love); }
-.dd h4 { margin: 0 0 var(--space-2); }
-.dd .do h4 { color: var(--c-foam); }
-.dd .dont h4 { color: var(--c-love); }
+.dd .do .label { color: var(--c-foam); }
+.dd .dont .label { color: var(--c-love); }
 .dd p { margin: 0; }

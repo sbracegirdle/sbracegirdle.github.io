@@ -11,8 +11,6 @@ canonicalsite: formant.io
 image: robot2
 ---
 
-# Creating a robotics simulation pipeline with GitHub Actions and ROS
-
 ## Introduction
 
 At [Mechanical Rock](https://www.mechanicalrock.io/), we are strong believers in the benefits of continuous integration (CI) and continuous deployment (CD) pipelines. CI in particular is useful for running all kinds of validation and checks on your code before and after merging. For example, you can run; unit tests, static type checkers, linters and code builds.

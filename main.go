@@ -19,10 +19,22 @@ import (
 	"github.com/adrg/frontmatter"
 )
 
+// Site identity. These feed canonical URLs, social cards, the RSS feed and the
+// sitemap, so they are the one place the public address of the site is written
+// down. siteURL carries no trailing slash.
+const (
+	siteURL         = "https://letsbuild.cloud"
+	siteName        = "LetsBuild.cloud"
+	siteAuthor      = "Simon Bracegirdle"
+	siteTitle       = "Let's Build"
+	siteDescription = "Notes on building software, shipping it, and the engineering practices in between — by Simon Bracegirdle, a software engineer in Perth, Western Australia."
+)
+
 // FrontMatter represents the metadata at the top of markdown files
 type FrontMatter struct {
-	Title       string `yaml:"title"`
-	Description string `yaml:"description"`
+	Title       string  `yaml:"title"`
+	Description string  `yaml:"description"`
+	Tags        tagList `yaml:"tags"`
 }
 
 // BlogPost represents metadata about a blog post
@@ -32,6 +44,63 @@ type BlogPost struct {
 	Filename    string
 	OutputFile  string
 	Description string
+	Tags        []string
+}
+
+// canonicalURL turns a build-relative output path into the absolute URL the
+// page is served from. index.html maps to the bare site root so the home page
+// has a single canonical form.
+func canonicalURL(outputFile string) string {
+	if outputFile == "index.html" {
+		return siteURL + "/"
+	}
+	return siteURL + "/" + strings.TrimPrefix(outputFile, "/")
+}
+
+// pageMeta carries everything template.html needs to render one page. The
+// scalar fields are escaped by renderPage; Content and HeadExtra are inserted
+// verbatim and so must already be valid HTML.
+type pageMeta struct {
+	Title       string // <title> and og:title
+	Heading     string // visible <h1>; defaults to Title
+	File        string // filename shown in the statusline
+	Description string // meta description and og:description
+	Canonical   string // absolute URL of this page
+	OGType      string // og:type; defaults to "website"
+	HeadExtra   string // extra <head> markup, inserted raw
+	Content     string // rendered page body, inserted raw
+}
+
+// renderPage fills the template placeholders for a single page. Titles and
+// descriptions now land in attribute values as well as element text, so every
+// scalar is escaped on the way in — an unescaped quote in a description would
+// otherwise close the meta content attribute early and mangle the head. Content
+// and HeadExtra are substituted last, so a placeholder that happens to appear
+// inside a post (in a code block, say) is never expanded.
+func renderPage(template string, m pageMeta) string {
+	if m.Heading == "" {
+		m.Heading = m.Title
+	}
+	if m.OGType == "" {
+		m.OGType = "website"
+	}
+
+	scalars := []struct{ placeholder, value string }{
+		{"{{title}}", m.Title},
+		{"{{heading}}", m.Heading},
+		{"{{file}}", m.File},
+		{"{{description}}", m.Description},
+		{"{{canonical}}", m.Canonical},
+		{"{{ogtype}}", m.OGType},
+	}
+
+	out := template
+	for _, s := range scalars {
+		out = strings.ReplaceAll(out, s.placeholder, html.EscapeString(s.value))
+	}
+	out = strings.ReplaceAll(out, "{{head_extra}}", m.HeadExtra)
+	out = strings.ReplaceAll(out, "{{content}}", m.Content)
+	return out
 }
 
 // defaultGoodreadsUserID is Simon's public Goodreads user ID. The "What I'm
@@ -324,12 +393,6 @@ func processMarkdownFile(filePath, template string) (string, string, *BlogPost, 
 
 	outputFilename := strings.TrimSuffix(filename, filepath.Ext(filename)) + ".html"
 
-	// Replace template placeholders
-	output := strings.Replace(template, "{{title}}", title, -1)
-	output = strings.Replace(output, "{{heading}}", title, -1)
-	output = strings.Replace(output, "{{file}}", outputFilename, -1)
-	output = strings.Replace(output, "{{content}}", string(htmlContent), -1)
-
 	// Create blog post metadata
 	blogPost := &BlogPost{
 		Title:       title,
@@ -337,7 +400,30 @@ func processMarkdownFile(filePath, template string) (string, string, *BlogPost, 
 		Filename:    filename,
 		OutputFile:  outputFilename,
 		Description: description,
+		Tags:        normaliseTags(meta.Tags),
 	}
+
+	// Dated posts are articles; undated pages (about, and anything else) are
+	// ordinary pages. Only articles carry a published time.
+	ogType := "website"
+	headExtra := ""
+	if !postDate.IsZero() {
+		ogType = "article"
+		headExtra = fmt.Sprintf("<meta property=\"article:published_time\" content=\"%s\" />",
+			html.EscapeString(postDate.Format(time.RFC3339)))
+	}
+
+	output := renderPage(template, pageMeta{
+		Title:       title,
+		File:        outputFilename,
+		Description: description,
+		Canonical:   canonicalURL(outputFilename),
+		OGType:      ogType,
+		HeadExtra:   headExtra,
+		// Tag chips sit at the top of the body, above the prose, the way a
+		// file header states what a document is about.
+		Content: renderTagChips(blogPost.Tags) + string(htmlContent),
+	})
 
 	return outputFilename, output, blogPost, nil
 }
@@ -391,14 +477,15 @@ func datedPostsNewestFirst(posts []*BlogPost) []*BlogPost {
 
 // renderPostList renders posts as ul.post-list, newest first: gold ISO date,
 // linked title, one-line description. Callers pass an already-filtered,
-// already-sorted slice.
+// already-sorted slice. Links are root-absolute so the same markup works from
+// the site root and from pages nested under /tags/.
 func renderPostList(posts []*BlogPost) string {
 	var b strings.Builder
 	b.WriteString("<ul class=\"post-list\">")
 	for _, post := range posts {
 		formattedDate := post.Date.Format("2006-01-02")
-		b.WriteString(fmt.Sprintf("<li><span class=\"date\">%s</span><a href=\"%s\">%s</a><p>%s</p></li>\n",
-			formattedDate, post.OutputFile, post.Title, post.Description))
+		b.WriteString(fmt.Sprintf("<li><span class=\"date\">%s</span><a href=\"/%s\">%s</a><p>%s</p></li>\n",
+			formattedDate, post.OutputFile, html.EscapeString(post.Title), html.EscapeString(post.Description)))
 	}
 	b.WriteString("</ul>")
 	return b.String()
@@ -418,11 +505,11 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 	contentBuilder.WriteString("<li><em>Big migrations, landed</em> — an entire app from JavaScript to TypeScript, three design systems merged into one, all while shipping features.</li>")
 	contentBuilder.WriteString("<li><em>Sharper teams</em> — CI/CD, test tooling, code review, and agent-assisted workflows that make everyone faster.</li>")
 	contentBuilder.WriteString("</ul>")
-	contentBuilder.WriteString("<p><a href=\"about.html\">More about me &rarr;</a></p>")
+	contentBuilder.WriteString("<p><a href=\"/about.html\">More about me &rarr;</a></p>")
 	contentBuilder.WriteString(renderReadingSection(shelves))
 	contentBuilder.WriteString("<h2>Quick references</h2>")
 	contentBuilder.WriteString("<ul class=\"post-list\">")
-	contentBuilder.WriteString("<li><a href=\"rust-quick-reference.html\">Rust quick reference</a><p>A progressive tour of Rust — ownership, borrowing, traits, and cargo — styled like a TUI.</p></li>")
+	contentBuilder.WriteString("<li><a href=\"/rust-quick-reference.html\">Rust quick reference</a><p>A progressive tour of Rust — ownership, borrowing, traits, and cargo — styled like a TUI.</p></li>")
 	contentBuilder.WriteString("</ul>")
 	contentBuilder.WriteString("<h2>Latest posts</h2>")
 
@@ -433,14 +520,16 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 	contentBuilder.WriteString(renderPostList(latest))
 
 	if len(dated) > len(latest) {
-		contentBuilder.WriteString("<p><a href=\"posts.html\">All posts &rarr;</a></p>")
+		contentBuilder.WriteString("<p><a href=\"/posts.html\">All posts &rarr;</a> &middot; <a href=\"/tags.html\">browse by tag &rarr;</a></p>")
 	}
 
-	// Replace template placeholders
-	output := strings.Replace(template, "{{title}}", "Let's Build", -1)
-	output = strings.Replace(output, "{{heading}}", "Let's Build", -1)
-	output = strings.Replace(output, "{{file}}", "index.html", -1)
-	output = strings.Replace(output, "{{content}}", contentBuilder.String(), -1)
+	output := renderPage(template, pageMeta{
+		Title:       siteTitle,
+		File:        "index.html",
+		Description: siteDescription,
+		Canonical:   canonicalURL("index.html"),
+		Content:     contentBuilder.String(),
+	})
 
 	// Write the index file
 	outputPath := filepath.Join(buildDir, "index.html")
@@ -459,12 +548,15 @@ func generateArchive(posts []*BlogPost, template string, buildDir string) error 
 
 	var contentBuilder strings.Builder
 	contentBuilder.WriteString(renderPostList(dated))
-	contentBuilder.WriteString("<p><a href=\"index.html\">&larr; Home</a></p>")
+	contentBuilder.WriteString("<p><a href=\"/\">&larr; Home</a> &middot; <a href=\"/tags.html\">browse by tag &rarr;</a></p>")
 
-	output := strings.Replace(template, "{{title}}", "All posts", -1)
-	output = strings.Replace(output, "{{heading}}", "All posts", -1)
-	output = strings.Replace(output, "{{file}}", "posts.html", -1)
-	output = strings.Replace(output, "{{content}}", contentBuilder.String(), -1)
+	output := renderPage(template, pageMeta{
+		Title:       "All posts",
+		File:        "posts.html",
+		Description: fmt.Sprintf("Every post on %s — %d of them, newest first.", siteName, len(dated)),
+		Canonical:   canonicalURL("posts.html"),
+		Content:     contentBuilder.String(),
+	})
 
 	outputPath := filepath.Join(buildDir, "posts.html")
 	if err := os.WriteFile(outputPath, []byte(output), 0644); err != nil {
@@ -472,6 +564,36 @@ func generateArchive(posts []*BlogPost, template string, buildDir string) error 
 	}
 
 	fmt.Printf("Generated archive: %s\n", outputPath)
+	return nil
+}
+
+// generateNotFound writes 404.html, which GitHub Pages serves for any unknown
+// path. It is marked noindex — a soft 404 in the search index helps nobody.
+func generateNotFound(template, buildDir string) error {
+	var contentBuilder strings.Builder
+	contentBuilder.WriteString("<p>No such file or directory. The page you asked for isn't here — it may have moved, or the link may be wrong.</p>")
+	contentBuilder.WriteString("<ul>")
+	contentBuilder.WriteString("<li><a href=\"/\">Home</a></li>")
+	contentBuilder.WriteString("<li><a href=\"/posts.html\">All posts</a></li>")
+	contentBuilder.WriteString("<li><a href=\"/tags.html\">Browse by tag</a></li>")
+	contentBuilder.WriteString("</ul>")
+
+	output := renderPage(template, pageMeta{
+		Title:       "404 — page not found",
+		Heading:     "404",
+		File:        "404.html",
+		Description: "That page isn't here.",
+		Canonical:   canonicalURL("404.html"),
+		HeadExtra:   "<meta name=\"robots\" content=\"noindex\" />",
+		Content:     contentBuilder.String(),
+	})
+
+	outputPath := filepath.Join(buildDir, "404.html")
+	if err := os.WriteFile(outputPath, []byte(output), 0644); err != nil {
+		return fmt.Errorf("error writing 404 page: %v", err)
+	}
+
+	fmt.Printf("Generated: %s\n", outputPath)
 	return nil
 }
 
@@ -484,11 +606,15 @@ func generateArchive(posts []*BlogPost, template string, buildDir string) error 
 // into highlighted <pre class="code"> markup (see renderStaticCodeScripts).
 // A missing staticDir is a no-op. Generated pages are written after this runs,
 // so a generated file always wins on a name collision with a static one.
-func copyStaticDir(staticDir, buildDir string) error {
+//
+// It returns the site-relative URL path of every HTML page copied, so standalone
+// pages can be listed in the sitemap without being enumerated by hand.
+func copyStaticDir(staticDir, buildDir string) ([]string, error) {
+	var pages []string
 	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
-		return nil
+		return nil, nil
 	}
-	return filepath.Walk(staticDir, func(p string, info os.FileInfo, err error) error {
+	err := filepath.Walk(staticDir, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -509,9 +635,12 @@ func copyStaticDir(staticDir, buildDir string) error {
 		}
 		if strings.HasSuffix(p, ".html") {
 			data = []byte(renderStaticCodeScripts(string(data)))
+			pages = append(pages, filepath.ToSlash(rel))
 		}
 		return os.WriteFile(dst, data, 0644)
 	})
+	sort.Strings(pages)
+	return pages, err
 }
 
 // generateSite processes all markdown files in the content directory
@@ -527,7 +656,8 @@ func generateSite(contentDir, buildDir, templatePath string, shelves []ShelfBook
 	// Copy standalone resources from static/ before generating posts, so any
 	// generated page takes precedence on a name collision.
 	staticDir := filepath.Join(".", "static")
-	if err := copyStaticDir(staticDir, buildDir); err != nil {
+	staticPages, err := copyStaticDir(staticDir, buildDir)
+	if err != nil {
 		log.Printf("warning: could not copy static directory: %v", err)
 	}
 
@@ -536,9 +666,9 @@ func generateSite(contentDir, buildDir, templatePath string, shelves []ShelfBook
 		return fmt.Errorf("template file not found at %s", templatePath)
 	}
 
-	templateBytes, err := os.ReadFile(templatePath)
-	if err != nil {
-		return fmt.Errorf("error reading template: %v", err)
+	templateBytes, readErr := os.ReadFile(templatePath)
+	if readErr != nil {
+		return fmt.Errorf("error reading template: %v", readErr)
 	}
 	template := string(templateBytes)
 
@@ -587,14 +717,45 @@ func generateSite(contentDir, buildDir, templatePath string, shelves []ShelfBook
 		fmt.Printf("Generated: %s\n", outputPath)
 	}
 
-	// Generate index and archive pages
+	// Generate index, archive and tag pages
+	var tagPages []string
 	if len(blogPosts) > 0 {
-		if err = generateIndex(blogPosts, template, buildDir, shelves); err != nil {
+		if err := generateIndex(blogPosts, template, buildDir, shelves); err != nil {
 			log.Printf("Error generating index: %v", err)
 		}
-		if err = generateArchive(blogPosts, template, buildDir); err != nil {
+		if err := generateArchive(blogPosts, template, buildDir); err != nil {
 			log.Printf("Error generating archive: %v", err)
 		}
+		var err error
+		if tagPages, err = generateTagPages(blogPosts, template, buildDir); err != nil {
+			log.Printf("Error generating tag pages: %v", err)
+		}
+	}
+
+	// Machine-readable outputs: feed for readers, sitemap and robots.txt for
+	// crawlers. Each is best-effort — a failure here shouldn't lose the pages
+	// that already generated.
+	if err := generateFeed(blogPosts, buildDir); err != nil {
+		log.Printf("Error generating feed: %v", err)
+	}
+	// Pages the sitemap lists beyond the posts themselves. The generated
+	// listings only exist when there was at least one post to list, and the tag
+	// pages only when at least one post carried a tag — generateTagPages
+	// reports exactly what it wrote.
+	var pages []string
+	if len(blogPosts) > 0 {
+		pages = append(pages, "index.html", "posts.html")
+	}
+	pages = append(pages, tagPages...)
+	pages = append(pages, staticPages...)
+	if err := generateSitemap(blogPosts, pages, buildDir); err != nil {
+		log.Printf("Error generating sitemap: %v", err)
+	}
+	if err := generateRobots(buildDir); err != nil {
+		log.Printf("Error generating robots.txt: %v", err)
+	}
+	if err := generateNotFound(template, buildDir); err != nil {
+		log.Printf("Error generating 404 page: %v", err)
 	}
 
 	return nil
@@ -673,31 +834,73 @@ func sseHandler(hub *sseHub) http.HandlerFunc {
 	}
 }
 
-// devHandler serves files from buildDir. HTML responses get the livereload
-// script appended so the browser auto-refreshes after a rebuild; everything
-// else falls through to http.ServeFile. Path traversal is guarded so a
-// crafted URL can't escape buildDir.
+// devHandler serves files from buildDir using the same URL rules as GitHub
+// Pages, so a link that works locally works in production and vice versa:
+// an extensionless path resolves to `.html`, a directory to its `index.html`,
+// and anything unresolvable to `404.html` with a 404 status. HTML responses get
+// the livereload script appended so the browser auto-refreshes after a rebuild;
+// everything else falls through to http.ServeFile. Path traversal is guarded so
+// a crafted URL can't escape buildDir.
 func devHandler(buildDir string) http.HandlerFunc {
 	cleanBuildDir := filepath.Clean(buildDir)
-	return func(w http.ResponseWriter, r *http.Request) {
-		rel := filepath.Clean(strings.TrimLeft(r.URL.Path, "/"))
-		if rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-			http.NotFound(w, r)
+
+	isFile := func(p string) bool {
+		info, err := os.Stat(p)
+		return err == nil && !info.IsDir()
+	}
+
+	// resolve maps a cleaned request path to a file on disk, or "" if nothing
+	// matches. Mirrors tests/browser/serve.mjs, which mimics GitHub Pages.
+	resolve := func(full string) string {
+		if info, err := os.Stat(full); err == nil && info.IsDir() {
+			if index := filepath.Join(full, "index.html"); isFile(index) {
+				return index
+			}
+			return ""
+		}
+		if isFile(full) {
+			return full
+		}
+		if filepath.Ext(full) == "" && isFile(full+".html") {
+			return full + ".html"
+		}
+		return ""
+	}
+
+	// serveHTML writes an HTML file with the livereload script appended.
+	serveHTML := func(w http.ResponseWriter, path string, status int) bool {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return false
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(status)
+		w.Write(data)
+		w.Write([]byte(livereloadScript))
+		return true
+	}
+
+	notFound := func(w http.ResponseWriter, r *http.Request) {
+		if serveHTML(w, filepath.Join(cleanBuildDir, "404.html"), http.StatusNotFound) {
 			return
 		}
-		full := filepath.Join(cleanBuildDir, rel)
-		if info, err := os.Stat(full); err == nil && info.IsDir() {
-			full = filepath.Join(full, "index.html")
+		http.NotFound(w, r)
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		// r.URL.Path is already percent-decoded by net/http.
+		rel := filepath.Clean(strings.TrimLeft(r.URL.Path, "/"))
+		if rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+			notFound(w, r)
+			return
+		}
+		full := resolve(filepath.Join(cleanBuildDir, rel))
+		if full == "" {
+			notFound(w, r)
+			return
 		}
 		if strings.HasSuffix(full, ".html") {
-			data, err := os.ReadFile(full)
-			if err != nil {
-				http.NotFound(w, r)
-				return
-			}
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			w.Write(data)
-			w.Write([]byte(livereloadScript))
+			serveHTML(w, full, http.StatusOK)
 			return
 		}
 		http.ServeFile(w, r, full)

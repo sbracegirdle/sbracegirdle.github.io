@@ -2,7 +2,7 @@
 layout: ../layouts/Post.astro
 title: OpenTelemetry and the future of monitoring and observability
 date: 2023-03-23
-tags: aws fargate ecs openelemetry observability monitoring traces sidecar container
+tags: aws fargate ecs opentelemetry observability monitoring traces sidecar container
 author: Simon Bracegirdle
 description: I share my personal thoughts and experience with OpenTelemetry in 2023 — the benefits, limitations, and impact on monitoring and observability by this game-changing, vendor-agnostic framework.
 image: opentel-thoughts

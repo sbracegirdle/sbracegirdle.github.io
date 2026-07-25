@@ -5,7 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
 <title>Style Guide — LetsBuild.cloud</title>
+<meta name="description" content="The visual design system behind LetsBuild.cloud — tokens, components, and the rules that hold the night-terminal theme together." />
+<meta name="author" content="Simon Bracegirdle" />
+<link rel="canonical" href="https://letsbuild.cloud/style-guide.html" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="LetsBuild.cloud" />
+<meta property="og:title" content="Style Guide — LetsBuild.cloud" />
+<meta property="og:description" content="The visual design system behind LetsBuild.cloud — tokens, components, and the rules that hold the night-terminal theme together." />
+<meta property="og:url" content="https://letsbuild.cloud/style-guide.html" />
+<meta name="twitter:card" content="summary" />
 <link rel="stylesheet" href="/theme.css" />
+<link rel="alternate" type="application/rss+xml" title="LetsBuild.cloud" href="/feed.xml" />
 <style>
   /* ══════════════════════════════════════════════════════════════
      Guide-only scaffolding. Everything real lives in /theme.css —
@@ -54,7 +64,8 @@
   .surface .tok { font-weight: var(--weight-medium); display: block; color: var(--color-text); }
   .surface .val { color: var(--color-subtle); }
   .specimen { border: var(--border-width) solid var(--color-border); padding: var(--space-3) var(--space-4); margin: var(--space-3) 0; }
-  .specimen-row { display: flex; align-items: baseline; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px dashed var(--color-border); }
+  /* wrap: the 12rem meta column plus a specimen doesn't fit a 320px screen */
+  .specimen-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px dashed var(--color-border); }
   .specimen-row:last-child { border-bottom: none; }
   .specimen-row .meta { flex: 0 0 12rem; font-size: var(--text-xs); color: var(--color-subtle); }
   .s-3xl { font-size: var(--text-3xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
@@ -326,6 +337,15 @@
   signature for anything label-like.
 </p>
 
+<p>
+  When a caption wants that look but isn't a section, use <code>.label</code> on
+  a paragraph instead of reaching for an h4. Heading levels are the document
+  outline, and a repeated card caption padding it out — ten alternating
+  <em>do</em> and <em>don't</em> in the section below — is noise a screen reader
+  has to walk past to find the real structure. Levels also have to descend one
+  at a time: an h2 followed by an h4 leaves a hole in the outline.
+</p>
+
 <!-- ════════════════════════════════════════════════════════════ -->
 <h2 id="spacing"><span>Spacing &amp; layout</span></h2>
 
@@ -384,12 +404,42 @@
   filename sits in a surface segment after the fill.
 </p>
 
+<p>
+  The bar wraps rather than clips. Segments are <code>nowrap</code>, so a bar
+  with more content than room used to hide its tail behind
+  <code>overflow: hidden</code> — the page width stayed correct and the last
+  links were simply unreachable. Segments now drop to a second row instead.
+</p>
+
+<p>
+  Two modifiers let a label give ground so the links don't have to. Both
+  truncate to an ellipsis; neither belongs on anything you can click through to.
+  <code>.seg-grow</code> takes the leftover space and truncates to fit it, which
+  keeps a long label from pushing links onto another row.
+  <code>.seg-shrink</code> keeps its natural width until the row is tight, then
+  yields. Below 640px both are hidden outright — a label truncated to a sliver
+  is noise, and a phone has room for the links or the label, not both.
+</p>
+
+<p>
+  <strong>A truncating segment must carry a <code>title</code> holding the same
+  text.</strong> The ellipsis is a CSS effect, so the string stays whole in the
+  accessibility tree and a screen reader reads all of it — the person who loses
+  information is the sighted mouse user, and on a page with no JavaScript
+  <code>title</code> is the only hover affordance there is.
+  <code>cursor: help</code> signals it. <code>title</code> never reaches a
+  keyboard or touch user, though, which is why the rule above says to keep these
+  modifiers off anything clickable rather than to paper over one with a tooltip. The footer colophon is the standing exception,
+  and it is a link, so it stays on the list of things to shorten rather than
+  truncate.
+</p>
+
 <div class="frame" data-label="statusline">
   <div class="statusline">
     <span class="seg seg-a">simon@letsbuild</span>
     <span class="seg seg-b">~/blog/2026-07-01-static-sites</span>
     <span class="fill"></span>
-    <span class="seg seg-c">markdown</span>
+    <span class="seg seg-c seg-shrink" title="markdown">markdown</span>
     <span class="seg seg-b">7 min read</span>
   </div>
 </div>
@@ -457,6 +507,27 @@
   Tags are outlined and quiet; badges are filled and loud — use badges
   sparingly. Keycaps get an overlay fill with a thick bottom edge.
 </p>
+
+<p>
+  Tags also work as links. Wrap a row of them in <code>.tag-list</code> (the
+  topic row at the head of a post) or <code>.tag-cloud</code> (the tag index),
+  both flex-wrap containers. A linked chip outlines in rose on hover, following
+  the sitewide link rule. <code>.tag-count</code> puts a gold post count inside
+  the chip — numbers are gold everywhere.
+</p>
+
+<div class="frame" data-label="tag-list · tag-cloud">
+  <nav class="tag-list">
+    <a class="tag" href="#">devops</a>
+    <a class="tag" href="#">aws</a>
+    <a class="tag" href="#">observability</a>
+  </nav>
+  <nav class="tag-cloud">
+    <a class="tag" href="#">devops<span class="tag-count">8</span></a>
+    <a class="tag" href="#">aws<span class="tag-count">6</span></a>
+    <a class="tag" href="#">ci<span class="tag-count">5</span></a>
+  </nav>
+</div>
 
 <h3>Cards</h3>
 
@@ -635,6 +706,14 @@
   in the prose.
 </p>
 
+<p>
+  The bubble wraps at <code>min(32ch, 60vw)</code> and is hidden with
+  <code>display</code>, not opacity alone. An invisible box still occupies the
+  scrollable overflow, so a tooltip near the right edge used to widen the whole
+  page on a phone; <code>transition-behavior: allow-discrete</code> keeps the
+  fade regardless.
+</p>
+
 <h3>Disclosure</h3>
 
 <div class="frame" data-label="details">
@@ -668,13 +747,14 @@
 <h3>Footer</h3>
 
 <p>The statusline mirrored at the page end, carrying the colophon and the way
-back — every footer links home and <code>&uarr; top</code>.</p>
+back — every footer links home and <code>&uarr; top</code>. The footer carries
+more links than the header, so its colophon takes <code>.seg-grow</code> and
+absorbs the slack in their place.</p>
 
 <div class="frame" data-label="footer">
   <div class="statusline">
     <span class="seg seg-a">eof</span>
-    <a class="seg seg-b" href="#components">built with 500 lines of go</a>
-    <span class="fill"></span>
+    <a class="seg seg-b seg-grow" href="#components" title="built with 500 lines of go">built with 500 lines of go</a>
     <span class="seg seg-b">© 2026</span>
   </div>
 </div>
@@ -721,7 +801,7 @@ back — every footer links home and <code>&uarr; top</code>.</p>
   Change a token there and it changes everywhere at once.
 </p>
 
-<h4>Colour</h4>
+<h3>Colour</h3>
 <div class="scroll-x">
 <table>
   <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
@@ -746,7 +826,7 @@ back — every footer links home and <code>&uarr; top</code>.</p>
 </table>
 </div>
 
-<h4>Typography</h4>
+<h3>Typography</h3>
 <div class="scroll-x">
 <table>
   <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
@@ -770,7 +850,7 @@ back — every footer links home and <code>&uarr; top</code>.</p>
 </table>
 </div>
 
-<h4>Spacing &amp; layout</h4>
+<h3>Spacing &amp; layout</h3>
 <div class="scroll-x">
 <table>
   <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
@@ -783,7 +863,7 @@ back — every footer links home and <code>&uarr; top</code>.</p>
 </table>
 </div>
 
-<h4>Borders &amp; motion</h4>
+<h3>Borders &amp; motion</h3>
 <div class="scroll-x">
 <table>
   <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
@@ -801,43 +881,43 @@ back — every footer links home and <code>&uarr; top</code>.</p>
 
 <div class="dd">
   <div class="do">
-    <h4>Do</h4>
+    <p class="label">Do</p>
     <p>Reach for a token. Every colour, size and gap in a rule is a <code>var()</code>.</p>
   </div>
   <div class="dont">
-    <h4>Don't</h4>
+    <p class="label">Don't</p>
     <p>Hard-code a hex or a magic number — it silently forks the system.</p>
   </div>
   <div class="do">
-    <h4>Do</h4>
+    <p class="label">Do</p>
     <p>Build hierarchy from structure: inversion, numbering, rules, sidebars, small caps.</p>
   </div>
   <div class="dont">
-    <h4>Don't</h4>
+    <p class="label">Don't</p>
     <p>Prefix headings or list items with ornamental glyphs — that was v1's tell.</p>
   </div>
   <div class="do">
-    <h4>Do</h4>
+    <p class="label">Do</p>
     <p>Keep each hue on its one job, and reuse it when a new element matches that job.</p>
   </div>
   <div class="dont">
-    <h4>Don't</h4>
+    <p class="label">Don't</p>
     <p>Colour prose, add a second link colour, or use pine/muted for body-size text.</p>
   </div>
   <div class="do">
-    <h4>Do</h4>
+    <p class="label">Do</p>
     <p>Use native elements and CSS-only patterns for every behaviour.</p>
   </div>
   <div class="dont">
-    <h4>Don't</h4>
+    <p class="label">Don't</p>
     <p>Add JavaScript, webfonts, CDN assets, or any request that isn't the page.</p>
   </div>
   <div class="do">
-    <h4>Do</h4>
+    <p class="label">Do</p>
     <p>Let wide content scroll inside its own container.</p>
   </div>
   <div class="dont">
-    <h4>Don't</h4>
+    <p class="label">Don't</p>
     <p>Break the 760px measure or let the page scroll sideways.</p>
   </div>
 </div>
