@@ -167,8 +167,7 @@
   with six bright inks, in place of v2's muted Rosé Pine and v1's saturated
   gruvbox primaries. Identity comes from structure: a statusline, an
   inverted title row, numbered section rules, a tree TOC. One shared stylesheet
-(<code>/theme.css</code>), and one script, on one page — the
-  <a href="#arcade">arcade</a>.
+(<code>/theme.css</code>), and no scripts.
 </p>
 
 <nav aria-label="Contents">
@@ -205,8 +204,7 @@
   <li><strong>Zero external requests. A script has to earn its place.</strong>
     System font stacks, CSS-only components, one shared same-origin stylesheet
     (<code>/theme.css</code>). A script never gets behaviour a native element or
-    a CSS pattern can carry; the <a href="#arcade">arcade</a> is the one thing
-    on the site neither of them can do.</li>
+    a CSS pattern can carry, and nothing on the site needs one.</li>
 </ol>
 
 <!-- ════════════════════════════════════════════════════════════ -->
@@ -528,8 +526,7 @@
 
 <p>
   The full set. Anything interactive here is styled native HTML, and every
-  component but one is CSS all the way down — nothing to hydrate. The
-  exception, the <a href="#arcade">arcade</a>, is a game.
+  component is CSS all the way down — nothing to hydrate, nothing to script.
 </p>
 
 <h3>Statusline</h3>
@@ -916,7 +913,6 @@
     <thead><tr><th>Command</th><th>Effect</th></tr></thead>
     <tbody>
       <tr><td><code>./ssg</code></td><td>Generate the site into <code>./build</code></td></tr>
-      <tr><td><code>./ssg --watch</code></td><td>Serve with live reload</td></tr>
       <tr><td><code>go test ./...</code></td><td>Run the test suite</td></tr>
     </tbody>
   </table>
@@ -1036,8 +1032,8 @@
 
 <div class="frame" data-label="tooltip">
   <p style="margin:0">The generator supports
-    <span tabindex="0" data-tip="Server-sent events push a reload on save">live reload</span>
-    in watch mode.</p>
+    <span tabindex="0" data-tip="One pass over every post, at build time">syntax highlighting</span>
+    in code blocks.</p>
 </div>
 
 <p>
@@ -1061,7 +1057,7 @@
     <summary>Why so little JavaScript?</summary>
     <p style="font-size: var(--text-sm)">Every behaviour on the site — theme,
     tooltips, disclosure, navigation — has a native or CSS-only equivalent, and
-    uses it. That leaves one script to break and one to audit.</p>
+    uses it. There is no script to break and none to audit.</p>
   </details>
 </div>
 
@@ -1077,8 +1073,8 @@
   <ul class="post-list">
     <li><span class="date">2026-07-01</span><a href="#components">Building a static site generator in Go</a>
       <p>What it takes to replace a framework with the standard library.</p></li>
-    <li><span class="date">2026-06-14</span><a href="#components">Live reload without the toolchain</a>
-      <p>File watching and server-sent events, standard library only.</p></li>
+    <li><span class="date">2026-06-14</span><a href="#components">Tags, folded and sorted</a>
+      <p>Slugify every label, deduplicate, and link each one from the posts.</p></li>
     <li><span class="date">2026-05-02</span><a href="#components">Terminal aesthetics on the web</a>
       <p>Monospace, box glyphs, and knowing when to stop.</p></li>
   </ul>
@@ -1199,75 +1195,6 @@
   <p class="scroll-hint sg-fit-514">Scroll the table sideways for the rest of it.</p>
 </div>
 
-<h3 id="arcade">Arcade</h3>
-
-<p>
-  A character grid in a <code>pre</code>, with a statusline under it for a HUD.
-  The home page runs a side-scrolling shooter in one: <code>/game.js</code>
-  writes glyphs into the grid and wraps each run of them in one of the
-  <code>.a-*</code> inks below. It is the only component on the site that needs
-  a script, and the only place a hue does a job that isn't its sitewide one —
-  so each game job maps onto a sitewide one instead of inventing a colour. Foam
-  is you, love is what's shooting at you, gold is the shot and the score, iris
-  the second attacker, rose the explosion, muted the starfield behind all of
-  it, and subtle the two things the panel ever writes in words: the hint and
-  the game-over line. Each entity has its own glyph as well, so nothing here
-  rests on colour alone.
-</p>
-
-<div class="frame" data-label="arcade">
-  <div class="arcade" style="--arcade-rows: 8; max-width: 22rem">
-    <div class="arcade-screen">
-<pre class="arcade-frame" aria-hidden="true">  <span class="a-star">.</span>      <span class="a-star">'</span>        <span class="a-star">.</span>   <span class="a-star">'</span>
-    <span class="a-star">'</span>        <span class="a-star">.</span>   <span class="a-foe">&lt;-</span>
- <span class="a-star">.</span>     <span class="a-star">'</span>      <span class="a-star">.</span>      <span class="a-star">'</span>
-   <span class="a-star">'</span>      <span class="a-weave">{o}</span>      <span class="a-star">.</span>
-<span class="a-ship">-=&gt;</span>  <span class="a-shot">-</span>    <span class="a-boom">*</span>     <span class="a-foe">&lt;[#]</span>
-  <span class="a-star">.</span>      <span class="a-star">'</span>       <span class="a-star">.</span>
-    <span class="a-star">'</span>    <span class="a-foe">o</span>     <span class="a-star">.</span>   <span class="a-star">'</span>
-     <span class="a-hint">click to play</span></pre>
-    </div>
-    <div class="statusline">
-      <div class="statusline-row">
-        <span class="seg seg-a">arcade</span>
-        <span class="seg seg-b">score <span>01250</span></span>
-        <span class="seg">wave <span>3</span></span>
-        <span class="seg seg-b">lives <span>2</span></span>
-        <span class="fill"></span>
-        <span class="seg">flown by <span>auto</span></span>
-        <span class="arcade-controls">
-          <button type="button" class="seg arcade-pause">pause</button>
-          <button type="button" class="seg arcade-play">play</button>
-        </span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<p>
-  A miniature, held to about a phone's width: eight rows, and cut to
-  twenty-four columns so it fits this page at any width. The live panel
-  measures its own width and fills it — about thirty columns on a phone,
-  nearer ninety on a desktop. The grid
-  states its height in CSS rather than taking it from its contents.
-  <code>--arcade-rows</code> on the panel is what the script reads to size the
-  world, and it is why the panel is its full size before a frame has been
-  drawn — eleven rows on a desktop, eight below 640px. It measures the width at
-  run time, in the visitor's own monospace, and fills it. Nothing moves in CSS
-  here: the animation is which character sits in which cell.
-</p>
-
-<p>
-  The home page ships a still frame eleven rows deep, drawn by the generator,
-  and the two buttons at the end of the HUD are in the markup from the start —
-  a <code>noscript</code> rule in the head takes them away again on a page that
-  can't run them, which keeps a dead control off that page without the HUD
-  reflowing on every other one. <strong>play</strong> hands the visitor the
-  ship, <strong>pause</strong> stops the panel moving at all. The visitor asks
-  for the keyboard, and can take it back — see
-  <a href="#motion">motion &amp; accessibility</a>.
-</p>
-
 <h3 id="hues">Hue carriers</h3>
 
 <p>
@@ -1312,19 +1239,6 @@ top of the page.</p>
   <li><strong>Motion budget: one animation.</strong> The prompt cursor blink,
     removed under <code>prefers-reduced-motion</code>. Everything else is a
     0.15s colour/border transition; nothing moves position.</li>
-  <li><strong>The arcade asks first, and stops when told.</strong> A panel that
-    animates by itself is what <code>prefers-reduced-motion</code> is about, so
-    under it the <a href="#arcade">arcade</a> holds its still frame until the
-    visitor presses play. It also stops while off-screen or in a background
-    tab, and its pause button halts it outright — SC 2.2.2 asks for that of
-    anything that starts on its own and runs past five seconds.</li>
-  <li><strong>Nothing takes the keyboard uninvited.</strong> The arcade reads
-    the arrow keys only after a click or the play button, so someone scrolling
-    past it never finds the page stuck. Escape, Tab, the stop button, a click
-    elsewhere and scrolling the panel out of view all hand them back, and Enter
-    stays with the focused button rather than being spent on the gun. The grid
-    churns every frame and says nothing worth reading aloud, so it is
-    <code>aria-hidden</code> and the buttons carry the names.</li>
   <li><strong>Contrast.</strong> Text tones and link colours clear WCAG AA at
     body size (most clear AAA). Muted is locked to decorative roles — the ◆
     flag in the colour tables is the contract — and pine stays decorative by

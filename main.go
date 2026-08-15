@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/xml"
-	"flag"
 	"fmt"
 	"html"
 	"io"
@@ -13,7 +12,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -183,34 +181,6 @@ func fetchFeaturedShelves(userID string) []ShelfBooks {
 	return groups
 }
 
-// shelfTTL is how long a cached Goodreads fetch is reused during watch mode,
-// so repeated regenerations (one per file touch) don't hammer the public RSS
-// feed.
-const shelfTTL = 10 * time.Minute
-
-// shelfCache memoises the Goodreads shelves for shelfTTL. In watch mode the
-// same process regenerates the site many times; without this every file touch
-// would re-fetch every shelf.
-type shelfCache struct {
-	mu        sync.Mutex
-	shelves   []ShelfBooks
-	fetchedAt time.Time
-}
-
-// get returns the cached shelves if they are younger than ttl, otherwise it
-// re-fetches and caches them. A ttl <= 0 always fetches (used for one-shot
-// builds, preserving the original behaviour).
-func (c *shelfCache) get(userID string, ttl time.Duration) []ShelfBooks {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if ttl > 0 && time.Since(c.fetchedAt) < ttl {
-		return c.shelves
-	}
-	c.shelves = fetchFeaturedShelves(userID)
-	c.fetchedAt = time.Now()
-	return c.shelves
-}
-
 // goodreadsBaseURL is the origin the shelf feeds are fetched from. It is a var
 // rather than a const solely so tests can point it at an httptest server —
 // without that seam every test that builds the whole site makes three live
@@ -338,157 +308,6 @@ func renderReadingSection(groups []ShelfBooks) string {
 	}
 	b.WriteString("</div>")
 	b.WriteString("</section>")
-	return b.String()
-}
-
-// The arcade is the homepage's ASCII shooter: a character grid that /game.js
-// animates, with a statusline HUD under it. Everything moving is the script's;
-// what the generator emits is the panel, the HUD, and one still frame.
-//
-// The still frame is the point of the next fifty lines. A panel that arrived
-// empty and filled in a moment later would push the page down as it did, so
-// the grid ships with a frame already drawn and theme.css states its height.
-// It is also the whole of what two kinds of visitor ever see: one with no
-// JavaScript, and one with prefers-reduced-motion set, for whom the panel
-// deliberately holds still until they press play.
-const (
-	arcadeStillCols = 64
-	arcadeStillRows = 11
-)
-
-// arcadePaint escapes grid text. The glyphs are ASCII art — `<-` and `-=>` are
-// two of the entities — so the markup characters have to go through entities,
-// and nothing else does.
-var arcadePaint = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;")
-
-// arcadeScatter mixes a cell's coordinates into something that doesn't read as
-// a pattern when it's sampled every n values. Any small integer hash would do.
-func arcadeScatter(x, y int) uint32 {
-	h := uint32(x)*374761393 + uint32(y)*668265263
-	h = (h ^ (h >> 13)) * 1274126177
-	return h ^ (h >> 16)
-}
-
-// renderArcadeStill draws the frame the panel holds until the script takes
-// over: a starfield with the ship on the left and three attackers coming at it.
-// Deterministic — the starfield is a sum over the cell's own coordinates, not a
-// random one — so an unchanged site still rebuilds byte-identically.
-func renderArcadeStill() string {
-	const cols, rows = arcadeStillCols, arcadeStillRows
-	chars := make([]byte, cols*rows)
-	class := make([]string, cols*rows)
-	for i := range chars {
-		chars[i] = ' '
-	}
-	put := func(x, y int, art, cls string) {
-		for i := 0; i < len(art); i++ {
-			if x+i < 0 || x+i >= cols || y < 0 || y >= rows {
-				continue
-			}
-			chars[y*cols+x+i] = art[i]
-			class[y*cols+x+i] = cls
-		}
-	}
-
-	for y := 0; y < rows; y++ {
-		for x := 0; x < cols; x++ {
-			// Scattered, not spaced: a star every n cells drew visible diagonal
-			// stripes across the panel, so the cell's coordinates go through a
-			// hash first. Still a pure function of x and y, so still the same
-			// starfield on every build.
-			h := arcadeScatter(x, y)
-			switch {
-			case h%29 == 0:
-				put(x, y, ".", "a-star")
-			case h%43 == 0:
-				put(x, y, "'", "a-star")
-			}
-		}
-	}
-	// Everything that matters lives in the top-left corner of the grid,
-	// because most of the grid isn't always there. The panel is 11 rows at a
-	// desktop and 8 on a phone, and a phone fits about 30 of these columns —
-	// so an attacker drawn at row 9, or past column 30, is one a phone visitor
-	// never sees, and under prefers-reduced-motion this frame is the whole of
-	// what they get. Row 8 and column 44 hold the extras a wider screen earns.
-	put(2, 4, "-=>", "a-ship")
-	put(8, 4, "-", "a-shot")
-	put(14, 4, "-", "a-shot")
-	put(20, 1, "<-", "a-foe")
-	put(25, 6, "{o}", "a-weave")
-	put(44, 2, "<[#]", "a-foe")
-	put(52, 7, "<-", "a-foe")
-
-	var b strings.Builder
-	for y := 0; y < rows; y++ {
-		// Trailing blanks are most of the grid and none of them show, so a row
-		// ends at its last painted cell.
-		end := cols - 1
-		for end >= 0 && chars[y*cols+end] == ' ' {
-			end--
-		}
-		run, cls := strings.Builder{}, ""
-		flush := func() {
-			if run.Len() == 0 {
-				return
-			}
-			if cls == "" {
-				b.WriteString(arcadePaint.Replace(run.String()))
-			} else {
-				fmt.Fprintf(&b, "<span class=\"%s\">%s</span>", cls, arcadePaint.Replace(run.String()))
-			}
-			run.Reset()
-		}
-		for x := 0; x <= end; x++ {
-			if class[y*cols+x] != cls {
-				flush()
-				cls = class[y*cols+x]
-			}
-			run.WriteByte(chars[y*cols+x])
-		}
-		flush()
-		if y < rows-1 {
-			b.WriteString("\n")
-		}
-	}
-	return b.String()
-}
-
-// renderArcade builds the panel. The grid is decoration and churns every
-// frame, so it stays out of the accessibility tree; the section's label and
-// the play button are what a screen reader is left with, which is the whole of
-// what there is to do here.
-func renderArcade() string {
-	var b strings.Builder
-	b.WriteString("<section class=\"arcade\" aria-label=\"Arcade — a small ASCII space shooter\">")
-	b.WriteString("<div class=\"arcade-screen\">")
-	b.WriteString("<pre class=\"arcade-frame\" aria-hidden=\"true\">")
-	b.WriteString(renderArcadeStill())
-	b.WriteString("</pre></div>")
-	b.WriteString("<div class=\"statusline\"><div class=\"statusline-row\">")
-	b.WriteString("<span class=\"seg seg-a\">arcade</span>")
-	b.WriteString("<span class=\"seg seg-b\">score <span class=\"arcade-score\">00000</span></span>")
-	b.WriteString("<span class=\"seg\">wave <span class=\"arcade-wave\">1</span></span>")
-	b.WriteString("<span class=\"seg seg-b\">lives <span class=\"arcade-lives\">3</span></span>")
-	b.WriteString("<span class=\"fill\"></span>")
-	b.WriteString("<span class=\"seg\">flown by <span class=\"arcade-mode\">auto</span></span>")
-	// Neither button carries aria-pressed: each one's label is its state, and
-	// a toggle does one or the other. "stop, pressed" reads as "stopped".
-	//
-	// They ship visible and the `noscript` rule in the head takes them away
-	// again, rather than the script revealing them. Revealed, they were a
-	// third row of the HUD at 390px — 28 pixels of the page moving down the
-	// moment the script ran, which only escaped being a layout shift because
-	// the script happened to finish before the first paint.
-	//
-	// One box around both, so the pair wraps as a pair. Left as two flex items
-	// they came apart between 360 and 400 pixels — the width most phones
-	// are — and `play` sat on a row of its own.
-	b.WriteString("<span class=\"arcade-controls\">")
-	b.WriteString("<button type=\"button\" class=\"seg arcade-pause\">pause</button>")
-	b.WriteString("<button type=\"button\" class=\"seg arcade-play\">play</button>")
-	b.WriteString("</span>")
-	b.WriteString("</div></div></section>")
 	return b.String()
 }
 
@@ -670,10 +489,10 @@ func renderPostList(posts []*BlogPost) string {
 	return b.String()
 }
 
-// indexContentPath is the landing page's static prose — the intro, the skills
+// indexContentPath is the landing page's static markup — the intro, the skills
 // list and the reference pages — kept out of the generator so it can be edited
-// without touching Go. It is raw HTML because the reference list uses the
-// styled .post-list markup that markdown cannot express.
+// without touching Go. It is raw HTML because the reference list uses the styled
+// .post-list markup that markdown cannot express.
 const indexContentPath = "content/home.html"
 
 // homeSpliceMarker is where generateIndex inserts the reading section into the
@@ -681,22 +500,20 @@ const indexContentPath = "content/home.html"
 // marker left behind by an edit is visible on inspection.
 const homeSpliceMarker = "{{reading}}"
 
-// generateIndex generates the landing page: the arcade, the static intro from
+// generateIndex generates the landing page: the static intro from
 // content/home.html, the latest posts, and a link to the full archive when
 // there are more.
 func generateIndex(posts []*BlogPost, template string, buildDir string, shelves []ShelfBooks) error {
 	dated := datedPostsNewestFirst(posts)
 
 	var contentBuilder strings.Builder
-	contentBuilder.WriteString(renderArcade())
 
 	if static, err := os.ReadFile(indexContentPath); err != nil {
 		// A missing fragment is not fatal — the rest of the page still builds.
 		// This mirrors copyStaticDir's no-op when static/ doesn't exist.
 		log.Printf("warning: could not read home page content %s: %v", indexContentPath, err)
 	} else {
-		body := strings.ReplaceAll(string(static), homeSpliceMarker, renderReadingSection(shelves))
-		contentBuilder.WriteString(body)
+		contentBuilder.WriteString(strings.ReplaceAll(string(static), homeSpliceMarker, renderReadingSection(shelves)))
 	}
 
 	contentBuilder.WriteString("<h2>Latest posts</h2>")
@@ -716,18 +533,7 @@ func generateIndex(posts []*BlogPost, template string, buildDir string, shelves 
 		File:        "index.html",
 		Description: siteDescription,
 		Canonical:   canonicalURL("index.html"),
-		// The only script the site loads, on the only page that has
-		// anything for it to do. Deferred, so it neither blocks the
-		// parser nor runs before the panel it looks for exists.
-		//
-		// The `noscript` rule is how the arcade's two controls stay
-		// off a page that can't run them, without the script having
-		// to reveal them and reflow the HUD as it does. A `style` in
-		// a `noscript` is only conforming inside the head, which is
-		// the other reason it is here rather than beside the panel.
-		HeadExtra: "<script src=\"/game.js\" defer></script>" +
-			"<noscript><style>.arcade-play,.arcade-pause{display:none}</style></noscript>",
-		Content:   contentBuilder.String(),
+		Content:     contentBuilder.String(),
 	})
 
 	// Write the index file
@@ -960,258 +766,20 @@ func generateSite(contentDir, buildDir, templatePath string, shelves []ShelfBook
 	return nil
 }
 
-// livereloadScript is injected into served HTML in watch mode so the browser
-// refreshes automatically after each regeneration. It connects to the
-// /__livereload SSE endpoint and reloads on any message.
-const livereloadScript = `<script>(function(){var e=new EventSource("/__livereload");e.onmessage=function(){location.reload();};})();</script>`
-
-// sseHub fans out a reload signal to every connected browser. Clients connect
-// to /__livereload; when the watcher regenerates, notify() pushes a message
-// that triggers each browser to reload.
-type sseHub struct {
-	mu      sync.Mutex
-	clients map[chan struct{}]struct{}
-}
-
-func newSSEHub() *sseHub {
-	return &sseHub{clients: make(map[chan struct{}]struct{})}
-}
-
-func (h *sseHub) subscribe() chan struct{} {
-	ch := make(chan struct{}, 1)
-	h.mu.Lock()
-	h.clients[ch] = struct{}{}
-	h.mu.Unlock()
-	return ch
-}
-
-func (h *sseHub) unsubscribe(ch chan struct{}) {
-	h.mu.Lock()
-	delete(h.clients, ch)
-	h.mu.Unlock()
-}
-
-// notify pushes a non-blocking reload signal to every connected client. A slow
-// client that can't keep up is skipped rather than blocking the regenerator.
-func (h *sseHub) notify() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	for ch := range h.clients {
-		select {
-		case ch <- struct{}{}:
-		default:
-		}
-	}
-}
-
-// sseHandler keeps the connection open and writes a "reload" data event
-// whenever the hub is notified. The connection is torn down when the client
-// disconnects (request context cancelled).
-func sseHandler(hub *sseHub) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/event-stream")
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Header().Set("Connection", "keep-alive")
-		ch := hub.subscribe()
-		defer hub.unsubscribe(ch)
-		// Send a comment to flush headers so the browser sees a 200 right away.
-		fmt.Fprintf(w, ": hello\n\n")
-		if f, ok := w.(http.Flusher); ok {
-			f.Flush()
-		}
-		for {
-			select {
-			case <-ch:
-				fmt.Fprintf(w, "data: reload\n\n")
-				if f, ok := w.(http.Flusher); ok {
-					f.Flush()
-				}
-			case <-r.Context().Done():
-				return
-			}
-		}
-	}
-}
-
-// devHandler serves files from buildDir using the same URL rules as GitHub
-// Pages, so a link that works locally works in production and vice versa:
-// an extensionless path resolves to `.html`, a directory to its `index.html`,
-// and anything unresolvable to `404.html` with a 404 status. HTML responses get
-// the livereload script appended so the browser auto-refreshes after a rebuild;
-// everything else falls through to http.ServeFile. Path traversal is guarded so
-// a crafted URL can't escape buildDir.
-func devHandler(buildDir string) http.HandlerFunc {
-	cleanBuildDir := filepath.Clean(buildDir)
-
-	isFile := func(p string) bool {
-		info, err := os.Stat(p)
-		return err == nil && !info.IsDir()
-	}
-
-	// resolve maps a cleaned request path to a file on disk, or "" if nothing
-	// matches. The 404/noindex page is generated for paths that don't resolve.
-	resolve := func(full string) string {
-		if info, err := os.Stat(full); err == nil && info.IsDir() {
-			if index := filepath.Join(full, "index.html"); isFile(index) {
-				return index
-			}
-			return ""
-		}
-		if isFile(full) {
-			return full
-		}
-		if filepath.Ext(full) == "" && isFile(full+".html") {
-			return full + ".html"
-		}
-		return ""
-	}
-
-	// serveHTML writes an HTML file with the livereload script appended.
-	serveHTML := func(w http.ResponseWriter, path string, status int) bool {
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return false
-		}
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.WriteHeader(status)
-		w.Write(data)
-		w.Write([]byte(livereloadScript))
-		return true
-	}
-
-	notFound := func(w http.ResponseWriter, r *http.Request) {
-		if serveHTML(w, filepath.Join(cleanBuildDir, "404.html"), http.StatusNotFound) {
-			return
-		}
-		http.NotFound(w, r)
-	}
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		// r.URL.Path is already percent-decoded by net/http.
-		rel := filepath.Clean(strings.TrimLeft(r.URL.Path, "/"))
-		if rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-			notFound(w, r)
-			return
-		}
-		full := resolve(filepath.Join(cleanBuildDir, rel))
-		if full == "" {
-			notFound(w, r)
-			return
-		}
-		if strings.HasSuffix(full, ".html") {
-			serveHTML(w, full, http.StatusOK)
-			return
-		}
-		http.ServeFile(w, r, full)
-	}
-}
-
-// snapshotFiles records the modtime of every file under the given roots (files
-// or directory trees). The poller compares snapshots to detect changes.
-func snapshotFiles(roots ...string) map[string]time.Time {
-	m := make(map[string]time.Time)
-	for _, root := range roots {
-		info, err := os.Stat(root)
-		if err != nil {
-			continue
-		}
-		if !info.IsDir() {
-			m[root] = info.ModTime()
-			continue
-		}
-		_ = filepath.Walk(root, func(p string, info os.FileInfo, err error) error {
-			if err != nil || info.IsDir() {
-				return nil
-			}
-			m[p] = info.ModTime()
-			return nil
-		})
-	}
-	return m
-}
-
-func modtimesEqual(a, b map[string]time.Time) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for k, v := range a {
-		if w, ok := b[k]; !ok || !v.Equal(w) {
-			return false
-		}
-	}
-	return true
-}
-
-// runWatch generates the site once, then serves buildDir on port and
-// regenerates whenever a file under contentDir or templatePath changes. The
-// Goodreads shelves are fetched through cache with shelfTTL so repeated
-// regenerations don't re-hit the feed. Connected browsers auto-refresh via SSE.
-func runWatch(contentDir, buildDir, templatePath, userID, port string, cache *shelfCache) {
-	if err := generateSite(contentDir, buildDir, templatePath, cache.get(userID, shelfTTL)); err != nil {
-		log.Printf("initial generation error: %v", err)
-	}
-
-	hub := newSSEHub()
-	mux := http.NewServeMux()
-	mux.HandleFunc("/__livereload", sseHandler(hub))
-	mux.HandleFunc("/", devHandler(buildDir))
-
-	srv := &http.Server{Addr: ":" + port, Handler: mux}
-	go func() {
-		log.Printf("serving http://localhost:%s (watch mode — live reload on)", port)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("server error: %v", err)
-		}
-	}()
-
-	staticDir := filepath.Join(".", "static")
-	watchTargets := []string{contentDir, templatePath, staticDir}
-	prev := snapshotFiles(watchTargets...)
-	ticker := time.NewTicker(800 * time.Millisecond)
-	defer ticker.Stop()
-	for range ticker.C {
-		cur := snapshotFiles(watchTargets...)
-		if modtimesEqual(prev, cur) {
-			continue
-		}
-		prev = cur
-		log.Println("change detected, regenerating…")
-		if err := generateSite(contentDir, buildDir, templatePath, cache.get(userID, shelfTTL)); err != nil {
-			log.Printf("regeneration error: %v", err)
-			continue
-		}
-		hub.notify()
-		log.Println("reloaded")
-	}
-}
-
 func main() {
-	watch := flag.Bool("watch", false, "watch for file changes, serve, and live-reload")
-	port := flag.String("port", "8080", "port for the dev server (watch mode)")
-	flag.Parse()
-
 	contentDir := filepath.Join(".", "content")
 	buildDir := filepath.Join(".", "build")
 	templatePath := filepath.Join(".", "template.html")
 
 	// Pull the "What I'm reading" shelves from public Goodreads RSS at build
 	// time. This is best-effort: any shelf that can't be fetched is logged and
-	// skipped rather than failing the build. In watch mode the result is
-	// cached for shelfTTL so repeated regenerations don't hammer the feed.
+	// skipped rather than failing the build.
 	userID := os.Getenv("GOODREADS_USER_ID")
 	if userID == "" {
 		userID = defaultGoodreadsUserID
 	}
-	cache := &shelfCache{}
 
-	if *watch {
-		runWatch(contentDir, buildDir, templatePath, userID, *port, cache)
-		return
-	}
-
-	// ttl <= 0 always fetches, preserving the original one-shot behaviour.
-	shelves := cache.get(userID, 0)
-	if err := generateSite(contentDir, buildDir, templatePath, shelves); err != nil {
+	if err := generateSite(contentDir, buildDir, templatePath, fetchFeaturedShelves(userID)); err != nil {
 		log.Fatal(err)
 	}
 

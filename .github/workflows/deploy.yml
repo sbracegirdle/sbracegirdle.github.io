@@ -29,9 +29,8 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      # -race is the point of running these twice: the live-reload hub shares a
-      # subscriber map between the file watcher and every connected browser, and
-      # without the detector no data race in this repo is ever caught.
+      # -race catches a data race the plain run misses; it's cheap insurance
+      # for the tests that exercise concurrent code paths.
       - name: Run tests
         run: go test -race -v ./...
 

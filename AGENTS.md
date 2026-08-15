@@ -13,7 +13,7 @@ Markdown in `content/` becomes HTML in `build/`, index included.
 - `highlight.go` syntax highlighting; `*_test.go` Go tests
 - `agents_test.go` guards skill wiring
 - `content/` posts; `static/` verbatim pages; `template.html` template
-- `static/theme.css` stylesheet; `static/game.js` homepage arcade
+- `static/theme.css` stylesheet
 - `static/style-guide.html` design spec; `static/sports.html` sports calendar
 - `build/` generated; `local-serve.sh` preview; `style.md` voice
 - `.github/workflows/deploy.yml` CI deploys Pages
@@ -22,7 +22,6 @@ Markdown in `content/` becomes HTML in `build/`, index included.
 
 ```bash
 go build -o ssg .             # build the generator
-./ssg --watch [--port N]      # generate; serve with live reload
 go test ./...                 # tests; CI fails on errors
 ./local-serve.sh              # build + serve on :8080
 ```
@@ -30,7 +29,9 @@ go test ./...                 # tests; CI fails on errors
 ## Conventions
 
 - Do not edit AGENTS.md unless asked.
-- Do not add tests until asked.
+- Do not add/edit tests unless asked.
+- Never add comments to code unless asked.
+- If tests touched, check they still pass.
 - Reviewers (`prose-review`) run only when Simon asks; never on your own initiative.
 - Posts: `content/yyyy-mm-dd-title.md`; filename date orders index.
 - Frontmatter optional; tags fold to sorted lowercase slugs.
@@ -45,6 +46,7 @@ go test ./...                 # tests; CI fails on errors
 - `static/` copies verbatim; generated pages win name collisions.
 - Don't name static files `index.html` or after posts.
 
+
 ## Theme
 
 Dark only: night terminal, monospace, square corners.
@@ -53,7 +55,7 @@ Dark only: night terminal, monospace, square corners.
 - Keep the style guide in step with `theme.css` changes.
 - All CSS in `theme.css`; tokens only, never raw hex.
 - Each hue has one job; the palette and its decorative tiers live in the style guide.
-- Zero theme JS and external requests; the arcade excepted.
+- Zero theme JS and external requests.
 - Hierarchy from structure; headings descend one at a time.
 - Nothing widens the page on a phone.
 - Nothing clips navigation; wrap rather than hide overflow.
