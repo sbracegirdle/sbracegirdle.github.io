@@ -48,7 +48,7 @@ off IRONMAN's own page rather than assuming last year's holds.
 
 The list of majors is not fixed. Sydney was added; Cape Town and Shanghai have
 been through the candidate process. Check how many there are before writing a
-number into the section intro.
+number anywhere on the page.
 
 ## Formula 1
 
