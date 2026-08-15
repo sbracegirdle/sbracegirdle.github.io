@@ -657,7 +657,9 @@ footer { margin-top: var(--space-6); }
 
 /* A row of the sport chips themselves, filtering the fixture lists they sit
    above. The page's script toggles aria-pressed; the pressed chip fills with
-   its own hue, so a filter looks like the chips it leaves on the page. */
+   its own hue, so a filter looks like the chips it leaves on the page. Hover
+   only picks the outline in the hue, so the hover preview can't be mistaken
+   for the pressed state. */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -671,12 +673,18 @@ footer { margin-top: var(--space-6); }
   border-radius: var(--radius);
   cursor: pointer;
 }
-.filters button.tag:hover,
+.filters button.tag:hover { border-color: currentColor; }
 .filters button.tag[aria-pressed="true"] {
-  background: currentColor;
-  border-color: currentColor;
+  background: var(--hue, var(--color-text));
+  border-color: var(--hue, var(--color-text));
   color: var(--color-bg);
 }
+.filters button[data-sport="cycling"] { --hue: var(--c-gold); }
+.filters button[data-sport="triathlon"] { --hue: var(--c-foam); }
+.filters button[data-sport="marathon"] { --hue: var(--c-iris); }
+.filters button[data-sport="f1"] { --hue: var(--c-love); }
+.filters button[data-sport="rugby"] { --hue: var(--c-rose); }
+.filters button[data-sport="cricket"] { --hue: var(--c-pine); }
 
 /* A `.scroll-x` can end flush with a column boundary and then look like a
    finished table, with the rest of it hidden and nothing on screen to say so.
