@@ -1,6 +1,6 @@
 ---
 name: browser-tester
-description: MUST BE USED before finishing any change that affects what visitors see — posts in content/, template.html, static/theme.css, static/*.html, or the generator itself. Runs the headless Playwright suite over the generated site and then an exploratory pass, looking at screenshots and probing layout in a real browser. Headless only; never opens a window on the host.
+description: Verifies changes in a real headless browser on request, for anything that affects what visitors see — posts in content/, template.html, static/theme.css, static/*.html, or the generator itself. Runs the headless Playwright suite over the generated site and then an exploratory pass, looking at screenshots and probing layout. Headless only; never opens a window on the host.
 tools: Skill, Bash, Read, Grep, Glob, Write, Edit
 model: inherit
 color: green

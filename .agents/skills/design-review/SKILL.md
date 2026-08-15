@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: Review the visual, semantic and accessibility quality of the generated site before it ships. Use whenever a change touches static/theme.css, template.html, static/*.html, or generator markup that affects layout or emitted HTML — and whenever a new component or page appears. Judges fidelity to the site's own design system, visual hierarchy, text fit and containment, responsive behaviour, semantic HTML and ARIA, accessible names, keyboard access, and the WCAG 2.2 AA floor. Reports findings with concrete CSS or markup fixes; never edits the site.
+description: Review the visual, semantic and accessibility quality of the generated site. The caller invokes it on changes that touch static/theme.css, template.html, static/*.html, or generator markup that affects layout — and whenever a new component or page appears. Judges fidelity to the site's own design system, visual hierarchy, text fit and containment, responsive behaviour, semantic HTML and ARIA, accessible names, keyboard access, and the WCAG 2.2 AA floor. Reports findings with concrete CSS or markup fixes; never edits the site.
 ---
 
 # Design review
@@ -257,6 +257,14 @@ are not findings either:
 
 Precision beats recall, same as the prose review. Ten findings the author acts
 on beat forty they scroll past.
+
+## Dispatch
+
+- **Claude Code** — delegate to the `design-reviewer` subagent
+  (`.claude/agents/design-reviewer.md`), which runs this skill.
+- **Codex** — spawn the `design-reviewer` agent by name
+  (`.codex/agents/design-reviewer.toml`), which runs this skill.
+- **No subagent support** — run this skill directly.
 
 ## Output
 

@@ -1,6 +1,6 @@
 ---
 name: perf-auditor
-description: MUST BE USED before finishing any significant non-textual change — static/theme.css, template.html, a new page or component in static/, a new asset or request, or generator changes to emitted markup. Measures what the site costs to load: Lighthouse category scores, Core Web Vitals, same-origin page weight and request count, against the budgets in tests/browser/lib/budgets.js. Reports numbers and causes; never edits the site or raises a budget. Headless only; never opens a window on the host.
+description: Audits performance and page weight on request, for significant non-textual changes — static/theme.css, template.html, a new page or component in static/, a new asset or request, or generator changes to emitted markup. Measures what the site costs to load: Lighthouse category scores, Core Web Vitals, same-origin page weight and request count, against the budgets in tests/browser/lib/budgets.js. Reports numbers and causes; never edits the site or raises a budget. Headless only; never opens a window on the host.
 tools: Skill, Bash, Read, Grep, Glob, Write, Edit
 model: inherit
 color: yellow

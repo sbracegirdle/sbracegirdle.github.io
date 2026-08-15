@@ -41,8 +41,8 @@ misspelling or a team change is a fix; changing who is on the list is Simon's
 call — raise it and let him answer. Same for adding or dropping a sport.
 
 **Don't invent what Simon thinks.** The page describes fixtures; it never ranks
-them or says which one he's waiting for. `AGENTS.md` and the prose review's
-`references/ai-tells.md` set this out, and this page is where it goes wrong most
+them or says which one he's waiting for. The prose review's
+`references/ai-tells.md` sets this out, and this page is where it goes wrong most
 easily: a fixture note is one sentence long and an opinion fills the space so
 neatly. "A world championship three hours from Perth" is a fact. "The one I've
 been waiting for" is invention. Write what the event *is*, once.
@@ -126,7 +126,7 @@ raise, never yours.
 ## Before you call it done
 
 The page is prose, it's markup, and editing it changes what a visitor sees, so
-it goes through the gates in `AGENTS.md`:
+put the result through the review skills as needed:
 
 - **prose review** — every fixture note and section intro you touched
 - **browser test** — `npm test`, then look at `/sports.html` at 390px and 320px

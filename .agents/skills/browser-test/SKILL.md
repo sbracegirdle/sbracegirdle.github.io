@@ -1,6 +1,6 @@
 ---
 name: browser-test
-description: Verify the generated site in a real headless browser before shipping. Use whenever a change affects what visitors see — posts in content/, template.html, static/theme.css, static/*.html, or the generator itself. Runs the Playwright suite and then an exploratory pass over the changed pages, looking at screenshots and probing layout. Headless only; it must never open a window on the host.
+description: Verify the generated site in a real headless browser. The caller invokes it on changes that affect what visitors see — posts in content/, template.html, static/theme.css, static/*.html, or the generator itself. Runs the Playwright suite and then an exploratory pass over the changed pages, looking at screenshots and probing layout. Headless only; it must never open a window on the host.
 ---
 
 # Browser testing
@@ -46,7 +46,7 @@ What the specs cover:
 | `links.spec.js` | no internal link 404s anywhere on the site, generator-emitted links are root-absolute, external links open safely |
 | `a11y.spec.js` | the mechanical accessibility floor — `lang`, one `h1`, heading order, accessible names, `alt`, no `aria-label` on a bare generic, nothing focusable inside `aria-hidden` |
 | `machine-readable.spec.js` | feed.xml parses and every item link resolves, sitemap.xml URLs resolve, robots.txt points at the sitemap, unknown paths return a real 404 |
-| `footprint.spec.js` | same-origin page weight, request count and theme.css size against the budgets in `lib/budgets.js`. The cheap half of the `perf-audit` skill — a breach here belongs to that gate, not this one |
+| `footprint.spec.js` | same-origin page weight, request count and theme.css size against the budgets in `lib/budgets.js`. The cheap half of the `perf-audit` skill — a breach here belongs to that skill, not this one |
 
 When a spec fails, diagnose before changing anything. Failures leave a
 screenshot and a trace under `tests/browser/test-results/`; read the screenshot.
@@ -113,6 +113,17 @@ and focus states. Two repeat offenders on this site: hidden decoration, because
 an invisible element still occupies layout and can widen the page; and
 shrink-to-fit boxes, because `overflow-wrap: break-word` does not reduce their
 min-content width — only `anywhere` does.
+
+## Dispatch
+
+- **Claude Code** — delegate to the `browser-tester` subagent
+  (`.claude/agents/browser-tester.md`), which runs this skill.
+- **Codex** — spawn the `browser-tester` agent by name
+  (`.codex/agents/browser-tester.toml`), which runs this skill.
+- **No subagent support** — run this skill directly.
+
+The tester reports; it doesn't fix the site. Whoever invoked it applies the
+findings, and says which they applied and which they left.
 
 ## Reporting
 

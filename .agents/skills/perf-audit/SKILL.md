@@ -1,6 +1,6 @@
 ---
 name: perf-audit
-description: Measure what the site costs to load and audit it with Lighthouse before it ships. Use for any significant non-textual change — a theme or template change, a new page or component, a new asset or request, a generator change that alters emitted markup, or a dependency of any kind. Reports category scores, Core Web Vitals, page weight and request count against the budgets in tests/browser/lib/budgets.js. Not for editing the words in a post. Headless only; it must never open a window on the host.
+description: Measure what the site costs to load and audit it with Lighthouse. The caller invokes it on significant non-textual changes — a theme or template change, a new page or component, a new asset or request, a generator change that alters emitted markup, or a dependency of any kind. Reports category scores, Core Web Vitals, page weight and request count against the budgets in tests/browser/lib/budgets.js. Not for editing the words in a post. Headless only; it must never open a window on the host.
 ---
 
 # Performance and footprint audit
@@ -142,6 +142,16 @@ The ones that come up every single run:
 Accessibility findings are the exception. Report them — they are a floor, not a
 preference — and tie them to the criterion in
 `.agents/skills/design-review/references/accessibility.md`.
+
+## Dispatch
+
+- **Claude Code** — delegate to the `perf-auditor` subagent
+  (`.claude/agents/perf-auditor.md`), which runs this skill.
+- **Codex** — spawn the `perf-auditor` agent by name
+  (`.codex/agents/perf-auditor.toml`), which runs this skill.
+- **No subagent support** — run this skill directly.
+
+The auditor reports; it doesn't fix the site and it doesn't touch the budgets.
 
 ## Reporting
 

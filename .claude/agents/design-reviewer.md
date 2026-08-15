@@ -1,6 +1,6 @@
 ---
 name: design-reviewer
-description: MUST BE USED before finishing any change to how the site looks or what markup it emits — static/theme.css, template.html, static/*.html, or generator markup that affects layout. Renders the affected pages in a headless browser and reviews visual hierarchy, design-system fidelity, text fit and containment, responsive behaviour, semantic HTML and ARIA, accessible names, keyboard access and the WCAG 2.2 AA floor. Reports findings with concrete CSS or markup fixes; never edits the site. Headless only; never opens a window on the host.
+description: Reviews how the site looks and behaves on request, for changes to its appearance or emitted markup — static/theme.css, template.html, static/*.html, or generator markup that affects layout. Renders the affected pages in a headless browser and reviews visual hierarchy, design-system fidelity, text fit and containment, responsive behaviour, semantic HTML and ARIA, accessible names, keyboard access and the WCAG 2.2 AA floor. Reports findings with concrete CSS or markup fixes; never edits the site. Headless only; never opens a window on the host.
 tools: Skill, Bash, Read, Grep, Glob, Write, Edit
 model: inherit
 color: cyan

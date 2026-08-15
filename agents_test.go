@@ -14,8 +14,8 @@ import (
 // one symlink, and one of the two agents silently stops finding it — so it is
 // checked here rather than left to a reviewer's memory.
 //
-// AGENTS.md "Cross-agent skills and subagents" documents the process this
-// enforces.
+// The agent-conventions skill (.agents/skills/agent-conventions/) documents
+// the process this enforces.
 
 const (
 	sharedSkills = ".agents/skills"

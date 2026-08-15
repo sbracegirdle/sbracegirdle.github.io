@@ -1,6 +1,6 @@
 ---
 name: prose-review
-description: Review prose for weak writing and AI-generated tells before it ships. Use whenever a change adds or edits English prose in this repo — blog posts in content/, the README/AGENTS/style docs, or user-visible copy in template.html, static/*.html and Go string literals. Applies style.md, the write-good rules, and an AI-writing-tell catalogue, then reports findings with concrete rewrites. Not for code, identifiers, or the contents of code fences.
+description: Review prose for weak writing and AI-generated tells before it ships. The caller invokes it on changes that add or edit English prose in this repo — blog posts in content/, the README/AGENTS/style docs, or user-visible copy in template.html, static/*.html and Go string literals. Applies style.md, the write-good rules, and an AI-writing-tell catalogue, then reports findings with concrete rewrites. Not for code, identifiers, or the contents of code fences.
 ---
 
 # Prose review
@@ -59,6 +59,23 @@ file paths, CSS, test fixtures, generated output under `build/`.
    cut what they already said.
 4. Report in the output format below. Do not edit the files — propose the
    replacement text and let the caller apply it.
+
+## Dispatch
+
+The review runs as its own pass over finished text, after drafting — never
+folded into the drafting step, because it has to look at completed prose.
+
+- **Claude Code** — delegate to the `prose-reviewer` subagent
+  (`.claude/agents/prose-reviewer.md`), which runs this skill.
+- **Codex** — spawn the `prose-reviewer` agent by name
+  (`.codex/agents/prose-reviewer.toml`), which runs this skill.
+- **No subagent support** — run this skill directly.
+
+The reviewer is read-only: it proposes replacements, and whoever invoked it
+applies them — must-fix always, should-fix and optional by judgement, and a
+wrong finding gets argued with rather than applied. The "Do not flag" list
+names the false positives the review is meant to suppress, so a bad finding is
+a signal this skill needs an edit.
 
 ## House voice
 
