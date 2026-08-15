@@ -1030,31 +1030,40 @@
 </p>
 
 <div class="frame" data-label="fixture-list">
-  <ul class="fixture-list hue-gold">
-    <li class="fixture">
+  <nav class="filters" aria-label="Fixture-list demo filters">
+    <button class="tag" type="button" aria-pressed="true">all</button>
+    <button class="tag tag-gold" type="button" aria-pressed="false">cycling</button>
+    <button class="tag tag-foam" type="button" aria-pressed="false">triathlon</button>
+    <button class="tag tag-iris" type="button" aria-pressed="false">marathon</button>
+    <button class="tag tag-love" type="button" aria-pressed="false">f1</button>
+    <button class="tag tag-rose" type="button" aria-pressed="false">rugby</button>
+    <button class="tag tag-pine" type="button" aria-pressed="false">cricket</button>
+  </nav>
+  <ul class="fixture-list">
+    <li class="fixture" data-sport="cycling">
       <span class="fixture-when">22 Aug – 13 Sep</span>
-      <span class="fixture-what"><a href="#components">Vuelta a España</a></span>
+      <span class="fixture-what"><a href="#components">Vuelta a España</a> <span class="tag tag-gold">cycling</span></span>
       <p class="fixture-note"><span class="fixture-where">Spain</span>Three weeks and the last Grand Tour of the year.</p>
     </li>
-    <li class="fixture">
-      <span class="fixture-when">10 Oct</span>
-      <span class="fixture-what"><a href="#components">Il Lombardia</a></span>
-      <p class="fixture-note"><span class="fixture-where">Italy</span>The race of the falling leaves, and the fifth Monument.</p>
+    <li class="fixture" data-sport="f1">
+      <span class="fixture-when">24 – 26 Jul</span>
+      <span class="fixture-what"><a href="#components">Hungarian Grand Prix</a> <span class="tag tag-love">f1</span></span>
+      <p class="fixture-note"><span class="fixture-where">Hungaroring, Hungary</span>Seventy laps on Sunday, then four weeks off.</p>
     </li>
   </ul>
 </div>
 
 <p>
-  The rail down the left takes <code>--hue</code>. Put a <code>.hue-*</code>
-  class on the list when every row is the same kind, or on the rows themselves
-  when one list mixes them — a calendar covering six sports gives each sport its
-  own rail colour and names it in a chip beside the event. When the run crosses
-  months, split it into one list per month with an <code>h2</code> naming the
-  month; the rail and the chip both carry the sport, so a list no longer has to
-  carry one hue. A row's chip takes its sport's hue as outline and text — the
-  one place a hue reaches text — and <code>.fixture-what .tag</code> is styled
-  for exactly that. Below 640px the date column folds away and each row stacks;
-  the fixed column is wider than a phone screen.
+  A row is plain — no rail, no hue on the row itself. The sport rides in the
+  chip beside the event name, and the chip is the one place a hue reaches text:
+  it takes its sport's hue as outline and label, and <code>.fixture-what .tag</code>
+  is styled for exactly that. When the run crosses months, split it into one
+  list per month under an <code>h2</code> naming the month, wrapped with its
+  <code>h2</code> in a <code>.fixture-month</code>. Above the lists, a
+  <code>.filters</code> row of the same chips filters the page by sport: the
+  page's script toggles <code>aria-pressed</code>, hides the other rows, and
+  hides any month whose rows are all gone. Below 640px the date column folds
+  away and each row stacks; the fixed column is wider than a phone screen.
 </p>
 
 <h3 id="hues">Hue carriers</h3>

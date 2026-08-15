@@ -594,20 +594,24 @@ footer { margin-top: var(--space-6); }
    what it is, then a subtle line carrying where and why it matters. Dates keep
    the gold the post index gives them, so a date reads as a date sitewide.
 
-   The left rail takes --hue from a .hue-* class, on the list when every row is
-   the same kind and on the row itself when a list mixes them. The rail is
-   decoration and nothing rests on it: every row names its own kind in text. */
+   Rows are plain; the sport's hue lives only in the chip beside the event
+   name. A run that crosses months splits into one list per month under an h2,
+   and a .filters row above the lists toggles which sport's rows show. Rows a
+   filter hides, and months whose rows are all gone, take the [hidden]
+   attribute; the rule below is what actually hides them, since `.fixture` sets
+   its own display. */
 .fixture-list { list-style: none; padding: 0; margin: var(--space-4) 0; }
 .fixture {
   display: grid;
   grid-template-columns: 10.5rem 1fr;
   column-gap: var(--space-3);
   margin: 0;
-  padding: var(--space-2) 0 var(--space-2) var(--space-3);
-  border-left: var(--bar-width) solid var(--hue, var(--color-border-strong));
+  padding: var(--space-2) 0;
 }
+.fixture[hidden],
+.fixture-month[hidden] { display: none; }
 /* The separator goes on the following row, not as a bottom border on every
-   row: a bottom border would cut across the rail and break it into rungs. */
+   row: a bottom border would double on the last row of a list. */
 .fixture + .fixture { border-top: var(--border-width) dashed var(--color-border); }
 /* Spans both rows rather than sitting in the first. A date that wraps to two
    lines would otherwise grow row 1 and push the note away from the title it
@@ -618,8 +622,8 @@ footer { margin-top: var(--space-6); }
   color: var(--c-gold);
   font-size: var(--text-sm);
 }
-/* Flex, not inline: a mixed list names the kind in a chip beside the event, and
-   a margin-spaced chip that wrapped to its own line sat indented off the rail. */
+/* Flex, not inline: a mixed list names the kind in a chip beside the event,
+   and the chip carries the sport's hue as outline and text. */
 .fixture-what {
   grid-column: 2;
   display: flex;
@@ -649,6 +653,29 @@ footer { margin-top: var(--space-6); }
   .fixture-what,
   .fixture-note { grid-column: 1; }
   .fixture-when { grid-row: auto; }
+}
+
+/* A row of the sport chips themselves, filtering the fixture lists they sit
+   above. The page's script toggles aria-pressed; the pressed chip fills with
+   its own hue, so a filter looks like the chips it leaves on the page. */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+}
+.filters button.tag {
+  background: none;
+  font-family: var(--font-mono);
+  line-height: var(--leading-normal);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.filters button.tag:hover,
+.filters button.tag[aria-pressed="true"] {
+  background: currentColor;
+  border-color: currentColor;
+  color: var(--color-bg);
 }
 
 /* A `.scroll-x` can end flush with a column boundary and then look like a

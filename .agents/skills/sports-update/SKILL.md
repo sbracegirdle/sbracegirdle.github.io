@@ -17,21 +17,28 @@ section; the lists *are* the page.
 
 ## The shape of the page
 
-After the statusline, the h1 and the prompt, each month is an `<h2>` naming the
-month, followed by one `<ul class="fixture-list">` of that month's events,
-soonest first. An event belongs to the month it starts in:
+After the statusline, the h1 and the prompt come a `.filters` row — one chip per
+sport plus "all", mirroring the chips in the lists below — then each month as a
+`<section class="fixture-month">` holding an `<h2>` naming the month and one
+`<ul class="fixture-list">` of that month's events, soonest first. An event
+belongs to the month it starts in:
 
 ```html
-<li class="fixture hue-love">
+<li class="fixture" data-sport="f1">
   <span class="fixture-when">24 – 26 Jul</span>
   <span class="fixture-what">R11 · <a href="https://www.formula1.com/en/racing/2026">Hungarian Grand Prix</a> <span class="tag tag-love">f1</span></span>
   <p class="fixture-note"><span class="fixture-where">Hungaroring, Hungary</span>Seventy laps on Sunday, then four weeks off.</p>
 </li>
 ```
 
+- `data-sport` — the sport's label on the row, matching the filter chips.
 - `.fixture-when` — the date or date range.
 - `.fixture-what` — the linked event name, plus a `.tag` chip naming the sport.
 - `.fixture-note` — `.fixture-where` for the venue, then one sentence on the event.
+
+The chip is the row's only colour: it takes the sport's hue as outline and text.
+A head-to-head names both sides — "Wallabies v Japan", never "v Japan" — so the
+reader never needs to know who's hosting.
 
 ## Facts, and whose they are
 
@@ -77,13 +84,16 @@ than one that never went on.
    the day you did the work.
 2. **Round numbers.** F1 rows are prefixed `R11 ·`. They come from the F1
    calendar and shift if a round is cancelled or added mid-season.
-3. **Hues, tags, and month headings.** Each sport owns one hue — gold cycling,
-   foam triathlon, iris marathons, love F1, rose rugby, pine cricket — and every
-   row carries its `.hue-*` class **and** a chip naming the sport (`<span
-   class="tag tag-gold">cycling</span>` and so on), which takes the hue as its
-   outline and text. A month that gains its first event gains an `<h2>`; a month
-   whose last event passes loses its `<h2>`. The headings are what makes a mixed
-   list readable, so the rail and chip alone would be colour carrying meaning.
+3. **Chips, filters, and month headings.** Each sport owns one hue — gold
+   cycling, foam triathlon, iris marathons, love F1, rose rugby, pine cricket —
+   and every row names the sport in a chip (`<span class="tag tag-gold">cycling</span>`
+   and so on) that takes the hue as its outline and text, with a `data-sport`
+   attribute to match. The `.filters` row above the lists carries the same
+   chips, and the page's script filters on them; a sport with nothing left on
+   the page loses its filter chip. A month that gains its first event gains an
+   `<h2>` inside a `.fixture-month`; a month whose last event passes loses
+   them. The chip is the row's only colour, so the filters only work if chip,
+   `data-sport` and filter all carry the same label.
 4. **Date order.** A row added mid-list takes its place by date; nothing groups
    by sport. Two events on the same day sit together in whatever order reads
    best.
