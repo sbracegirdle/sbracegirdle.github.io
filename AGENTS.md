@@ -11,25 +11,12 @@ Markdown in `content/` becomes HTML in `build/`, index included.
 
 - `main.go` generator; `tags.go` tags; `feed.go` feed/sitemap/robots
 - `highlight.go` syntax highlighting; `*_test.go` Go tests
-- `agents_test.go` guards skill wiring; `tests/browser/` Playwright
+- `agents_test.go` guards skill wiring
 - `content/` posts; `static/` verbatim pages; `template.html` template
 - `static/theme.css` stylesheet; `static/game.js` homepage arcade
 - `static/style-guide.html` design spec; `static/sports.html` sports calendar
 - `build/` generated; `local-serve.sh` preview; `style.md` voice
 - `.github/workflows/deploy.yml` CI deploys Pages
-
-## Skills and subagents
-
-Skills live once under `.agents/skills/`, symlinked for both agents.
-Invoke only when asked; reviewers never run on their own.
-`agent-conventions` covers adding or changing; `agents_test.go` enforces the wiring.
-
-- `prose-review` — weak writing and AI tells
-- `browser-test` — headless browser verification
-- `design-review` — visual and accessibility quality
-- `perf-audit` — page weight and Lighthouse vs budgets
-- `sports-update` — refresh `static/sports.html`
-- `agent-conventions` — add or change a skill
 
 ## Commands
 
@@ -38,20 +25,13 @@ go build -o ssg .             # build the generator
 ./ssg --watch [--port N]      # generate; serve with live reload
 go test ./...                 # tests; CI fails on errors
 ./local-serve.sh              # build + serve on :8080
-
-cd tests/browser
-npm install                   # first time only
-npx playwright install chromium
-npm test                      # rebuild, run headless suite
-node shot.mjs --both /        # screenshot pages, report
-node lighthouse.mjs --sample  # Lighthouse vs budgets
 ```
 
 ## Conventions
 
 - Do not edit AGENTS.md unless asked.
 - Do not add tests until asked.
-- Reviewers (`prose-review`, `browser-test`, `design-review`, `perf-audit`) run only when Simon asks; never on your own initiative.
+- Reviewers (`prose-review`) run only when Simon asks; never on your own initiative.
 - Posts: `content/yyyy-mm-dd-title.md`; filename date orders index.
 - Frontmatter optional; tags fold to sorted lowercase slugs.
 - `renderPage` HTML-escapes every scalar — never bypass it.

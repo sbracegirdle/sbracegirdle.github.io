@@ -1041,7 +1041,7 @@ func devHandler(buildDir string) http.HandlerFunc {
 	}
 
 	// resolve maps a cleaned request path to a file on disk, or "" if nothing
-	// matches. Mirrors tests/browser/serve.mjs, which mimics GitHub Pages.
+	// matches. The 404/noindex page is generated for paths that don't resolve.
 	resolve := func(full string) string {
 		if info, err := os.Stat(full); err == nil && info.IsDir() {
 			if index := filepath.Join(full, "index.html"); isFile(index) {

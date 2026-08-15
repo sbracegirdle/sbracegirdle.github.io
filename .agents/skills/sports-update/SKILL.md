@@ -114,8 +114,8 @@ Measured on 25 July 2026: 42.4 KB of HTML, plus 42.5 KB of `theme.css`, for
 85.0 KB of the 160 KB `maxPageBytes` budget. Only `/style-guide.html` and the
 Rust quick reference are heavier. That leaves room for about one more season of
 fixtures and no more, so say so before writing a change that would double the
-page. `npx playwright test specs/footprint.spec.js` prints the current number —
-measure rather than trusting the one above.
+page. These numbers date from 25 July 2026 — measure the built page rather than
+trusting them.
 
 Watch `theme.css` harder than the page. It sits on the critical path of every
 page on the site and it is within a few kilobytes of its own 45 KB budget, so a
