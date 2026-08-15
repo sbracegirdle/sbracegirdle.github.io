@@ -1,6 +1,6 @@
 ---
 name: sports-update
-description: Refresh static/sports.html — the hand-written, single-list calendar of the six sports Simon follows. Use when fixtures have passed, dates have moved, a venue is confirmed, or a new season needs adding. Covers where each date comes from, which parts of the page have to move together, and which edits are Simon's call rather than yours. Not for design or theme changes to the page.
+description: Refresh static/sports.html — the hand-written, month-grouped calendar of the six sports Simon follows. Use when fixtures have passed, dates have moved, a venue is confirmed, or a new season needs adding. Covers where each date comes from, which parts of the page have to move together, and which edits are Simon's call rather than yours. Not for design or theme changes to the page.
 ---
 
 # Keeping the sports page current
@@ -10,20 +10,21 @@ touches it, and nothing tells you when it goes stale — it carries the date it
 was compiled in the footer and rots quietly from there. This skill is how you
 refresh it without losing the facts it already had right.
 
-The page is one thing: a single date-ordered list of what's left of the 2026
-season across six sports — road cycling, triathlon, marathon majors, Formula 1,
-rugby, and Australian and New Zealand cricket. There is no intro, no summary,
-no per-sport section; the list *is* the page.
+The page is one thing: the remaining 2026 fixtures across six sports — road
+cycling, triathlon, marathon majors, Formula 1, rugby, and Australian and New
+Zealand cricket — grouped by month. There is no intro, no summary, no per-sport
+section; the lists *are* the page.
 
 ## The shape of the page
 
-After the statusline, the h1 and the prompt, the whole page is one
-`<ul class="fixture-list">`. Every event is a row, soonest first:
+After the statusline, the h1 and the prompt, each month is an `<h2>` naming the
+month, followed by one `<ul class="fixture-list">` of that month's events,
+soonest first. An event belongs to the month it starts in:
 
 ```html
 <li class="fixture hue-love">
   <span class="fixture-when">24 – 26 Jul</span>
-  <span class="fixture-what">R11 · <a href="https://www.formula1.com/en/racing/2026">Hungarian Grand Prix</a> <span class="tag">f1</span></span>
+  <span class="fixture-what">R11 · <a href="https://www.formula1.com/en/racing/2026">Hungarian Grand Prix</a> <span class="tag tag-love">f1</span></span>
   <p class="fixture-note"><span class="fixture-where">Hungaroring, Hungary</span>Seventy laps on Sunday, then four weeks off.</p>
 </li>
 ```
@@ -56,16 +57,16 @@ event *is*, once.
 **A refresh.** Fixtures have happened, a venue was confirmed, a date moved, a
 round was cancelled. Most of the work. The structure stays; the facts change.
 
-1. Take passed fixtures off the list — the list runs from the compile date
-   forward, so anything already run no longer belongs.
-2. Put new fixtures in their slot by date. The page reads as one calendar;
-   a row out of order is the one way to make it lie.
+1. Take passed fixtures off their month's list — the page runs from the compile
+   date forward, so anything already run no longer belongs.
+2. Put new fixtures in their month and slot by date. An event goes under the
+   month it starts in; a row out of order is the one way to make it lie.
 3. Walk the parts that move together below.
 
 **A new season.** A year's calendar goes on the page. Bigger, and it has a
 decision in it — the h1, the head and the prompt all say "2026" and "what's left
 of the season", so the framing has to be reworded. Give Simon the trade-off and
-let him choose; whatever the shape, the page stays one list.
+let him choose; whatever the shape, the page stays a list of months.
 
 ## The parts that move together
 
@@ -76,10 +77,13 @@ than one that never went on.
    the day you did the work.
 2. **Round numbers.** F1 rows are prefixed `R11 ·`. They come from the F1
    calendar and shift if a round is cancelled or added mid-season.
-3. **Hues and tags.** Each sport owns one hue — gold cycling, foam triathlon,
-   iris marathons, love F1, rose rugby, pine cricket — and every row carries its
-   `.hue-*` class **and** a `.tag` chip naming the sport. The list mixes sports,
-   so the rail alone would be colour carrying meaning.
+3. **Hues, tags, and month headings.** Each sport owns one hue — gold cycling,
+   foam triathlon, iris marathons, love F1, rose rugby, pine cricket — and every
+   row carries its `.hue-*` class **and** a chip naming the sport (`<span
+   class="tag tag-gold">cycling</span>` and so on), which takes the hue as its
+   outline and text. A month that gains its first event gains an `<h2>`; a month
+   whose last event passes loses its `<h2>`. The headings are what makes a mixed
+   list readable, so the rail and chip alone would be colour carrying meaning.
 4. **Date order.** A row added mid-list takes its place by date; nothing groups
    by sport. Two events on the same day sit together in whatever order reads
    best.

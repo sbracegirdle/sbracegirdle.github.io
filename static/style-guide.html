@@ -675,6 +675,8 @@
     <span class="tag tag-gold">aws</span>
     <span class="tag tag-iris">meta</span>
     <span class="tag tag-love">deprecated</span>
+    <span class="tag tag-rose">incident</span>
+    <span class="tag tag-pine">backup</span>
     <span class="badge">new</span>
     <span class="badge badge-foam">v2.0</span>
     <span class="badge badge-love">breaking</span>
@@ -1046,10 +1048,13 @@
   The rail down the left takes <code>--hue</code>. Put a <code>.hue-*</code>
   class on the list when every row is the same kind, or on the rows themselves
   when one list mixes them — a calendar covering six sports gives each sport its
-  own rail colour and stays one list. A mixed list has to name the kind in the
-  row as well; <code>.fixture-what .tag</code> is styled for exactly that chip.
-  Below 640px the date column folds away and each row stacks; the fixed column
-  is wider than a phone screen.
+  own rail colour and names it in a chip beside the event. When the run crosses
+  months, split it into one list per month with an <code>h2</code> naming the
+  month; the rail and the chip both carry the sport, so a list no longer has to
+  carry one hue. A row's chip takes its sport's hue as outline and text — the
+  one place a hue reaches text — and <code>.fixture-what .tag</code> is styled
+  for exactly that. Below 640px the date column folds away and each row stacks;
+  the fixed column is wider than a phone screen.
 </p>
 
 <h3 id="hues">Hue carriers</h3>
@@ -1060,9 +1065,11 @@
   <code>--hue</code> on a container. They mark a group. They don't give the hue
   a second job. Two rules keep that true. The hue may only repeat a label the
   component already prints — the shelf title, the sport a row belongs to — so
-  nothing is legible by colour alone. And it may only reach a border, a rail or
-  a fill, never text, which is what lets pine into the set at all.
-  The reading shelves use the same variable.
+  nothing is legible by colour alone. And on a carrier it may only reach a
+  border, a rail or a fill, never text, which is what lets pine into the set at
+  all. The one exception is the chip on a fixture row, where the hue colours the
+  chip's own outline and label: the sport's name sits next to it, so the colour
+  never carries the meaning. The reading shelves use the same variable.
 </p>
 
 <h3>Footer</h3>

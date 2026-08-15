@@ -30,7 +30,7 @@
   --c-love: #ff5555;
   --c-gold: #f1fa8c;
   --c-rose: #ff79c6;
-  --c-pine: #50fa7b;   /* decorative only — rails, rules, fills */
+  --c-pine: #50fa7b;   /* rails, rules, fills, and chips — never body text */
   --c-foam: #8be9fd;
   --c-iris: #bd93f9;
 
@@ -726,6 +726,8 @@ a.tag:hover { border-color: var(--c-rose); color: var(--c-rose); }
 .tag-gold { border-color: var(--c-gold); color: var(--c-gold); }
 .tag-iris { border-color: var(--c-iris); color: var(--c-iris); }
 .tag-love { border-color: var(--c-love); color: var(--c-love); }
+.tag-rose { border-color: var(--c-rose); color: var(--c-rose); }
+.tag-pine { border-color: var(--c-pine); color: var(--c-pine); }
 .badge {
   display: inline-block;
   font-size: var(--text-xs);
