@@ -591,15 +591,20 @@ footer { margin-top: var(--space-6); }
 /* ── Fixture list (dated events, still to come) ───────────────── */
 /* .post-list's counterpart for things that haven't happened yet: a race
    calendar, a season, a run of fixtures. One row is one event — when it runs,
-   what it is, then a subtle line carrying where and why it matters. Dates keep
-   the gold the post index gives them, so a date reads as a date sitewide.
+   what it is, then a subtle line carrying where and why it matters. The date
+   leads the row in the subtle tone, not gold: the list already carries six
+   chip colours, and gold dates on top of them read as noise. Gold stays the
+   date signal on the post index, where it is the only colour in the column.
 
    Rows are plain; the sport's hue lives only in the chip beside the event
    name. A run that crosses months splits into one list per month under an h2,
    and a .filters row above the lists toggles which sport's rows show. Rows a
    filter hides, and months whose rows are all gone, take the [hidden]
    attribute; the rule below is what actually hides them, since `.fixture` sets
-   its own display. */
+   its own display. Each row carries its last date as an ISO value in a
+   `data-end` attribute; the page's script adds a `past` class once that date
+   is behind today, and the dim below recedes the row — the calendar reads as
+   what's left, not everything that was. */
 .fixture-list { list-style: none; padding: 0; margin: var(--space-4) 0; }
 .fixture {
   display: grid;
@@ -619,9 +624,14 @@ footer { margin-top: var(--space-6); }
 .fixture-when {
   grid-column: 1;
   grid-row: 1 / span 2;
-  color: var(--c-gold);
+  color: var(--color-subtle);
   font-size: var(--text-sm);
 }
+/* The page's script adds this to any row whose `data-end` date is behind today;
+   the dim takes the whole row down together — dates, title, chip and note all
+   recede as one. Nothing is hidden, so a past row still filters and its links
+   still work. */
+.fixture.past { opacity: 0.5; }
 /* Flex, not inline: a mixed list names the kind in a chip beside the event,
    and the chip carries the sport's hue as outline and text. */
 .fixture-what {

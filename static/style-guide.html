@@ -1025,8 +1025,10 @@
 <p>
   The post index's counterpart for events that haven't happened yet — a race
   calendar, a season, a run of fixtures. A row gives the date, the event, and
-  one subtle line holding the place and why it matters. Dates stay gold here,
-  the same as on the post index.
+  one subtle line holding the place and why it matters. The date column is the
+  subtle tone, not gold: the list already carries six chip colours, and gold
+  dates on top of them would be noise. Gold stays the date signal on the post
+  index, where it is the only colour in the column.
 </p>
 
 <div class="frame" data-label="fixture-list">
@@ -1040,12 +1042,12 @@
     <button class="tag tag-pine" type="button" aria-pressed="false" data-sport="cricket">cricket</button>
   </nav>
   <ul class="fixture-list">
-    <li class="fixture" data-sport="cycling">
+    <li class="fixture" data-sport="cycling" data-end="2026-09-13">
       <span class="fixture-when">22 Aug – 13 Sep</span>
       <span class="fixture-what"><a href="#components">Vuelta a España</a> <span class="tag tag-gold">cycling</span></span>
       <p class="fixture-note"><span class="fixture-where">Spain</span>Three weeks and the last Grand Tour of the year.</p>
     </li>
-    <li class="fixture" data-sport="f1">
+    <li class="fixture past" data-sport="f1" data-end="2026-07-26">
       <span class="fixture-when">24 – 26 Jul</span>
       <span class="fixture-what"><a href="#components">Hungarian Grand Prix</a> <span class="tag tag-love">f1</span></span>
       <p class="fixture-note"><span class="fixture-where">Hungaroring, Hungary</span>Seventy laps on Sunday, then four weeks off.</p>
@@ -1062,7 +1064,10 @@
   <code>h2</code> in a <code>.fixture-month</code>. Above the lists, a
   <code>.filters</code> row of the same chips filters the page by sport: the
   page's script toggles <code>aria-pressed</code>, hides the other rows, and
-  hides any month whose rows are all gone. Below 640px the date column folds
+  hides any month whose rows are all gone. Each row carries its last date as an
+  ISO value in a <code>data-end</code> attribute, and the same script dims a row
+  once that date has passed — the Hungarian Grand Prix row above — so the
+  calendar reads as what's left, not everything that was. Below 640px the date column folds
   away and each row stacks; the fixed column is wider than a phone screen.
 </p>
 
