@@ -24,8 +24,7 @@
   --color-muted:  #6272a4;   /* decorative only — fails AA for text */
 
   /* ── Colour · interactive ── */
-  --color-accent:   #8be9fd;  /* cyan — links, focus, primary */
-  --color-accent-2: #bd93f9;  /* purple — secondary interactive */
+  --color-accent: #8be9fd;  /* cyan — links, focus, primary */
 
   /* ── Colour · hues ── */
   --c-love: #ff5555;
@@ -91,7 +90,6 @@ body {
   margin: 0 auto;
   padding: var(--layout-pad-y) var(--layout-pad-x);
   color: var(--color-text);
-  background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   counter-reset: sec;
 }
@@ -136,7 +134,6 @@ img { max-width: 100%; }
    track floor + --space-4 between them + --layout-pad-x either side. A media
    query can't read a token, so the sum is written out; keep it in step with
    the floor in `.panes` below. */
-body.wide { max-width: var(--layout-width); }
 @media (min-width: 1224px) {
   body.wide { max-width: var(--layout-width-wide); }
 }
@@ -216,25 +213,19 @@ h3 {
   padding-left: var(--space-2);
   margin: var(--space-5) 0 var(--space-3);
 }
-h4 {
+h4, .label, th, .codeblock-title, .field label {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
   color: var(--color-subtle);
-  margin: var(--space-4) 0 var(--space-2);
 }
+h4 { margin: var(--space-4) 0 var(--space-2); }
 /* Looks like an h4 and deliberately isn't one. A caption on a repeated card —
    "Do", "Don't" — names the card rather than opening a section, and ten of them
    in the document outline is noise a screen reader has to walk past on its way
    to the real structure. Reach for this whenever the small-caps look is wanted
    but the outline shouldn't grow. */
-.label {
-  font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-subtle);
-  margin: 0 0 var(--space-2);
-}
+.label { margin: 0 0 var(--space-2); }
 
 /* ── Code ─────────────────────────────────────────────────────── */
 code {
@@ -264,10 +255,6 @@ pre code { background: none; border: none; padding: 0; font-size: 1em; }
   background: var(--color-overlay);
   border: var(--border-width) solid var(--color-border);
   border-bottom: none;
-  color: var(--color-subtle);
-  font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
   padding: var(--space-1) var(--space-3);
 }
 .codeblock pre { margin: 0; }
@@ -330,13 +317,7 @@ th, td {
   border-bottom: var(--border-width) solid var(--color-border);
   vertical-align: top;
 }
-th {
-  font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-subtle);
-  border-bottom: 2px solid var(--color-border-strong);
-}
+th { border-bottom: 2px solid var(--color-border-strong); }
 tbody tr:hover { background: var(--color-surface); }
 
 /* ── Statusline (header + footer chrome) ──────────────────────── */
@@ -344,10 +325,13 @@ tbody tr:hover { background: var(--color-surface); }
    `overflow: hidden`, which clipped the tail of the bar at every width — the
    page never overflowed, so nothing caught it, and the last links were simply
    unreachable. A statusline that loses navigation is worse than a tall one. */
-.statusline {
+.statusline,
+.statusline-row {
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
+}
+.statusline {
   font-size: var(--text-xs);
   line-height: 2.2;
   user-select: none;
@@ -365,9 +349,6 @@ tbody tr:hover { background: var(--color-surface); }
    on a narrow screen it wraps onto a line of its own and leaves an empty bar
    sitting under the content. */
 .statusline-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
   width: 100%;
   background: var(--color-surface);
 }
@@ -560,11 +541,14 @@ footer { margin-top: var(--space-6); }
   flex-direction: column;
   gap: var(--space-3);
 }
-.book { display: flex; gap: var(--space-2); align-items: flex-start; margin: 0; }
+.book,
 .book-link {
   display: flex;
   gap: var(--space-2);
   align-items: flex-start;
+}
+.book { margin: 0; }
+.book-link {
   color: inherit;
   border-bottom: none;
 }
@@ -791,13 +775,13 @@ footer { margin-top: var(--space-6); }
 .btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
 .btn-primary { background: var(--c-foam); border-color: var(--c-foam); color: var(--color-bg); }
 .btn-primary:hover { background: var(--c-rose); border-color: var(--c-rose); color: var(--color-bg); }
-.btn-danger { background: none; border-color: var(--c-love); color: var(--c-love); }
+.btn-danger { border-color: var(--c-love); color: var(--c-love); }
 .btn-danger:hover { background: var(--c-love); color: var(--color-bg); }
 .btn-ghost { border-color: transparent; color: var(--color-accent); }
 .btn-ghost::before { content: "[ "; color: var(--color-muted); }
 .btn-ghost::after { content: " ]"; color: var(--color-muted); }
 .btn-ghost:hover { color: var(--c-rose); }
-.btn:disabled { border-color: var(--color-border); color: var(--color-muted); background: none; cursor: not-allowed; }
+.btn:disabled { border-color: var(--color-border); color: var(--color-muted); cursor: not-allowed; }
 
 /* ── Tags & badges ────────────────────────────────────────────── */
 .tag {
@@ -892,12 +876,6 @@ kbd {
 
 /* ── Forms ────────────────────────────────────────────────────── */
 .field { display: flex; flex-direction: column; gap: var(--space-1); max-width: 320px; }
-.field label {
-  font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-subtle);
-}
 input[type="text"], input[type="email"], input[type="search"], textarea, select {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
