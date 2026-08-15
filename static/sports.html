@@ -5,27 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
 <title>Sports calendar 2026 — LetsBuild.cloud</title>
-<meta name="description" content="What's left of the 2026 season in six sports — cycling, triathlon, marathon majors, F1, rugby and Australian and New Zealand cricket — and who I follow in each." />
+<meta name="description" content="What's left of the 2026 season in six sports — cycling, triathlon, marathon majors, F1, rugby and Australian and New Zealand cricket." />
 <meta name="author" content="Simon Bracegirdle" />
 <link rel="canonical" href="https://letsbuild.cloud/sports.html" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="LetsBuild.cloud" />
 <meta property="og:title" content="Sports calendar 2026 — LetsBuild.cloud" />
-<meta property="og:description" content="What's left of the 2026 season in six sports — cycling, triathlon, marathon majors, F1, rugby and Australian and New Zealand cricket — and who I follow in each." />
+<meta property="og:description" content="What's left of the 2026 season in six sports — cycling, triathlon, marathon majors, F1, rugby and Australian and New Zealand cricket." />
 <meta property="og:url" content="https://letsbuild.cloud/sports.html" />
 <meta name="twitter:card" content="summary" />
 <link rel="stylesheet" href="/theme.css" />
 <link rel="alternate" type="application/rss+xml" title="LetsBuild.cloud" href="/feed.xml" />
-<style>
-/* The one page-specific rule here: where the season grid stops fitting, and so
-   where its scroll hint has to appear. Arithmetic, not measured: six months at
-   --season-month (4rem) behind a --season-label of 10rem make the table 34rem,
-   and the page adds --layout-pad-x either side, so the grid needs 37rem — 592px
-   — of viewport and scrolls below that. A media query can't read a token, so
-   the sum is written out; redo it if the table gains a month. theme.css styles
-   the hint and leaves the breakpoint to the page. */
-@media (max-width: 591px) { .scroll-hint { display: block; } }
-</style>
 </head>
 <body>
 
@@ -51,679 +41,270 @@
 
 <main>
 
-<p>
-  Six sports, and the people and teams I follow in them: Grand Tours, world
-  championships, every Grand Prix, the Bledisloe, and whatever Australia, New
-  Zealand, WA and the Scorchers are playing.
-</p>
-
-<div class="callout callout-note">
-  <span class="callout-label">Snapshot</span>
-  <p>
-    Compiled 25 July 2026 from official calendars. Sports calendars move, so
-    check the organiser's page before you plan around one. The names under each
-    event are the ones I follow, not a confirmed start list.
-  </p>
-</div>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<h2 id="glance"><span>Season at a glance</span></h2>
-
-<p>
-  October is the heaviest month: a Monument, two world championships, three
-  Grands Prix, both Bledisloe Tests, and the Sheffield Shield and WBBL both
-  starting.
-</p>
-
-<p class="label" id="season-cap">Events by sport and month</p>
-<div class="scroll-x" tabindex="0" role="region" aria-labelledby="season-cap">
-<table class="season" aria-labelledby="season-cap">
-  <thead>
-    <tr>
-      <th scope="col">Sport</th>
-      <th scope="col">Jul</th>
-      <th scope="col">Aug</th>
-      <th scope="col">Sep</th>
-      <th scope="col">Oct</th>
-      <th scope="col">Nov</th>
-      <th scope="col">Dec</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr class="hue-gold">
-      <th scope="row"><a href="#cycling">Road cycling</a></th>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
-      <td><span class="n none">0</span></td>
-      <td><span class="n none">0</span></td>
-    </tr>
-    <tr class="hue-foam">
-      <th scope="row"><a href="#triathlon">Triathlon</a></th>
-      <td><span class="n none">0</span></td>
-      <td><span class="n none">0</span></td>
-      <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="n none">0</span></td>
-      <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
-    </tr>
-    <tr class="hue-iris">
-      <th scope="row"><a href="#marathon">Marathon majors</a></th>
-      <td><span class="n none">0</span></td>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="n none">0</span></td>
-    </tr>
-    <tr class="hue-love">
-      <th scope="row"><a href="#f1">Formula 1</a></th>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="bar bar-3" aria-hidden="true"></span><span class="n">3</span></td>
-      <td><span class="bar bar-3" aria-hidden="true"></span><span class="n">3</span></td>
-      <td><span class="bar bar-3" aria-hidden="true"></span><span class="n">3</span></td>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-    </tr>
-    <tr class="hue-rose">
-      <th scope="row"><a href="#rugby">Rugby</a></th>
-      <td><span class="n none">0</span></td>
-      <td><span class="bar bar-3" aria-hidden="true"></span><span class="n">3</span></td>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
-      <td><span class="bar bar-3" aria-hidden="true"></span><span class="n">3</span></td>
-      <td><span class="n none">0</span></td>
-    </tr>
-    <tr class="hue-pine">
-      <th scope="row"><a href="#cricket">Cricket</a></th>
-      <td><span class="n none">0</span></td>
-      <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-      <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
-      <td><span class="bar bar-5" aria-hidden="true"></span><span class="n">5</span></td>
-      <td><span class="bar bar-3" aria-hidden="true"></span><span class="n">3</span></td>
-      <td><span class="bar bar-4" aria-hidden="true"></span><span class="n">4</span></td>
-    </tr>
-  </tbody>
-</table>
-</div>
-<p class="scroll-hint">Scroll the table sideways for the rest of the year.</p>
-
-<!-- ════════════════════════════════════════════════════════════ -->
 <h2 id="next"><span>What's next</span></h2>
 
 <ul class="fixture-list">
+  <li class="fixture hue-love">
+    <span class="fixture-when">24 – 26 Jul</span>
+    <span class="fixture-what">R11 · <a href="https://www.formula1.com/en/racing/2026">Hungarian Grand Prix</a> <span class="tag">f1</span></span>
+    <p class="fixture-note"><span class="fixture-where">Hungaroring, Hungary</span>Seventy laps on Sunday, then four weeks off.</p>
+  </li>
   <li class="fixture hue-gold">
     <span class="fixture-when">26 Jul</span>
-    <span class="fixture-what"><a href="#cycling">Tour de France, stage 21</a> <span class="tag">cycling</span></span>
+    <span class="fixture-what"><a href="https://www.letour.fr/en/">Tour de France, stage 21</a> <span class="tag">cycling</span></span>
     <p class="fixture-note"><span class="fixture-where">Paris</span>Over Montmartre and onto the Champs-Élysées.</p>
   </li>
-  <li class="fixture hue-love">
-    <span class="fixture-when">26 Jul</span>
-    <span class="fixture-what"><a href="#f1">Hungarian Grand Prix</a> <span class="tag">f1</span></span>
-    <p class="fixture-note"><span class="fixture-where">Hungaroring</span>The last race before the factories close for August.</p>
+  <li class="fixture hue-gold">
+    <span class="fixture-when">1 – 9 Aug</span>
+    <span class="fixture-what"><a href="https://www.letourfemmes.fr/en/">Tour de France Femmes</a> <span class="tag">cycling</span></span>
+    <p class="fixture-note"><span class="fixture-where">Lausanne to Nice</span>Nine stages, a Swiss Grand Départ, and a finish on the Mediterranean.</p>
+  </li>
+  <li class="fixture hue-rose">
+    <span class="fixture-when">8 – 15 Aug</span>
+    <span class="fixture-what"><a href="https://wallabies.rugby/">v Japan — 2 Tests</a> <span class="tag">rugby</span></span>
+    <p class="fixture-note"><span class="fixture-where">Japan, then Townsville</span>Les Kiss's first Tests in charge.</p>
+  </li>
+  <li class="fixture hue-pine">
+    <span class="fixture-when">13 – 26 Aug</span>
+    <span class="fixture-what"><a href="https://www.cricket.com.au/">v Bangladesh — 2 Tests</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">Darwin and Mackay</span>Bangladesh's first tour here in 23 years.</p>
   </li>
   <li class="fixture hue-love">
     <span class="fixture-when">21 – 23 Aug</span>
-    <span class="fixture-what"><a href="#f1">Dutch Grand Prix</a> <span class="tag">f1</span></span>
-    <p class="fixture-note"><span class="fixture-where">Zandvoort</span>Back from the break, and Zandvoort's first sprint.</p>
+    <span class="fixture-what">R12 · <a href="https://www.formula1.com/en/racing/2026">Dutch Grand Prix</a> <span class="tag">f1</span></span>
+    <p class="fixture-note"><span class="fixture-where">Zandvoort, Netherlands</span>Back from the break, and Zandvoort's first sprint.</p>
   </li>
   <li class="fixture hue-gold">
     <span class="fixture-when">22 Aug – 13 Sep</span>
-    <span class="fixture-what"><a href="#cycling">Vuelta a España</a> <span class="tag">cycling</span></span>
+    <span class="fixture-what"><a href="https://www.lavuelta.es/en/overall-route">Vuelta a España</a> <span class="tag">cycling</span></span>
     <p class="fixture-note"><span class="fixture-where">Monaco to Granada</span>Three weeks, starting with a time trial around the harbour.</p>
+  </li>
+  <li class="fixture hue-rose">
+    <span class="fixture-when">22 Aug – Sep</span>
+    <span class="fixture-what"><a href="https://www.allblacks.com/">Tour of South Africa — 4 Tests</a> <span class="tag">rugby</span></span>
+    <p class="fixture-note"><span class="fixture-where">Johannesburg, Cape Town, and a neutral venue</span>The first full tour of South Africa in thirty years, opening at Ellis Park.</p>
+  </li>
+  <li class="fixture hue-rose">
+    <span class="fixture-when">29 Aug – 5 Sep</span>
+    <span class="fixture-what"><a href="https://wallabies.rugby/">v Argentina — 2 Tests</a> <span class="tag">rugby</span></span>
+    <p class="fixture-note"><span class="fixture-where">Argentina</span>Both away, venues still to be confirmed.</p>
   </li>
   <li class="fixture hue-iris">
     <span class="fixture-when">30 Aug</span>
-    <span class="fixture-what"><a href="#marathon">TCS Sydney Marathon</a> <span class="tag">marathon</span></span>
-    <p class="fixture-note"><span class="fixture-where">Sydney</span>The newest of the seven majors, and the only one in Australia.</p>
+    <span class="fixture-what"><a href="https://www.tcssydneymarathon.com/">TCS Sydney Marathon</a> <span class="tag">marathon</span></span>
+    <p class="fixture-note"><span class="fixture-where">Sydney, Australia</span>The newest of the seven majors, and the only one in Australia.</p>
+  </li>
+  <li class="fixture hue-love">
+    <span class="fixture-when">4 – 6 Sep</span>
+    <span class="fixture-what">R13 · <a href="https://www.formula1.com/en/racing/2026">Italian Grand Prix</a> <span class="tag">f1</span></span>
+    <p class="fixture-note"><span class="fixture-where">Monza, Italy</span>The fastest circuit on the calendar, and the loudest Ferrari crowd.</p>
+  </li>
+  <li class="fixture hue-love">
+    <span class="fixture-when">11 – 13 Sep</span>
+    <span class="fixture-what">R14 · <a href="https://www.madring.com/">Spanish Grand Prix</a> <span class="tag">f1</span></span>
+    <p class="fixture-note"><span class="fixture-where">MADRING, Madrid</span>New this year: 5.4km and 22 corners around IFEMA.</p>
+  </li>
+  <li class="fixture hue-foam">
+    <span class="fixture-when">12 – 13 Sep</span>
+    <span class="fixture-what"><a href="https://www.ironman.com/im703-world-championship">IRONMAN 70.3 World Championship</a> <span class="tag">triathlon</span></span>
+    <p class="fixture-note"><span class="fixture-where">Nice, France</span>Two days, one field each; Nice hosts through 2028.</p>
+  </li>
+  <li class="fixture hue-pine">
+    <span class="fixture-when">15 – 30 Sep</span>
+    <span class="fixture-what"><a href="https://www.cricket.com.au/">Zimbabwe and South Africa — 6 ODIs</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">Harare, then Durban, Johannesburg and Potchefstroom</span>Three in Harare, then straight on to South Africa.</p>
+  </li>
+  <li class="fixture hue-pine">
+    <span class="fixture-when">18 Sep</span>
+    <span class="fixture-what"><a href="https://www.wacricket.com.au/">One-Day Cup opens</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">WACA Ground</span>WA v South Australia under lights, and Beau Casson's first match as coach.</p>
   </li>
   <li class="fixture hue-gold">
     <span class="fixture-when">20 – 27 Sep</span>
-    <span class="fixture-what"><a href="#cycling">UCI Road World Championships</a> <span class="tag">cycling</span></span>
-    <p class="fixture-note"><span class="fixture-where">Montréal</span>Rainbow jerseys, in Canada.</p>
+    <span class="fixture-what"><a href="https://www.montreal2026.org/en/">UCI Road World Championships</a> <span class="tag">cycling</span></span>
+    <p class="fixture-note"><span class="fixture-where">Montréal, Canada</span>A week of rainbow jerseys — time trials, then the road races.</p>
+  </li>
+  <li class="fixture hue-foam">
+    <span class="fixture-when">23 – 27 Sep</span>
+    <span class="fixture-what"><a href="https://events.triathlon.org/2026-wtcf-pontevedra">World Triathlon Championship Finals</a> <span class="tag">triathlon</span></span>
+    <p class="fixture-note"><span class="fixture-where">Pontevedra, Spain</span>Elite titles decided on the Sunday, with the age-group crowns across the week.</p>
+  </li>
+  <li class="fixture hue-love">
+    <span class="fixture-when">24 – 26 Sep</span>
+    <span class="fixture-what">R15 · <a href="https://www.formula1.com/en/racing/2026">Azerbaijan Grand Prix</a> <span class="tag">f1</span></span>
+    <p class="fixture-note"><span class="fixture-where">Baku, Azerbaijan</span>A Thursday-to-Saturday weekend.</p>
+  </li>
+  <li class="fixture hue-iris">
+    <span class="fixture-when">27 Sep</span>
+    <span class="fixture-what"><a href="https://www.bmw-berlin-marathon.com/en/">BMW Berlin Marathon</a> <span class="tag">marathon</span></span>
+    <p class="fixture-note"><span class="fixture-where">Berlin, Germany</span>The world-record course, entered by ballot.</p>
+  </li>
+  <li class="fixture hue-rose">
+    <span class="fixture-when">27 Sep</span>
+    <span class="fixture-what"><a href="https://wallabies.rugby/">v South Africa</a> <span class="tag">rugby</span></span>
+    <p class="fixture-note"><span class="fixture-where">Australia</span>A one-off at home against the Springboks.</p>
+  </li>
+  <li class="fixture hue-pine">
+    <span class="fixture-when">8 – 11 Oct</span>
+    <span class="fixture-what"><a href="https://www.wacricket.com.au/">Sheffield Shield opens</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">WACA Ground</span>WA v Queensland, with Aaron Hardie captaining.</p>
+  </li>
+  <li class="fixture hue-love">
+    <span class="fixture-when">9 – 11 Oct</span>
+    <span class="fixture-what">R16 · <a href="https://www.formula1.com/en/racing/2026">Singapore Grand Prix</a> <span class="tag">f1</span></span>
+    <p class="fixture-note"><span class="fixture-where">Marina Bay, Singapore</span>The other new sprint, under lights.</p>
+  </li>
+  <li class="fixture hue-pine">
+    <span class="fixture-when">9 – 22 Oct</span>
+    <span class="fixture-what"><a href="https://www.cricket.com.au/">Women v Bangladesh — 3 ODIs, 3 T20Is</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">Brisbane and North Sydney</span>The ODIs at the Gabba, the T20Is at North Sydney Oval.</p>
+  </li>
+  <li class="fixture hue-pine">
+    <span class="fixture-when">9 – 31 Oct</span>
+    <span class="fixture-what"><a href="https://www.cricket.co.za/">v South Africa — 3 Tests</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">Durban, Gqeberha, Cape Town</span>The first Test tour of South Africa since 2018.</p>
+  </li>
+  <li class="fixture hue-gold">
+    <span class="fixture-when">10 Oct</span>
+    <span class="fixture-what"><a href="https://www.ilombardia.it/en/">Il Lombardia</a> <span class="tag">cycling</span></span>
+    <p class="fixture-note"><span class="fixture-where">Lombardy, Italy</span>The race of the falling leaves, the fifth Monument, and the end of the road season.</p>
   </li>
   <li class="fixture hue-foam">
     <span class="fixture-when">10 Oct</span>
-    <span class="fixture-what"><a href="#triathlon">IRONMAN World Championship</a> <span class="tag">triathlon</span></span>
-    <p class="fixture-note"><span class="fixture-where">Kona</span>Both fields on one day again, ending the Kona–Nice split.</p>
-  </li>
-  <li class="fixture hue-gold">
-    <span class="fixture-when">10 – 11 Oct</span>
-    <span class="fixture-what"><a href="#cycling">UCI Gravel World Championships</a> <span class="tag">cycling</span></span>
-    <p class="fixture-note"><span class="fixture-where">Nannup, Western Australia</span>A world championship three hours from Perth.</p>
+    <span class="fixture-what"><a href="https://www.ironman.com/races/im-world-championship">IRONMAN World Championship</a> <span class="tag">triathlon</span></span>
+    <p class="fixture-note"><span class="fixture-where">Kailua-Kona, Hawai'i</span>Both fields on one day again, ending the Kona–Nice split.</p>
   </li>
   <li class="fixture hue-rose">
     <span class="fixture-when">10 Oct</span>
-    <span class="fixture-what"><a href="#rugby">Bledisloe Cup, first Test</a> <span class="tag">rugby</span></span>
-    <p class="fixture-note"><span class="fixture-where">Eden Park, Auckland</span>The first of two for the Cup.</p>
+    <span class="fixture-what"><a href="https://www.allblacks.com/">Bledisloe Cup, first Test</a> <span class="tag">rugby</span></span>
+    <p class="fixture-note"><span class="fixture-where">Eden Park, Auckland</span>Two Tests for the Cup this year rather than three.</p>
   </li>
-  <li class="fixture hue-pine">
-    <span class="fixture-when">9 – 13 Dec</span>
-    <span class="fixture-what"><a href="#cricket">First Test v New Zealand</a> <span class="tag">cricket</span></span>
-    <p class="fixture-note"><span class="fixture-where">Perth</span>A Wednesday start at Optus Stadium, opening a four-Test series.</p>
-  </li>
-</ul>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<h2 id="cycling"><span>Road cycling</span></h2>
-
-<p>
-  Grand Tours, the last Monument, and the world championships. The Gravel
-  Worlds are in Nannup in October.
-</p>
-
-<p class="label" id="watch-cycling">Watching</p>
-<ul class="tag-list" aria-labelledby="watch-cycling">
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Jai Hindley</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Ben O'Connor</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Sarah Gigante</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Jay Vine</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Luke Plapp</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Michael Matthews</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Amanda Spratt</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Ruby Roseman-Gannon</span></li>
-  <li><span class="tag who hue-foam"><span class="nat">NZL</span> Ally Wollaston</span></li>
-  <li><span class="tag who hue-foam"><span class="nat">NZL</span> Niamh Fisher-Black</span></li>
-</ul>
-
-<ul class="fixture-list hue-gold">
-  <li class="fixture">
-    <span class="fixture-when">4 – 26 Jul</span>
-    <span class="fixture-what"><a href="https://www.letour.fr/en/">Tour de France</a></span>
-    <p class="fixture-note"><span class="fixture-where">Barcelona to Paris</span>Three weeks, ending over Montmartre and onto the Champs-Élysées.</p>
-    <ul class="tag-list fixture-who" aria-label="Watching">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Hindley</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> O'Connor</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Vine</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Matthews</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">1 – 9 Aug</span>
-    <span class="fixture-what"><a href="https://www.letourfemmes.fr/en/">Tour de France Femmes</a></span>
-    <p class="fixture-note"><span class="fixture-where">Lausanne to Nice</span>Nine stages, a Swiss Grand Départ, and a finish on the Mediterranean.</p>
-    <ul class="tag-list fixture-who" aria-label="Watching">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Gigante</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Spratt</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Roseman-Gannon</span></li>
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> Wollaston</span></li>
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> Fisher-Black</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">22 Aug – 13 Sep</span>
-    <span class="fixture-what"><a href="https://www.lavuelta.es/en/overall-route">Vuelta a España</a></span>
-    <p class="fixture-note"><span class="fixture-where">Monaco to Granada</span>The last Grand Tour of the year, and the first Vuelta to start in Monaco. Three weeks and 3,275km, through France and Andorra before it reaches Spain on stage five.</p>
-    <ul class="tag-list fixture-who" aria-label="Watching">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Hindley</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> O'Connor</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Vine</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Plapp</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">20 – 27 Sep</span>
-    <span class="fixture-what"><a href="https://www.montreal2026.org/en/">UCI Road World Championships</a></span>
-    <p class="fixture-note"><span class="fixture-where">Montréal, Canada</span>A week of rainbow jerseys — time trials, then the road races on the closing weekend.</p>
-    <ul class="tag-list fixture-who" aria-label="Watching">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Plapp</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Matthews</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Roseman-Gannon</span></li>
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> Wollaston</span></li>
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> Fisher-Black</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">10 Oct</span>
-    <span class="fixture-what"><a href="https://www.ilombardia.it/en/">Il Lombardia</a></span>
-    <p class="fixture-note"><span class="fixture-where">Lombardy, Italy</span>The race of the falling leaves, the fifth Monument, and the end of the road season.</p>
-    <ul class="tag-list fixture-who" aria-label="Watching">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Hindley</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> O'Connor</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
+  <li class="fixture hue-gold">
     <span class="fixture-when">10 – 11 Oct</span>
-    <span class="fixture-what"><a href="https://gravelchampswesternaustralia.com/">UCI Gravel World Championships</a></span>
-    <p class="fixture-note"><span class="fixture-where">Nannup, Western Australia</span>The first gravel Worlds outside Europe, 40 minutes from Busselton, on courses that are at least 80% gravel. A nine-day festival of cycling in the South West leads into it.</p>
+    <span class="fixture-what"><a href="https://gravelchampswesternaustralia.com/">UCI Gravel World Championships</a> <span class="tag">cycling</span></span>
+    <p class="fixture-note"><span class="fixture-where">Nannup, Western Australia</span>The first gravel Worlds outside Europe, three hours from Perth.</p>
   </li>
-</ul>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<h2 id="triathlon"><span>Triathlon</span></h2>
-
-<p>
-  World championships, plus Busselton in December. World Triathlon settles its
-  short-course championships at Pontevedra and IRONMAN puts both pro fields
-  back on Kona. The T100 tour has run women-only and men-only rounds all year;
-  they meet again in Doha in December.
-</p>
-
-<p class="label" id="watch-triathlon">Watching</p>
-<ul class="tag-list" aria-labelledby="watch-triathlon">
-  <li><span class="tag who hue-iris"><span class="nat">NOR</span> Kristian Blummenfelt</span></li>
-  <li><span class="tag who hue-iris"><span class="nat">NOR</span> Gustav Iden</span></li>
-  <li><span class="tag who hue-rose"><span class="nat">FRA</span> Sam Laidlow</span></li>
-  <li><span class="tag who hue-love"><span class="nat">CAN</span> Lionel Sanders</span></li>
-  <li><span class="tag who hue-foam"><span class="nat">NZL</span> Hayden Wilde</span></li>
-  <li><span class="tag who hue-foam"><span class="nat">NZL</span> Kyle Smith</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Matt Hauser</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Jake Birtwhistle</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Luke Willian</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Natalie Van Coevorden</span></li>
-</ul>
-
-<ul class="fixture-list hue-foam">
-  <li class="fixture">
-    <span class="fixture-when">12 – 13 Sep</span>
-    <span class="fixture-what"><a href="https://www.ironman.com/im703-world-championship">IRONMAN 70.3 World Championship</a></span>
-    <p class="fixture-note"><span class="fixture-where">Nice, France</span>Two days, one field each. Nice takes over the 70.3 title race through 2028.</p>
-    <ul class="tag-list fixture-who" aria-label="Watching">
-      <li><span class="tag who hue-rose"><span class="nat">FRA</span> Laidlow</span></li>
-      <li><span class="tag who hue-love"><span class="nat">CAN</span> Sanders</span></li>
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> Wilde</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">23 – 27 Sep</span>
-    <span class="fixture-what"><a href="https://events.triathlon.org/2026-wtcf-pontevedra">World Triathlon Championship Finals</a></span>
-    <p class="fixture-note"><span class="fixture-where">Pontevedra, Spain</span>Elite titles decided on the Sunday, with the U23, junior, para and age-group crowns across the week.</p>
-    <ul class="tag-list fixture-who" aria-label="Watching">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Hauser</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Birtwhistle</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Willian</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Van Coevorden</span></li>
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> Wilde</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">10 Oct</span>
-    <span class="fixture-what"><a href="https://www.ironman.com/races/im-world-championship">IRONMAN World Championship</a></span>
-    <p class="fixture-note"><span class="fixture-where">Kailua-Kona, Hawai'i</span>Men and women on the same day again, ending the Kona–Nice split.</p>
-    <ul class="tag-list fixture-who" aria-label="Watching">
-      <li><span class="tag who hue-iris"><span class="nat">NOR</span> Blummenfelt</span></li>
-      <li><span class="tag who hue-iris"><span class="nat">NOR</span> Iden</span></li>
-      <li><span class="tag who hue-rose"><span class="nat">FRA</span> Laidlow</span></li>
-      <li><span class="tag who hue-love"><span class="nat">CAN</span> Sanders</span></li>
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> Smith</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">6 Dec</span>
-    <span class="fixture-what"><a href="https://www.ironman.com/im703-western-australia">IRONMAN Western Australia</a></span>
-    <p class="fixture-note"><span class="fixture-where">Busselton, WA</span>Full and half distance on the same day, on some of the flattest courses IRONMAN runs, starting off the jetty.</p>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">11 – 12 Dec</span>
-    <span class="fixture-what"><a href="https://t100triathlon.com/">T100 World Championship Final</a></span>
-    <p class="fixture-note"><span class="fixture-where">Doha, Qatar</span>Both fields together, and the tour titles settled on best-three results plus this one.</p>
-    <ul class="tag-list fixture-who" aria-label="Watching">
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> Wilde</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Birtwhistle</span></li>
-      <li><span class="tag who hue-iris"><span class="nat">NOR</span> Blummenfelt</span></li>
-    </ul>
-  </li>
-</ul>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<h2 id="marathon"><span>Marathon majors</span></h2>
-
-<p>
-  Seven majors now that Sydney has joined, and the season runs through to New
-  York in November. Cape Town stays provisional until it passes a second
-  evaluation, so there's no eighth this year.
-</p>
-
-<ul class="fixture-list hue-iris">
-  <li class="fixture">
-    <span class="fixture-when">30 Aug</span>
-    <span class="fixture-what"><a href="https://www.tcssydneymarathon.com/">TCS Sydney Marathon</a></span>
-    <p class="fixture-note"><span class="fixture-where">Sydney, Australia</span>The only major in Australia, and already sold out: over the Harbour Bridge to the Opera House, with a 5km on the Saturday.</p>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">27 Sep</span>
-    <span class="fixture-what"><a href="https://www.bmw-berlin-marathon.com/en/">BMW Berlin Marathon</a></span>
-    <p class="fixture-note"><span class="fixture-where">Berlin, Germany</span>The world-record course, entered by ballot.</p>
-  </li>
-  <li class="fixture">
+  <li class="fixture hue-iris">
     <span class="fixture-when">11 Oct</span>
-    <span class="fixture-what"><a href="https://www.chicagomarathon.com/">Bank of America Chicago Marathon</a></span>
+    <span class="fixture-what"><a href="https://www.chicagomarathon.com/">Bank of America Chicago Marathon</a> <span class="tag">marathon</span></span>
     <p class="fixture-note"><span class="fixture-where">Chicago, USA</span>Locked to the second Sunday in October.</p>
   </li>
-  <li class="fixture">
-    <span class="fixture-when">1 Nov</span>
-    <span class="fixture-what"><a href="https://www.nyrr.org/tcsnycmarathon">TCS New York City Marathon</a></span>
-    <p class="fixture-note"><span class="fixture-where">New York City, USA</span>The biggest marathon in the world, five boroughs on a Sunday in November.</p>
+  <li class="fixture hue-rose">
+    <span class="fixture-when">17 Oct</span>
+    <span class="fixture-what"><a href="https://wallabies.rugby/">Bledisloe Cup, second Test</a> <span class="tag">rugby</span></span>
+    <p class="fixture-note"><span class="fixture-where">Accor Stadium, Sydney</span>The return leg a week later, and the series settled in a fortnight.</p>
   </li>
-</ul>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<h2 id="f1"><span>Formula 1</span></h2>
-
-<p>
-  The rules reset this year — new power units, active aero, fully sustainable
-  fuel, Audi and Cadillac on the grid. The back half of the calendar starts
-  with Hungary.
-</p>
-
-<p class="label" id="watch-f1">Watching</p>
-<ul class="tag-list" aria-labelledby="watch-f1">
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Oscar Piastri, McLaren</span></li>
-  <li><span class="tag who hue-foam"><span class="nat">NZL</span> Liam Lawson, Racing Bulls</span></li>
-</ul>
-
-<ul class="fixture-list hue-love">
-  <li class="fixture">
-    <span class="fixture-when">24 – 26 Jul</span>
-    <span class="fixture-what">R11 · <a href="https://www.formula1.com/en/racing/2026">Hungarian Grand Prix</a></span>
-    <p class="fixture-note"><span class="fixture-where">Hungaroring, Hungary</span>Seventy laps on Sunday, then four weeks off.</p>
+  <li class="fixture hue-pine">
+    <span class="fixture-when">22 Oct – 15 Nov</span>
+    <span class="fixture-what"><a href="https://www.nzc.nz/">v India — 5 T20Is, 5 ODIs</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">Eight venues, top to bottom</span>The white-ball half of a twelve-match tour.</p>
   </li>
-  <li class="fixture">
-    <span class="fixture-when">21 – 23 Aug</span>
-    <span class="fixture-what">R12 · <a href="https://www.formula1.com/en/racing/2026">Dutch Grand Prix</a></span>
-    <p class="fixture-note"><span class="fixture-where">Zandvoort, Netherlands</span>Zandvoort gets a sprint.</p>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">4 – 6 Sep</span>
-    <span class="fixture-what">R13 · <a href="https://www.formula1.com/en/racing/2026">Italian Grand Prix</a></span>
-    <p class="fixture-note"><span class="fixture-where">Monza, Italy</span>The fastest circuit on the calendar, and the loudest Ferrari crowd.</p>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">11 – 13 Sep</span>
-    <span class="fixture-what">R14 · <a href="https://www.madring.com/">Spanish Grand Prix</a></span>
-    <p class="fixture-note"><span class="fixture-where">MADRING, Madrid</span>New this year: 5.4km and 22 corners around IFEMA, signed through 2035. Spain now gets two races.</p>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">24 – 26 Sep</span>
-    <span class="fixture-what">R15 · <a href="https://www.formula1.com/en/racing/2026">Azerbaijan Grand Prix</a></span>
-    <p class="fixture-note"><span class="fixture-where">Baku, Azerbaijan</span>A Thursday-to-Saturday weekend: the race moves off Sunday to clear Azerbaijan's Remembrance Day.</p>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">9 – 11 Oct</span>
-    <span class="fixture-what">R16 · <a href="https://www.formula1.com/en/racing/2026">Singapore Grand Prix</a></span>
-    <p class="fixture-note"><span class="fixture-where">Marina Bay, Singapore</span>The other new sprint, under lights.</p>
-  </li>
-  <li class="fixture">
+  <li class="fixture hue-love">
     <span class="fixture-when">23 – 25 Oct</span>
-    <span class="fixture-what">R17 · <a href="https://www.formula1.com/en/racing/2026">United States Grand Prix</a></span>
+    <span class="fixture-what">R17 · <a href="https://www.formula1.com/en/racing/2026">United States Grand Prix</a> <span class="tag">f1</span></span>
     <p class="fixture-note"><span class="fixture-where">Circuit of the Americas, Austin</span>First of the three North American rounds.</p>
   </li>
-  <li class="fixture">
+  <li class="fixture hue-love">
     <span class="fixture-when">30 Oct – 1 Nov</span>
-    <span class="fixture-what">R18 · <a href="https://www.formula1.com/en/racing/2026">Mexico City Grand Prix</a></span>
+    <span class="fixture-what">R18 · <a href="https://www.formula1.com/en/racing/2026">Mexico City Grand Prix</a> <span class="tag">f1</span></span>
     <p class="fixture-note"><span class="fixture-where">Autódromo Hermanos Rodríguez, Mexico</span>Thin air, long straight, and the stadium section.</p>
   </li>
-  <li class="fixture">
+  <li class="fixture hue-pine">
+    <span class="fixture-when">31 Oct – 5 Dec</span>
+    <span class="fixture-what"><a href="https://www.perthscorchers.com.au/">Scorchers in WBBL|12</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">WACA Ground and away</span>Ten games in five weeks, opening at home on Halloween.</p>
+  </li>
+  <li class="fixture hue-iris">
+    <span class="fixture-when">1 Nov</span>
+    <span class="fixture-what"><a href="https://www.nyrr.org/tcsnycmarathon">TCS New York City Marathon</a> <span class="tag">marathon</span></span>
+    <p class="fixture-note"><span class="fixture-where">New York City, USA</span>The biggest marathon in the world, five boroughs.</p>
+  </li>
+  <li class="fixture hue-love">
     <span class="fixture-when">6 – 8 Nov</span>
-    <span class="fixture-what">R19 · <a href="https://www.formula1.com/en/racing/2026">São Paulo Grand Prix</a></span>
+    <span class="fixture-what">R19 · <a href="https://www.formula1.com/en/racing/2026">São Paulo Grand Prix</a> <span class="tag">f1</span></span>
     <p class="fixture-note"><span class="fixture-where">Interlagos, Brazil</span>A normal weekend for once — Interlagos loses its sprint this year.</p>
   </li>
-  <li class="fixture">
+  <li class="fixture hue-rose">
+    <span class="fixture-when">8 – 21 Nov</span>
+    <span class="fixture-what"><a href="https://wallabies.rugby/">Northern series — England, Scotland, Wales</a> <span class="tag">rugby</span></span>
+    <p class="fixture-note"><span class="fixture-where">Twickenham, Edinburgh, Cardiff</span>The Wallabies' three Nations Championship Tests.</p>
+  </li>
+  <li class="fixture hue-rose">
+    <span class="fixture-when">8 – 22 Nov</span>
+    <span class="fixture-what"><a href="https://www.allblacks.com/">Northern series — Scotland, Wales, England</a> <span class="tag">rugby</span></span>
+    <p class="fixture-note"><span class="fixture-where">Edinburgh, Cardiff, Twickenham</span>The All Blacks' three Nations Championship Tests.</p>
+  </li>
+  <li class="fixture hue-pine">
+    <span class="fixture-when">13 Nov – 2 Dec</span>
+    <span class="fixture-what"><a href="https://www.cricket.com.au/">v England — 3 ODIs, 5 T20Is</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">Perth, then the east coast</span>Eight white-ball matches, opening in Perth.</p>
+  </li>
+  <li class="fixture hue-love">
     <span class="fixture-when">19 – 21 Nov</span>
-    <span class="fixture-what">R20 · <a href="https://www.formula1.com/en/racing/2026">Las Vegas Grand Prix</a></span>
+    <span class="fixture-what">R20 · <a href="https://www.formula1.com/en/racing/2026">Las Vegas Grand Prix</a> <span class="tag">f1</span></span>
     <p class="fixture-note"><span class="fixture-where">Las Vegas Strip Circuit, USA</span>Saturday night down the Strip.</p>
   </li>
-  <li class="fixture">
+  <li class="fixture hue-pine">
+    <span class="fixture-when">19 Nov – 1 Dec</span>
+    <span class="fixture-what"><a href="https://www.nzc.nz/">v India — 2 Tests</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">Wellington and Christchurch</span>The Basin Reserve, then Hagley Oval.</p>
+  </li>
+  <li class="fixture hue-pine">
+    <span class="fixture-when">23 – 26 Nov</span>
+    <span class="fixture-what"><a href="https://www.wacricket.com.au/">WA v Tasmania</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">Optus Stadium</span>The first Shield match at Optus since 2018.</p>
+  </li>
+  <li class="fixture hue-love">
     <span class="fixture-when">27 – 29 Nov</span>
-    <span class="fixture-what">R21 · <a href="https://www.formula1.com/en/racing/2026">Qatar Grand Prix</a></span>
+    <span class="fixture-what">R21 · <a href="https://www.formula1.com/en/racing/2026">Qatar Grand Prix</a> <span class="tag">f1</span></span>
     <p class="fixture-note"><span class="fixture-where">Lusail, Qatar</span>Penultimate round, and the last chance to settle the title early.</p>
   </li>
-  <li class="fixture">
+  <li class="fixture hue-rose">
+    <span class="fixture-when">27 – 29 Nov</span>
+    <span class="fixture-what"><a href="https://www.allblacks.com/">Nations Championship finals</a> <span class="tag">rugby</span></span>
+    <p class="fixture-note"><span class="fixture-where">Allianz Stadium, Twickenham</span>All twelve teams, six play-offs, and the first Nations Championship title.</p>
+  </li>
+  <li class="fixture hue-love">
     <span class="fixture-when">4 – 6 Dec</span>
-    <span class="fixture-what">R22 · <a href="https://www.formula1.com/en/racing/2026">Abu Dhabi Grand Prix</a></span>
+    <span class="fixture-what">R22 · <a href="https://www.formula1.com/en/racing/2026">Abu Dhabi Grand Prix</a> <span class="tag">f1</span></span>
     <p class="fixture-note"><span class="fixture-where">Yas Marina, UAE</span>The finale.</p>
   </li>
-</ul>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<h2 id="rugby"><span>Rugby</span></h2>
-
-<p>
-  The All Blacks and the Wallabies, and nobody else. The Rugby Championship
-  doesn't run this year; it makes way for New Zealand's tour of South Africa.
-  That leaves the Bledisloe Cup on its own in October, and the new Nations
-  Championship takes both teams north in November.
-</p>
-
-<p class="label" id="watch-rugby">Watching</p>
-<ul class="tag-list" aria-labelledby="watch-rugby">
-  <li><span class="tag who hue-foam"><span class="nat">NZL</span> All Blacks</span></li>
-  <li><span class="tag who hue-gold"><span class="nat">AUS</span> Wallabies</span></li>
-</ul>
-
-<ul class="fixture-list hue-rose">
-  <li class="fixture">
-    <span class="fixture-when">8 – 15 Aug</span>
-    <span class="fixture-what"><a href="https://wallabies.rugby/">v Japan — 2 Tests</a></span>
-    <p class="fixture-note"><span class="fixture-where">Japan, then Townsville</span>Les Kiss's first Tests in charge.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Wallabies</span></li>
-    </ul>
+  <li class="fixture hue-foam">
+    <span class="fixture-when">6 Dec</span>
+    <span class="fixture-what"><a href="https://www.ironman.com/im703-western-australia">IRONMAN Western Australia</a> <span class="tag">triathlon</span></span>
+    <p class="fixture-note"><span class="fixture-where">Busselton, WA</span>Full and half distance on the same day, starting off the jetty.</p>
   </li>
-  <li class="fixture">
-    <span class="fixture-when">22 Aug – Sep</span>
-    <span class="fixture-what"><a href="https://www.allblacks.com/">Tour of South Africa — 4 Tests</a></span>
-    <p class="fixture-note"><span class="fixture-where">Johannesburg, Cape Town, and a neutral venue</span>The first full tour of South Africa in thirty years: eight matches, four of them Tests, opening at Ellis Park. The fourth Test's venue is still to be announced.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> All Blacks</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">29 Aug – 5 Sep</span>
-    <span class="fixture-what"><a href="https://wallabies.rugby/">v Argentina — 2 Tests</a></span>
-    <p class="fixture-note"><span class="fixture-where">Argentina</span>Both away, venues still to be confirmed.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Wallabies</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">27 Sep</span>
-    <span class="fixture-what"><a href="https://wallabies.rugby/">v South Africa</a></span>
-    <p class="fixture-note"><span class="fixture-where">Australia</span>A one-off at home against the Springboks, venue to be confirmed.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Wallabies</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">10 Oct</span>
-    <span class="fixture-what"><a href="https://www.allblacks.com/">Bledisloe Cup, first Test</a></span>
-    <p class="fixture-note"><span class="fixture-where">Eden Park, Auckland</span>Two Tests for the Cup this year rather than three, and the first is at the ground Australia haven't won at since 1986.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> All Blacks</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Wallabies</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">17 Oct</span>
-    <span class="fixture-what"><a href="https://wallabies.rugby/">Bledisloe Cup, second Test</a></span>
-    <p class="fixture-note"><span class="fixture-where">Accor Stadium, Sydney</span>The return leg a week later, and the whole series settled in a fortnight.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Wallabies</span></li>
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> All Blacks</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">8 – 22 Nov</span>
-    <span class="fixture-what"><a href="https://www.allblacks.com/">Northern series — Scotland, Wales, England</a></span>
-    <p class="fixture-note"><span class="fixture-where">Edinburgh, Cardiff, Twickenham</span>Three Sundays, three away Tests, all of them Nations Championship points.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> All Blacks</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">8 – 21 Nov</span>
-    <span class="fixture-what"><a href="https://wallabies.rugby/">Northern series — England, Scotland, Wales</a></span>
-    <p class="fixture-note"><span class="fixture-where">Twickenham, Edinburgh, Cardiff</span>The same three grounds in the other order.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Wallabies</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">27 – 29 Nov</span>
-    <span class="fixture-what"><a href="https://www.allblacks.com/">Nations Championship finals</a></span>
-    <p class="fixture-note"><span class="fixture-where">Allianz Stadium, Twickenham</span>All twelve teams, six play-offs, one weekend, and the first Nations Championship title.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag who hue-foam"><span class="nat">NZL</span> All Blacks</span></li>
-      <li><span class="tag who hue-gold"><span class="nat">AUS</span> Wallabies</span></li>
-    </ul>
-  </li>
-</ul>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<h2 id="cricket"><span>Cricket</span></h2>
-
-<p>
-  Australia and New Zealand, plus the two local sides: Western Australia and
-  the Scorchers. Australia barely stop from August; New Zealand host India for
-  twelve matches and then fly to Perth in December.
-</p>
-
-<h3 id="cricket-au">Australia</h3>
-
-<ul class="fixture-list hue-pine">
-  <li class="fixture">
-    <span class="fixture-when">13 – 26 Aug</span>
-    <span class="fixture-what"><a href="https://www.cricket.com.au/">v Bangladesh — 2 Tests</a></span>
-    <p class="fixture-note"><span class="fixture-where">Darwin and Mackay</span>Bangladesh's first tour here in 23 years, played up north in the dry season.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Australia</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">15 – 30 Sep</span>
-    <span class="fixture-what"><a href="https://www.cricket.com.au/">Zimbabwe and South Africa — 6 ODIs</a></span>
-    <p class="fixture-note"><span class="fixture-where">Harare, then Durban, Johannesburg and Potchefstroom</span>Three in Harare, then straight on to South Africa.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Australia</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">9 – 31 Oct</span>
-    <span class="fixture-what"><a href="https://www.cricket.co.za/">v South Africa — 3 Tests</a></span>
-    <p class="fixture-note"><span class="fixture-where">Durban, Gqeberha, Cape Town</span>The first Test tour of South Africa since 2018, finishing at Newlands.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Australia</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">9 – 22 Oct</span>
-    <span class="fixture-what"><a href="https://www.cricket.com.au/">Women v Bangladesh — 3 ODIs, 3 T20Is</a></span>
-    <p class="fixture-note"><span class="fixture-where">Brisbane and North Sydney</span>The ODIs at the Gabba, the T20Is at North Sydney Oval.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Australia women</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">13 Nov – 2 Dec</span>
-    <span class="fixture-what"><a href="https://www.cricket.com.au/">v England — 3 ODIs, 5 T20Is</a></span>
-    <p class="fixture-note"><span class="fixture-where">Perth, then the east coast</span>Eight white-ball matches, opening in Perth.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Australia</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
+  <li class="fixture hue-pine">
     <span class="fixture-when">9 Dec – 8 Jan</span>
-    <span class="fixture-what"><a href="https://www.cricket.com.au/">v New Zealand — 4 Tests</a></span>
-    <p class="fixture-note"><span class="fixture-where">Perth, Adelaide, Melbourne, Sydney</span>The first four-Test trans-Tasman series, and New Zealand's first Test tour here since 2019-20. Perth starts on a Wednesday; Boxing Day is the third.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Australia</span></li>
-      <li><span class="tag">New Zealand</span></li>
-    </ul>
+    <span class="fixture-what"><a href="https://www.cricket.com.au/">v New Zealand — 4 Tests</a> <span class="tag">cricket</span></span>
+    <p class="fixture-note"><span class="fixture-where">Perth, Adelaide, Melbourne, Sydney</span>The first four-Test trans-Tasman series.</p>
   </li>
-</ul>
-
-<h3 id="cricket-nz">New Zealand</h3>
-
-<ul class="fixture-list hue-pine">
-  <li class="fixture">
-    <span class="fixture-when">22 Oct – 15 Nov</span>
-    <span class="fixture-what"><a href="https://www.nzc.nz/">v India — 5 T20Is, 5 ODIs</a></span>
-    <p class="fixture-note"><span class="fixture-where">Eight venues, top to bottom</span>The white-ball half of a twelve-match tour, the biggest NZC has hosted.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">New Zealand</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">19 Nov – 1 Dec</span>
-    <span class="fixture-what"><a href="https://www.nzc.nz/">v India — 2 Tests</a></span>
-    <p class="fixture-note"><span class="fixture-where">Wellington and Christchurch</span>The Basin Reserve, then Hagley Oval.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">New Zealand</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
+  <li class="fixture hue-pine">
     <span class="fixture-when">9 Dec – 8 Jan</span>
-    <span class="fixture-what"><a href="https://www.nzc.nz/">v Australia — 4 Tests</a></span>
+    <span class="fixture-what"><a href="https://www.nzc.nz/">v Australia — 4 Tests</a> <span class="tag">cricket</span></span>
     <p class="fixture-note"><span class="fixture-where">Australia</span>Eight days after India leave, the Test side lands in Perth.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">New Zealand</span></li>
-      <li><span class="tag">Australia</span></li>
-    </ul>
   </li>
-  <li class="fixture">
+  <li class="fixture hue-pine">
     <span class="fixture-when">10 – 23 Dec</span>
-    <span class="fixture-what"><a href="https://www.nzc.nz/">White Ferns v Bangladesh — 3 T20Is, 3 ODIs</a></span>
+    <span class="fixture-what"><a href="https://www.nzc.nz/">White Ferns v Bangladesh — 3 T20Is, 3 ODIs</a> <span class="tag">cricket</span></span>
     <p class="fixture-note"><span class="fixture-where">Nelson, Wellington, Mount Maunganui</span>Their only home tour of the summer.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">New Zealand women</span></li>
-    </ul>
   </li>
-</ul>
-
-<h3 id="cricket-wa">Western Australia and the Scorchers</h3>
-
-<ul class="fixture-list hue-pine">
-  <li class="fixture">
-    <span class="fixture-when">18 Sep</span>
-    <span class="fixture-what"><a href="https://www.wacricket.com.au/">One-Day Cup opens</a></span>
-    <p class="fixture-note"><span class="fixture-where">WACA Ground</span>WA v South Australia under lights, and Beau Casson's first match as coach.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Western Australia</span></li>
-    </ul>
+  <li class="fixture hue-foam">
+    <span class="fixture-when">11 – 12 Dec</span>
+    <span class="fixture-what"><a href="https://t100triathlon.com/">T100 World Championship Final</a> <span class="tag">triathlon</span></span>
+    <p class="fixture-note"><span class="fixture-where">Doha, Qatar</span>Both fields together, and the tour titles settled.</p>
   </li>
-  <li class="fixture">
-    <span class="fixture-when">8 – 11 Oct</span>
-    <span class="fixture-what"><a href="https://www.wacricket.com.au/">Sheffield Shield opens</a></span>
-    <p class="fixture-note"><span class="fixture-where">WACA Ground</span>WA v Queensland, with Aaron Hardie captaining.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Western Australia</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">31 Oct – 5 Dec</span>
-    <span class="fixture-what"><a href="https://www.perthscorchers.com.au/">Scorchers in WBBL|12</a></span>
-    <p class="fixture-note"><span class="fixture-where">WACA Ground and away</span>Ten games in five weeks, opening at home on Halloween. All four home games are at the redeveloped WACA, none at Optus.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Perth Scorchers women</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
-    <span class="fixture-when">23 – 26 Nov</span>
-    <span class="fixture-what"><a href="https://www.wacricket.com.au/">WA v Tasmania</a></span>
-    <p class="fixture-note"><span class="fixture-where">Optus Stadium</span>The first Shield match at Optus since 2018, put on as a lead-in to the Perth Test.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Western Australia</span></li>
-    </ul>
-  </li>
-  <li class="fixture">
+  <li class="fixture hue-pine">
     <span class="fixture-when">12 Dec</span>
-    <span class="fixture-what"><a href="https://www.perthscorchers.com.au/">BBL|16 opens — Renegades v Scorchers</a></span>
+    <span class="fixture-what"><a href="https://www.perthscorchers.com.au/">BBL|16 opens — Renegades v Scorchers</a> <span class="tag">cricket</span></span>
     <p class="fixture-note"><span class="fixture-where">Chennai, India</span>The first Big Bash match played outside Australia.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Perth Scorchers</span></li>
-    </ul>
   </li>
-  <li class="fixture">
+  <li class="fixture hue-pine">
     <span class="fixture-when">20, 26 and 30 Dec</span>
-    <span class="fixture-what"><a href="https://www.perthscorchers.com.au/">Scorchers at home</a></span>
+    <span class="fixture-what"><a href="https://www.perthscorchers.com.au/">Scorchers at home</a> <span class="tag">cricket</span></span>
     <p class="fixture-note"><span class="fixture-where">Optus Stadium</span>The Hurricanes, then the Stars on Boxing Day, then the Thunder.</p>
-    <ul class="tag-list fixture-who" aria-label="Following">
-      <li><span class="tag">Perth Scorchers</span></li>
-    </ul>
   </li>
 </ul>
-
 
 </main>
 <footer class="statusline statusline-stack">

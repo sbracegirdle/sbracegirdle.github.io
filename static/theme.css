@@ -641,121 +641,38 @@ footer { margin-top: var(--space-6); }
 /* Subtle, not muted: this is the component's own boundary mark, and at muted it
    was the faintest thing on a line that also carries content. */
 .fixture-where::after { content: " · "; color: var(--color-subtle); }
-/* Who to watch at this one, as a row of .who chips under the note. It is a
-   .tag-list as well, for the flex row and the marker reset; this only places
-   it in the grid and pulls its trailing margin. */
-.fixture-who { grid-column: 2; margin: var(--space-2) 0 0; gap: var(--space-1) var(--space-2); }
 /* Below the date column's width there is no date column: two tracks whose
    first is wider than the screen is one track with a wrapped date in it. */
 @media (max-width: 640px) {
   .fixture { grid-template-columns: 1fr; }
   .fixture-when,
   .fixture-what,
-  .fixture-note,
-  .fixture-who { grid-column: 1; }
+  .fixture-note { grid-column: 1; }
   .fixture-when { grid-row: auto; }
 }
 
-/* ── Season grid ──────────────────────────────────────────────── */
-/* Where a calendar's weight sits: one row per strand, one column per month,
-   the number of events in the cell. It is a real table and the numbers are its
-   content, so it reads in order and adds up out loud; the column above each
-   number is decoration sized by the same count, tinted with the row's --hue.
-   Wrap it in .scroll-x — six columns of month names don't fit a phone. */
-.season {
-  /* One step of column height per event, and the column's own width. Both are
-     the chart's geometry rather than page spacing, so they live here and not
-     in the spacing scale. */
-  --season-step: 0.625rem;
-  --season-col: 1.15rem;
-  /* The width the grid holds itself to, stated rather than left to the content.
-     `table-layout: fixed` takes the columns off the text, so the table comes out
-     exactly this wide — or its container's width, whichever is greater — in
-     whatever monospace the visitor turns out to have. Sized by the content it
-     was 517.7px here and a shade under 517px on CI, and that fraction of a pixel
-     is the whole difference between a scroll hint that fires with the table and
-     one that fires a column early.
-
-     A grid with a different number of months says so: `--season-months`. Both
-     the table's width and the page's hint breakpoint follow from it, so they
-     can't drift apart. 10rem holds "Marathon majors" with room for a font a
-     quarter again as wide; 4rem holds a month name and a column under it. */
-  --season-label: 10rem;
-  --season-month: 4rem;
-  --season-months: 6;
-  table-layout: fixed;
-  min-width: calc(var(--season-label) + var(--season-months) * var(--season-month));
-}
-.season thead th:first-child { width: var(--season-label); }
-.season td,
-.season th[scope="col"] { text-align: center; }
-/* Month names are dates, and dates are gold sitewide. The corner cell heads
-   the sport column and is a label, so it stays at text strength. */
-.season thead th:not(:first-child) { color: var(--c-gold); }
-/* The corner cell heads the row-header column, which is left-aligned, so it
-   is the one column header that isn't centred over its numbers. */
-.season thead th:first-child { text-align: left; }
-/* Bottom-aligned with its own numbers. Left at the base `th` rule's `top` the
-   label floated nine pixels above the row it names, across an empty gap wide
-   enough to make that obvious. */
-.season th[scope="row"] { text-align: left; white-space: nowrap; vertical-align: bottom; }
-/* The base `th` rule draws the 2px column-header rule. In a body row that met
-   the 1px cell hairline in a visible step at the column boundary. */
-.season tbody th[scope="row"] { border-bottom: var(--border-width) solid var(--color-border); }
 /* A `.scroll-x` can end flush with a column boundary and then look like a
-   finished table: at 390px the season grid showed Jul to Sep, ended exactly on
-   Sep's right edge, and hid half the year with nothing to say so. A scrolling
-   table needs a cue as well as a scrollbar, so pair it with a hint.
+   finished table, with the rest of it hidden and nothing on screen to say so.
+   A scrolling table needs a cue as well as a scrollbar, so pair it with a
+   hint.
 
    Hidden here and revealed by the page, because the width at which a table
    stops fitting is a fact about that table — its own width plus the page's
    gutters — and not about the component. Work it out and put the one media
    query next to the table it belongs to. Work it out rather than measure it:
    a measured breakpoint is only true for the font the person measuring had
-   installed, and this stack starts with three a visitor has to install. A
-   table that states its own width — as `.season` does — turns the breakpoint
-   into a sum instead.
+   installed, and this stack starts with three a visitor has to install.
 
    Word the hint so it holds at every width it shows at. Naming the columns
    that are off-screen is tempting and wrong: which ones those are changes as
    the viewport does, and a page with no JavaScript is telling you to scroll
-   for a month that has been on screen the whole time. */
+   for a column that has been on screen the whole time. */
 .scroll-hint {
   display: none;
   margin: var(--space-1) 0 0;
   font-size: var(--text-xs);
   color: var(--color-subtle);
 }
-
-/* Bottom-aligned so the numbers sit on one line across the row. A cell with no
-   bar is shorter than one with, and top alignment staggered them. */
-.season td { padding: var(--space-2) var(--space-1); vertical-align: bottom; }
-.season .n { font-size: var(--text-xs); }
-.season .none { color: var(--color-subtle); }
-/* A column, not a rule: height carries the count and every cell in the row
-   shares a baseline, so the grid reads as a bar chart rather than as a set of
-   unrelated dashes. Proportional now — one step per event, no banding — which
-   only works because the counts here are small and the tallest is five. */
-.season .bar {
-  display: block;
-  width: var(--season-col);
-  margin: 0 auto var(--space-1);
-  background: var(--hue, var(--color-border-strong));
-}
-.season .bar-1 { height: calc(var(--season-step) * 1); }
-.season .bar-2 { height: calc(var(--season-step) * 2); }
-.season .bar-3 { height: calc(var(--season-step) * 3); }
-.season .bar-4 { height: calc(var(--season-step) * 4); }
-.season .bar-5 { height: calc(var(--season-step) * 5); }
-/* And a wash behind the cell at the same weight, so the busy months read as
-   blocks of colour before you get to the columns. The alphas stay low: this
-   sits under text that has to hold its contrast, and it repeats a number
-   printed in the cell, so nothing is lost if it doesn't render at all. */
-.season td:has(.bar-1) { background: color-mix(in srgb, var(--hue) 6%, transparent); }
-.season td:has(.bar-2) { background: color-mix(in srgb, var(--hue) 10%, transparent); }
-.season td:has(.bar-3) { background: color-mix(in srgb, var(--hue) 14%, transparent); }
-.season td:has(.bar-4) { background: color-mix(in srgb, var(--hue) 18%, transparent); }
-.season td:has(.bar-5) { background: color-mix(in srgb, var(--hue) 22%, transparent); }
 
 /* ── Buttons ──────────────────────────────────────────────────── */
 .btn {
@@ -805,23 +722,6 @@ a.tag:hover { border-color: var(--c-rose); color: var(--c-rose); }
 .tag-list li, .tag-cloud li { margin: 0; }
 .tag-cloud { margin: var(--space-4) 0; }
 .tag-count { color: var(--c-gold); margin-left: var(--space-2); }
-/* A name chip: someone being followed, with the flag drawn as a three-letter
-   code rather than fetched as an image. The code takes --hue from a .hue-*
-   class on the chip, so the colour lands on the text it repeats and nothing is
-   legible by colour alone.
-
-   No rail here, deliberately. .fixture already draws a 3px --hue rail meaning
-   "which sport this row belongs to", and these chips sit inside one — the same
-   mark in the same variable would have meant nationality 200px from where it
-   meant sport. Putting the hue on text instead is what keeps --c-pine and
-   --color-muted out of this set: they fail AA at chip size.
-
-   Keep the space between the code and the name in the markup. The gap is a
-   margin, and a margin is not in the accessibility tree: without it a screen
-   reader reads "AUSJai Hindley". A chip whose label already names its country
-   doesn't need a code and isn't a .who — that's a plain .tag. */
-.who { color: var(--color-text); }
-.who .nat { color: var(--hue, var(--color-subtle)); margin-right: var(--space-2); }
 .tag-foam { border-color: var(--c-foam); color: var(--c-foam); }
 .tag-gold { border-color: var(--c-gold); color: var(--c-gold); }
 .tag-iris { border-color: var(--c-iris); color: var(--c-iris); }

@@ -28,14 +28,8 @@
      fitting is a fact about that table, so the query lives with the page. Each
      class is named for the width at which its scroller first fits, and fires one
      pixel below it. Re-measure if a table gains a column or a cell gets wider —
-     a hint pointing at nothing is as wrong as no hint at all.
-     The season demo is the one that isn't measured: `.season` states its own
-     width, so its number is arithmetic — four months at --season-month behind a
-     --season-label of 10rem is 26rem, plus the frame's 50px and the page's
-     gutters. Set --season-months with it or the two disagree. */
+     a hint pointing at nothing is as wrong as no hint at all. */
   @media (max-width: 469px) { .sg-fit-470 { display: block; } }  /* text & interactive */
-  @media (max-width: 513px) { .sg-fit-514 { display: block; } }  /* season demo */
-  .frame[data-label="season"] .season { --season-months: 4; }
   @media (max-width: 442px) { .sg-fit-443 { display: block; } }  /* hues */
   @media (max-width: 365px) { .sg-fit-366 { display: block; } }  /* typography ref */
   @media (max-width: 347px) { .sg-fit-348 { display: block; } }  /* colour, borders & motion */
@@ -715,9 +709,9 @@
 </div>
 
 <p>
-  The chips don't have to be links. A row that only names things — the riders
-  a page is following, the teams it covers — is a <code>&lt;ul&gt;</code>, one
-  chip per <code>&lt;li&gt;</code>, with a <code>.label</code> above it and
+  The chips don't have to be links. A row that only names things is a
+  <code>&lt;ul&gt;</code>, one chip per <code>&lt;li&gt;</code>, with a
+  <code>.label</code> above it and
   <code>aria-labelledby</code> pointing back at that label. Match the element to
   the job: linked chips are navigation and take a <code>&lt;nav&gt;</code>;
   unlinked chips are a list and take a list. Ten names inside a bare
@@ -726,59 +720,11 @@
 </p>
 
 <div class="frame" data-label="tag-list · unlinked">
-  <p class="label" id="sg-watch">Watching</p>
+  <p class="label" id="sg-watch">Reading</p>
   <ul class="tag-list" aria-labelledby="sg-watch">
-    <li><span class="tag">Jai Hindley</span></li>
-    <li><span class="tag">Sarah Gigante</span></li>
-    <li><span class="tag">Ally Wollaston</span></li>
-  </ul>
-</div>
-
-<p>
-  <code>.who</code> adds a nationality to a name chip: a country code in a
-  <code>.nat</code> span, tinted by a <code>.hue-*</code> class on the chip.
-  It's a flag drawn as three letters, which is what a site with no external
-  requests and no images in its chrome can afford. The hue lands on the code it
-  repeats, so a reader who can't tell iris from rose loses nothing — and
-  because it's text, <code>--color-muted</code> stays out of this set: it fails
-  AA at chip size. <code>--c-pine</code> clears AA but stays out too — it keeps
-  to rails and fills, and a chip code is neither.
-</p>
-
-<p>
-  There's no rail on a <code>.who</code>, and that's deliberate.
-  <code>.fixture</code> already draws a 3px <code>--hue</code> rail meaning
-  <em>which sport this row belongs to</em>, and these chips sit inside one; the
-  same mark in the same variable would have meant nationality a few hundred
-  pixels from where it meant sport. Put the space between the code and the name
-  in the markup too — the gap is a margin, and a margin isn't in the
-  accessibility tree.
-</p>
-
-<div class="frame" data-label="tag-list · who">
-  <p class="label" id="sg-who">Watching</p>
-  <ul class="tag-list" aria-labelledby="sg-who">
-    <li><span class="tag who hue-gold"><span class="nat">AUS</span> Jai Hindley</span></li>
-    <li><span class="tag who hue-foam"><span class="nat">NZL</span> Hayden Wilde</span></li>
-    <li><span class="tag who hue-iris"><span class="nat">NOR</span> Gustav Iden</span></li>
-    <li><span class="tag who hue-rose"><span class="nat">FRA</span> Sam Laidlow</span></li>
-    <li><span class="tag who hue-love"><span class="nat">CAN</span> Lionel Sanders</span></li>
-  </ul>
-</div>
-
-<p>
-  A chip whose label already names its country doesn't need a code, and isn't a
-  <code>.who</code> — it's a plain <code>.tag</code>. Reach for the code when
-  the name alone doesn't say where someone is from.
-</p>
-
-<div class="frame" data-label="tag · teams">
-  <p class="label" id="sg-teams">Following</p>
-  <ul class="tag-list" aria-labelledby="sg-teams">
-    <li><span class="tag who hue-foam"><span class="nat">NZL</span> All Blacks</span></li>
-    <li><span class="tag who hue-gold"><span class="nat">AUS</span> Wallabies</span></li>
-    <li><span class="tag">New Zealand</span></li>
-    <li><span class="tag">Western Australia</span></li>
+    <li><span class="tag">House of Suns</span></li>
+    <li><span class="tag">Worm</span></li>
+    <li><span class="tag">Oathbringer</span></li>
   </ul>
 </div>
 
@@ -920,16 +866,15 @@
   scrolls also needs <code>tabindex="0"</code>, <code>role="region"</code> and a
   name, unless focusable content spans its scrollable width. No browser makes a
   bare overflow box focusable, so without those a keyboard user reaches the
-  first column and nothing else. Links in a frozen first column don't count — the
-  season grid's row headers are links and every one of them is already on
-  screen.
+  first column and nothing else. Links don't count unless they span the
+  scrollable width — a row of links in a frozen first column still leaves the
+  columns to its right out of reach.
 </p>
 
 <p>
   Give it a <code>.scroll-hint</code> too. A scroller can end flush with a
-  column boundary and read as a finished table: the season grid showed July
-  to September at 390px, stopped exactly on September's edge, and lost the rest
-  of the year with nothing on screen to say so.
+  column boundary and read as a finished table, with the rest of it hidden and
+  nothing on screen to say so.
 </p>
 
 <p>
@@ -938,12 +883,11 @@
   reveals it — work out your table's width and put the one media query beside
   it. Work it out rather than measure it where you can: a measured breakpoint
   holds only for the font it was measured in, and this stack starts with three
-  fonts a visitor has to install. The season grid states its own width in
-  <code>--season-label</code> and <code>--season-month</code>, so its number is
-  a sum. And word the hint so it's true at every width it shows at: naming the
-  columns that are off to the right is tempting and wrong, because which ones those
-  are changes as the viewport does, and without JavaScript the page ends up
-  telling you to scroll for a month that never left the screen.
+  fonts a visitor has to install. And word the hint so it's true at every width
+  it shows at: naming the columns that are off to the right is tempting and
+  wrong, because which ones those are changes as the viewport does, and without
+  JavaScript the page ends up telling you to scroll for a column that has been
+  on screen the whole time.
 </p>
 
 <h3>Forms</h3>
@@ -1094,20 +1038,9 @@
       <span class="fixture-when">10 Oct</span>
       <span class="fixture-what"><a href="#components">Il Lombardia</a></span>
       <p class="fixture-note"><span class="fixture-where">Italy</span>The race of the falling leaves, and the fifth Monument.</p>
-      <ul class="tag-list fixture-who" aria-label="Watching">
-        <li><span class="tag who hue-gold"><span class="nat">AUS</span> Hindley</span></li>
-        <li><span class="tag who hue-gold"><span class="nat">AUS</span> O'Connor</span></li>
-      </ul>
     </li>
   </ul>
 </div>
-
-<p>
-  A row can hang a <code>.fixture-who</code> under its note — a
-  <code>.tag-list</code> of <code>.who</code> chips naming who to watch at that
-  one. It's a third row of the same grid, so it stays on the note's side of the
-  date column and folds with it below 640px.
-</p>
 
 <p>
   The rail down the left takes <code>--hue</code>. Put a <code>.hue-*</code>
@@ -1118,76 +1051,6 @@
   Below 640px the date column folds away and each row stacks; the fixed column
   is wider than a phone screen.
 </p>
-
-<h3 id="season-grid">Season grid</h3>
-
-<p>
-  Where a season's weight sits: a row per series, a column per month, the
-  number of events in the cell. The numbers are the content: the table reads in
-  order and adds up out loud. Everything else in the cell is decoration in the
-  row's hue — a column sized by <code>.bar-1</code> to <code>.bar-5</code>, one
-  step of height per event, and a wash behind it at the same weight. Every cell
-  in a row shares a baseline, so the grid reads as a bar chart rather than as a
-  set of unrelated marks. You apply the class by hand, so keep it in step with
-  the printed number. A cell with nothing in it drops the bar and prints a
-  subtle zero.
-</p>
-
-<p>
-  The scale is proportional rather than banded, which only holds while the
-  counts stay small — five steps is a tall enough column already. A grid with
-  counts in the twenties needs a different encoding.
-</p>
-
-<p>
-  The columns are fixed, not sized by their contents: the grid is
-  <code>--season-label</code> wide plus <code>--season-months</code> at
-  <code>--season-month</code> each, and comes out that wide in any monospace.
-  A grid with a different number of months sets <code>--season-months</code>,
-  as the four-month demo below does. That's what makes the scroll hint's
-  breakpoint a sum instead of a measurement. Measured, it came out a fraction
-  of a pixel wider here than on CI, and the hint fired a column early.
-</p>
-
-<p>
-  The label goes in a <code>.label</code> above the scroller, not in a
-  <code>&lt;caption&gt;</code>. A caption is a child of the table, so it takes
-  the table's width and slides off the screen with it: the table is allowed to
-  scroll, its name isn't. Point the table at the label with
-  <code>aria-labelledby</code>.
-</p>
-
-<p class="label" id="sg-season-cap">Events, by sport and month</p>
-<div class="frame" data-label="season">
-  <div class="scroll-x" tabindex="0" role="region" aria-labelledby="sg-season-cap">
-    <table class="season" aria-labelledby="sg-season-cap">
-      <thead>
-        <tr>
-          <th scope="col">Sport</th>
-          <th scope="col">Aug</th><th scope="col">Sep</th>
-          <th scope="col">Oct</th><th scope="col">Nov</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="hue-gold">
-          <th scope="row">Cycling</th>
-          <td><span class="bar bar-3" aria-hidden="true"></span><span class="n">3</span></td>
-          <td><span class="bar bar-5" aria-hidden="true"></span><span class="n">5</span></td>
-          <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
-          <td><span class="n none">0</span></td>
-        </tr>
-        <tr class="hue-love">
-          <th scope="row">Formula 1</th>
-          <td><span class="bar bar-1" aria-hidden="true"></span><span class="n">1</span></td>
-          <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
-          <td><span class="bar bar-3" aria-hidden="true"></span><span class="n">3</span></td>
-          <td><span class="bar bar-2" aria-hidden="true"></span><span class="n">2</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <p class="scroll-hint sg-fit-514">Scroll the table sideways for the rest of it.</p>
-</div>
 
 <h3 id="hues">Hue carriers</h3>
 
