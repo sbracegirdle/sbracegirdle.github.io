@@ -670,27 +670,35 @@ func renderPostList(posts []*BlogPost) string {
 	return b.String()
 }
 
-// generateIndex generates the landing page: a short intro and the latest posts,
-// with a link to the full archive when there are more.
+// indexContentPath is the landing page's static prose — the intro, the skills
+// list and the reference pages — kept out of the generator so it can be edited
+// without touching Go. It is raw HTML because the reference list uses the
+// styled .post-list markup that markdown cannot express.
+const indexContentPath = "content/home.html"
+
+// homeSpliceMarker is where generateIndex inserts the reading section into the
+// static fragment. It shares the template's {{placeholder}} syntax, so a stale
+// marker left behind by an edit is visible on inspection.
+const homeSpliceMarker = "{{reading}}"
+
+// generateIndex generates the landing page: the arcade, the static intro from
+// content/home.html, the latest posts, and a link to the full archive when
+// there are more.
 func generateIndex(posts []*BlogPost, template string, buildDir string, shelves []ShelfBooks) error {
 	dated := datedPostsNewestFirst(posts)
 
 	var contentBuilder strings.Builder
 	contentBuilder.WriteString(renderArcade())
-	contentBuilder.WriteString("<p>Hi! I'm <a href=\"https://github.com/sbracegirdle\" rel=\"author\"><em>Simon</em></a>, a software engineer and consultant in Perth, Western Australia. I've spent 20+ years building products and helping teams improve how they work — now at <a href=\"https://govconnex.com/\">GovConnex</a>, after <a href=\"https://mechanicalrock.io\">Mechanical Rock</a> and <a href=\"https://seqta.com.au\">SEQTA Software</a>.</p>")
-	contentBuilder.WriteString("<p>What I can do:</p><ul>")
-	contentBuilder.WriteString("<li><em>AI features</em> — a research assistant that orchestrates agents and tools, plus overnight briefings and the embeddings pipeline behind semantic search.</li>")
-	contentBuilder.WriteString("<li><em>Web applications</em> — React and TypeScript, Node APIs, Elasticsearch, serverless AWS.</li>")
-	contentBuilder.WriteString("<li><em>Migrations</em> — a production webapp from JavaScript to TypeScript, about 30,000 lines, without pausing feature work.</li>")
-	contentBuilder.WriteString("<li><em>Team tooling</em> — CI/CD, load testing, code review, and agent-assisted workflows.</li>")
-	contentBuilder.WriteString("</ul>")
-	contentBuilder.WriteString("<p><a href=\"/about.html\">More about me &rarr;</a></p>")
-	contentBuilder.WriteString(renderReadingSection(shelves))
-	contentBuilder.WriteString("<h2>Reference pages</h2>")
-	contentBuilder.WriteString("<ul class=\"post-list\">")
-	contentBuilder.WriteString("<li><a href=\"/rust-quick-reference.html\">Rust quick reference</a><p>A progressive tour of Rust — ownership, borrowing, traits, and cargo — styled like a TUI.</p></li>")
-	contentBuilder.WriteString("<li><a href=\"/sports.html\">Sports 2026</a><p>What's left of the season in the six sports I follow, from the Vuelta to the Bledisloe to the Boxing Day Test.</p></li>")
-	contentBuilder.WriteString("</ul>")
+
+	if static, err := os.ReadFile(indexContentPath); err != nil {
+		// A missing fragment is not fatal — the rest of the page still builds.
+		// This mirrors copyStaticDir's no-op when static/ doesn't exist.
+		log.Printf("warning: could not read home page content %s: %v", indexContentPath, err)
+	} else {
+		body := strings.ReplaceAll(string(static), homeSpliceMarker, renderReadingSection(shelves))
+		contentBuilder.WriteString(body)
+	}
+
 	contentBuilder.WriteString("<h2>Latest posts</h2>")
 
 	latest := dated
