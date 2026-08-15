@@ -26,7 +26,7 @@ every page.
 Rules of engagement:
 
 - **The design system is the brief.** This site is a dark-only terminal theme
-  on Rosé Pine: monospace, square corners, near-zero motion. Read
+  on Dracula: monospace, square corners, near-zero motion. Read
   `static/style-guide.html` before you review anything. Never propose a
   redesign, a typeface pairing, a gradient, or a light mode.
 - **Accessibility outranks the brief.** Semantics, accessible names, keyboard

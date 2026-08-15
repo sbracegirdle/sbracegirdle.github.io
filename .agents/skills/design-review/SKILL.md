@@ -36,7 +36,7 @@ width stays perfectly correct.
 ## The design system is the brief
 
 This site has already committed to an aesthetic: a dark-only "night terminal"
-on the Rosé Pine palette, monospace throughout, square corners, near-zero
+on the Dracula palette, monospace throughout, square corners, near-zero
 motion. That commitment is the brief. **Do not review it as though the site
 were still choosing a look**, and never propose a redesign.
 
@@ -117,7 +117,8 @@ behaviour the CSS no longer has.
 Each hue has exactly one job: foam for links and primary, gold for numbers and
 dates, rose for title fill and emphasis, iris for h3 and forms, love for
 danger. A hue used off-duty is a finding. `--c-pine` and `--color-muted` are
-decorative only and fail AA at body size — flag either one carrying real text.
+decorative only — flag either one carrying real text (`--color-muted` also
+fails AA at body size).
 
 ### 2. Hierarchy and composition
 

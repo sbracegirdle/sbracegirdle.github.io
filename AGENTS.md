@@ -21,8 +21,8 @@ Markdown in `content/` becomes HTML in `build/`, index included.
 ## Skills and subagents
 
 Skills live once under `.agents/skills/`, symlinked for both agents.
-Invoke as needed; `agent-conventions` covers adding or changing.
-`agents_test.go` enforces the wiring.
+Invoke only when asked; reviewers never run on their own.
+`agent-conventions` covers adding or changing; `agents_test.go` enforces the wiring.
 
 - `prose-review` — weak writing and AI tells
 - `browser-test` — headless browser verification
@@ -51,6 +51,7 @@ node lighthouse.mjs --sample  # Lighthouse vs budgets
 
 - Do not edit AGENTS.md unless asked.
 - Do not add tests until asked.
+- Reviewers (`prose-review`, `browser-test`, `design-review`, `perf-audit`) run only when Simon asks; never on your own initiative.
 - Posts: `content/yyyy-mm-dd-title.md`; filename date orders index.
 - Frontmatter optional; tags fold to sorted lowercase slugs.
 - `renderPage` HTML-escapes every scalar — never bypass it.
@@ -59,19 +60,19 @@ node lighthouse.mjs --sample  # Lighthouse vs budgets
 - Feed dates track the newest post; rebuilds stay identical.
 - Generated links are root-absolute (`/post.html`).
 - Dependencies: `adrg/frontmatter` and `gomarkdown/markdown` only.
-- Post prose follows `style.md`; `prose-review` checks it.
+- Post prose follows `style.md`; `prose-review` checks it when asked.
 - Never attribute opinions to Simon; `ai-tells.md` has detail.
 - `static/` copies verbatim; generated pages win name collisions.
 - Don't name static files `index.html` or after posts.
 
 ## Theme
 
-Dark only: night terminal on Rosé Pine, monospace, square corners.
+Dark only: night terminal, monospace, square corners.
 
 - `static/style-guide.html` is the spec — read before styling.
 - Keep the style guide in step with `theme.css` changes.
 - All CSS in `theme.css`; tokens only, never raw hex.
-- Each hue has one job; pine and muted stay decorative.
+- Each hue has one job; the palette and its decorative tiers live in the style guide.
 - Zero theme JS and external requests; the arcade excepted.
 - Hierarchy from structure; headings descend one at a time.
 - Nothing widens the page on a phone.

@@ -156,15 +156,15 @@
 </header>
 
 <h1>Style guide</h1>
-<p class="prompt">theme v2 — night terminal<span class="cursor" aria-hidden="true"></span></p>
+<p class="prompt">theme v3 — night terminal<span class="cursor" aria-hidden="true"></span></p>
 
 <main>
 
 <p>
   The design system for LetsBuild.cloud. Dark only — a terminal doesn't have a
   light mode, and neither does this site. Built on the
-  <a href="https://rosepinetheme.com/palette/">Rosé Pine</a> palette: deep
-  violet-black surfaces with six muted pastel inks, in place of v1's saturated
+  <a href="https://draculatheme.com/">Dracula</a> palette: a blue-violet ground
+  with six bright inks, in place of v2's muted Rosé Pine and v1's saturated
   gruvbox primaries. Identity comes from structure: a statusline, an
   inverted title row, numbered section rules, a tree TOC. One shared stylesheet
 (<code>/theme.css</code>), and one script, on one page — the
@@ -196,8 +196,9 @@
   <li><strong>Dark, always.</strong> One mode, tuned properly, instead of two
     compromises. <code>color-scheme: dark</code> keeps native controls and
     scrollbars in-theme.</li>
-  <li><strong>Muted inks on deep ground.</strong> Six pastel hues, none
-    saturated, each with a defined job. Body text is never coloured.</li>
+  <li><strong>Bright inks on deep ground.</strong> Six hues, each with a
+    defined job — and all of them clearing AA on the ground colour, so the
+    decorative tier is a rule, not a rescue. Body text is never coloured.</li>
   <li><strong>Prose first.</strong> Monospace everywhere, but with generous
     leading, a real measure, and decoration that stays out of the reading
     column.</li>
@@ -212,8 +213,10 @@
 <h2 id="colour"><span>Colour</span></h2>
 
 <p>
-  Rosé Pine: three stacked surfaces, three text tones, six hues. Contrast
-  ratios are measured against <code>--color-bg</code>; hues marked
+  Dracula: three stacked surfaces, three text tones, six hues. Surface is
+  Dracula's own chrome tone and sits darker than the ground — as it does in
+  Dracula's own UI — so the stack is a layering order, not a lightness ramp.
+  Contrast ratios are measured against <code>--color-bg</code>; tones marked
   <span class="deco">◆</span> sit below 4.5:1 and are decorative-only — borders,
   fills, and large glyphs, never body-size text.
 </p>
@@ -223,23 +226,23 @@
 <div class="surface-row">
   <div class="surface" style="background: var(--color-bg)">
     <span class="tok">--color-bg</span>
-    <span class="val">#191724 · page ground</span>
+    <span class="val">#282A36 · page ground (Background)</span>
   </div>
   <div class="surface" style="background: var(--color-surface)">
     <span class="tok">--color-surface</span>
-    <span class="val">#1F1D2E · cards, code, callouts</span>
+    <span class="val">#21222C · cards, code, callouts — inset panels</span>
   </div>
   <div class="surface" style="background: var(--color-overlay)">
     <span class="tok">--color-overlay</span>
-    <span class="val">#26233A · statusline, keycaps, tooltips</span>
+    <span class="val">#44475A · statusline, keycaps, tooltips, selection (Current Line)</span>
   </div>
   <div class="surface" style="background: var(--color-border)">
     <span class="tok">--color-border</span>
-    <span class="val">#403D52 · hairlines</span>
+    <span class="val">#44475A · hairlines (Current Line again)</span>
   </div>
   <div class="surface" style="background: var(--color-border-strong)">
     <span class="tok">--color-border-strong</span>
-    <span class="val">#524F67 · emphasised edges</span>
+    <span class="val">#6272A4 · emphasised edges (Comment)</span>
   </div>
 </div>
 
@@ -251,32 +254,32 @@
   <tbody>
     <tr>
       <td><code>--color-text</code></td>
-      <td><span class="chip" style="background:#e0def4"></span><span class="hex">#E0DEF4</span></td>
+      <td><span class="chip" style="background:#f8f8f2"></span><span class="hex">#F8F8F2</span></td>
       <td class="cr">13.4:1</td>
       <td>Body copy, headings</td>
     </tr>
     <tr>
       <td><code>--color-subtle</code></td>
-      <td><span class="chip" style="background:#908caa"></span><span class="hex">#908CAA</span></td>
-      <td class="cr">5.5:1</td>
+      <td><span class="chip" style="background:#b4bcd6"></span><span class="hex">#B4BCD6</span></td>
+      <td class="cr">7.5:1</td>
       <td>Descriptions, labels, quotes, secondary text</td>
     </tr>
     <tr>
       <td><code>--color-muted</code> <span class="deco">◆</span></td>
-      <td><span class="chip" style="background:#6e6a86"></span><span class="hex">#6E6A86</span></td>
-      <td class="cr">3.4:1</td>
+      <td><span class="chip" style="background:#6272a4"></span><span class="hex">#6272A4</span></td>
+      <td class="cr">3.0:1</td>
       <td>Tree branches, separators, placeholders — never sentences</td>
     </tr>
     <tr>
       <td><code>--color-accent</code></td>
-      <td><span class="chip" style="background:#9ccfd8"></span><span class="hex">#9CCFD8</span></td>
-      <td class="cr">10.4:1</td>
+      <td><span class="chip" style="background:#8be9fd"></span><span class="hex">#8BE9FD</span></td>
+      <td class="cr">10.3:1</td>
       <td>Links, focus rings, primary actions (= foam)</td>
     </tr>
     <tr>
       <td><code>--color-accent-2</code></td>
-      <td><span class="chip" style="background:#c4a7e7"></span><span class="hex">#C4A7E7</span></td>
-      <td class="cr">8.4:1</td>
+      <td><span class="chip" style="background:#bd93f9"></span><span class="hex">#BD93F9</span></td>
+      <td class="cr">5.9:1</td>
       <td>Form accents, h3 sidebar (= iris)</td>
     </tr>
   </tbody>
@@ -292,38 +295,38 @@
   <tbody>
     <tr>
       <td><code>--c-love</code></td>
-      <td><span class="chip" style="background:#eb6f92"></span><span class="hex">#EB6F92</span></td>
-      <td class="cr">6.1:1</td>
+      <td><span class="chip" style="background:#ff5555"></span><span class="hex">#FF5555</span></td>
+      <td class="cr">4.5:1</td>
       <td>Danger buttons, warnings, "don't" panels</td>
     </tr>
     <tr>
       <td><code>--c-gold</code></td>
-      <td><span class="chip" style="background:#f6c177"></span><span class="hex">#F6C177</span></td>
-      <td class="cr">10.8:1</td>
+      <td><span class="chip" style="background:#f1fa8c"></span><span class="hex">#F1FA8C</span></td>
+      <td class="cr">12.7:1</td>
       <td>Section numbers, dates, tips, badges, strings</td>
     </tr>
     <tr>
       <td><code>--c-rose</code></td>
-      <td><span class="chip" style="background:#ebbcba"></span><span class="hex">#EBBCBA</span></td>
-      <td class="cr">10.5:1</td>
+      <td><span class="chip" style="background:#ff79c6"></span><span class="hex">#FF79C6</span></td>
+      <td class="cr">6.0:1</td>
       <td>Title-block fill, link hover, emphasis</td>
     </tr>
     <tr>
-      <td><code>--c-pine</code> <span class="deco">◆</span></td>
-      <td><span class="chip" style="background:#31748f"></span><span class="hex">#31748F</span></td>
-      <td class="cr">3.4:1</td>
-      <td>Decorative rules and fills only</td>
+      <td><code>--c-pine</code></td>
+      <td><span class="chip" style="background:#50fa7b"></span><span class="hex">#50FA7B</span></td>
+      <td class="cr">10.4:1</td>
+      <td>Decorative rules and fills only — clears AA, but stays off text by rule</td>
     </tr>
     <tr>
       <td><code>--c-foam</code></td>
-      <td><span class="chip" style="background:#9ccfd8"></span><span class="hex">#9CCFD8</span></td>
-      <td class="cr">10.4:1</td>
+      <td><span class="chip" style="background:#8be9fd"></span><span class="hex">#8BE9FD</span></td>
+      <td class="cr">10.3:1</td>
       <td>Links, primary buttons, notes, functions in code</td>
     </tr>
     <tr>
       <td><code>--c-iris</code></td>
-      <td><span class="chip" style="background:#c4a7e7"></span><span class="hex">#C4A7E7</span></td>
-      <td class="cr">8.4:1</td>
+      <td><span class="chip" style="background:#bd93f9"></span><span class="hex">#BD93F9</span></td>
+      <td class="cr">5.9:1</td>
       <td>h3 sidebar, form controls, keywords in code</td>
     </tr>
   </tbody>
@@ -746,8 +749,9 @@
   It's a flag drawn as three letters, which is what a site with no external
   requests and no images in its chrome can afford. The hue lands on the code it
   repeats, so a reader who can't tell iris from rose loses nothing — and
-  because it's text, <code>--c-pine</code> and <code>--color-muted</code> stay
-  out of this set.
+  because it's text, <code>--color-muted</code> stays out of this set: it fails
+  AA at chip size. <code>--c-pine</code> clears AA but stays out too — it keeps
+  to rails and fills, and a chip code is neither.
 </p>
 
 <p>
@@ -1322,8 +1326,9 @@ top of the page.</p>
     churns every frame and says nothing worth reading aloud, so it is
     <code>aria-hidden</code> and the buttons carry the names.</li>
   <li><strong>Contrast.</strong> Text tones and link colours clear WCAG AA at
-    body size (most clear AAA). Pine and muted are locked to decorative roles
-    — the ◆ flags in the colour tables are the contract.</li>
+    body size (most clear AAA). Muted is locked to decorative roles — the ◆
+    flag in the colour tables is the contract — and pine stays decorative by
+    rule even though the green clears AA.</li>
   <li><strong>Colour is never the only signal.</strong> Links underline on
     hover, focus draws a 2px foam ring, active tabs change weight and border,
     callouts carry text labels.</li>
@@ -1360,22 +1365,22 @@ top of the page.</p>
 <table>
   <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
   <tbody>
-    <tr><td><code>--color-bg</code></td><td>#191724</td><td>Page ground</td></tr>
-    <tr><td><code>--color-surface</code></td><td>#1F1D2E</td><td>Cards, code, callouts, row hover</td></tr>
-    <tr><td><code>--color-overlay</code></td><td>#26233A</td><td>Statusline, keycaps, tooltips, selection</td></tr>
-    <tr><td><code>--color-border</code></td><td>#403D52</td><td>Hairlines</td></tr>
-    <tr><td><code>--color-border-strong</code></td><td>#524F67</td><td>Emphasised edges, table header rule</td></tr>
-    <tr><td><code>--color-text</code></td><td>#E0DEF4</td><td>Body, headings</td></tr>
-    <tr><td><code>--color-subtle</code></td><td>#908CAA</td><td>Secondary text</td></tr>
-    <tr><td><code>--color-muted</code></td><td>#6E6A86</td><td>Decorative text (branches, separators)</td></tr>
-    <tr><td><code>--color-accent</code></td><td>#9CCFD8</td><td>Links, focus, primary actions</td></tr>
-    <tr><td><code>--color-accent-2</code></td><td>#C4A7E7</td><td>Secondary interactive</td></tr>
-    <tr><td><code>--c-love</code></td><td>#EB6F92</td><td>Danger / warning</td></tr>
-    <tr><td><code>--c-gold</code></td><td>#F6C177</td><td>Numbers, dates, tips, strings</td></tr>
-    <tr><td><code>--c-rose</code></td><td>#EBBCBA</td><td>Title fill, hover, emphasis</td></tr>
-    <tr><td><code>--c-pine</code></td><td>#31748F</td><td>Decorative fills</td></tr>
-    <tr><td><code>--c-foam</code></td><td>#9CCFD8</td><td>= accent</td></tr>
-    <tr><td><code>--c-iris</code></td><td>#C4A7E7</td><td>= accent-2</td></tr>
+    <tr><td><code>--color-bg</code></td><td>#282A36</td><td>Page ground</td></tr>
+    <tr><td><code>--color-surface</code></td><td>#21222C</td><td>Cards, code, callouts, row hover</td></tr>
+    <tr><td><code>--color-overlay</code></td><td>#44475A</td><td>Statusline, keycaps, tooltips, selection</td></tr>
+    <tr><td><code>--color-border</code></td><td>#44475A</td><td>Hairlines</td></tr>
+    <tr><td><code>--color-border-strong</code></td><td>#6272A4</td><td>Emphasised edges, table header rule</td></tr>
+    <tr><td><code>--color-text</code></td><td>#F8F8F2</td><td>Body, headings</td></tr>
+    <tr><td><code>--color-subtle</code></td><td>#B4BCD6</td><td>Secondary text</td></tr>
+    <tr><td><code>--color-muted</code></td><td>#6272A4</td><td>Decorative text (branches, separators)</td></tr>
+    <tr><td><code>--color-accent</code></td><td>#8BE9FD</td><td>Links, focus, primary actions</td></tr>
+    <tr><td><code>--color-accent-2</code></td><td>#BD93F9</td><td>Secondary interactive</td></tr>
+    <tr><td><code>--c-love</code></td><td>#FF5555</td><td>Danger / warning</td></tr>
+    <tr><td><code>--c-gold</code></td><td>#F1FA8C</td><td>Numbers, dates, tips, strings</td></tr>
+    <tr><td><code>--c-rose</code></td><td>#FF79C6</td><td>Title fill, hover, emphasis</td></tr>
+    <tr><td><code>--c-pine</code></td><td>#50FA7B</td><td>Decorative fills</td></tr>
+    <tr><td><code>--c-foam</code></td><td>#8BE9FD</td><td>= accent</td></tr>
+    <tr><td><code>--c-iris</code></td><td>#BD93F9</td><td>= accent-2</td></tr>
   </tbody>
 </table>
 </div>
@@ -1496,14 +1501,14 @@ top of the page.</p>
   <div class="statusline statusline-stack">
     <div class="statusline-row">
       <span class="seg seg-a">eof</span>
-      <span class="seg seg-b seg-note">style guide v2 — night terminal</span>
+      <span class="seg seg-b seg-note">style guide v3 — night terminal</span>
     </div>
     <nav class="statusline-row statusline-nav" aria-label="Footer">
       <span class="seg seg-cmd" aria-hidden="true">:</span>
       <a class="seg" href="#top">&uarr; top</a>
       <a class="seg" href="/">~/blog</a>
       <a class="seg" href="/feed.xml">feed</a>
-      <a class="seg" href="https://rosepinetheme.com/palette/">palette: rosé pine</a>
+      <a class="seg" href="https://draculatheme.com/">palette: dracula</a>
     </nav>
   </div>
 </footer>

@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════
-   LetsBuild.cloud — theme v2 "night terminal"
-   Dark only. Palette: Rosé Pine. Zero JavaScript, zero external
+   LetsBuild.cloud — theme v3 "night terminal"
+   Dark only. Palette: Dracula. Zero JavaScript, zero external
    requests. The single stylesheet for every page on the site —
    the blog template, the style guide, and standalone static pages
    all link /theme.css. Documented in /style-guide.html.
@@ -9,28 +9,31 @@
   color-scheme: dark;
 
   /* ── Colour · surfaces ── */
-  --color-bg:            #191724;
-  --color-surface:       #1f1d2e;
-  --color-overlay:       #26233a;
-  --color-border:        #403d52;
-  --color-border-strong: #524f67;
+  /* Surface is Dracula's chrome tone and sits a step darker than the
+     ground, as it does in Dracula's own UI: panels read as inset. The
+     stack is a layering order, not a lightness ramp. */
+  --color-bg:            #282a36;
+  --color-surface:       #21222c;
+  --color-overlay:       #44475a;  /* Current Line — also the selection tone */
+  --color-border:        #44475a;  /* Current Line does double duty as hairline */
+  --color-border-strong: #6272a4;  /* Comment as the emphasised edge */
 
   /* ── Colour · text ── */
-  --color-text:   #e0def4;
-  --color-subtle: #908caa;
-  --color-muted:  #6e6a86;   /* decorative only — fails AA for text */
+  --color-text:   #f8f8f2;
+  --color-subtle: #b4bcd6;   /* Comment lifted past AA on every surface */
+  --color-muted:  #6272a4;   /* decorative only — fails AA for text */
 
   /* ── Colour · interactive ── */
-  --color-accent:   #9ccfd8;  /* foam — links, focus, primary */
-  --color-accent-2: #c4a7e7;  /* iris — secondary interactive */
+  --color-accent:   #8be9fd;  /* cyan — links, focus, primary */
+  --color-accent-2: #bd93f9;  /* purple — secondary interactive */
 
   /* ── Colour · hues ── */
-  --c-love: #eb6f92;
-  --c-gold: #f6c177;
-  --c-rose: #ebbcba;
-  --c-pine: #31748f;   /* decorative only — fails AA for text */
-  --c-foam: #9ccfd8;
-  --c-iris: #c4a7e7;
+  --c-love: #ff5555;
+  --c-gold: #f1fa8c;
+  --c-rose: #ff79c6;
+  --c-pine: #50fa7b;   /* decorative only — rails, rules, fills */
+  --c-foam: #8be9fd;
+  --c-iris: #bd93f9;
 
   /* ── Typography ── */
   --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", "SF Mono",
