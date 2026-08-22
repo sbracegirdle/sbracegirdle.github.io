@@ -1,6 +1,6 @@
 ---
 title: Re-learning old skills in an LLM world
-description: A draft on re-learning manual coding skills after going deep on agentic coding.
+description: Re-learning manual coding skills after going deep on agentic coding.
 ---
 
 After being in deep in the agentic world these last few months, and having been at my current role the last 4 years, coming back to looking for a job has been an adjustment. Doing interviews is one thing, talking about my technical background was a matter of collecting my experience as a set of cohesive thoughts or notes that I could convey. But where things didn't go smoothly, and to be fair I did expect this, was actually the manual coding aspect.
