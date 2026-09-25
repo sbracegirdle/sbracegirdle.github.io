@@ -4,17 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
-    <title>{{title}}</title>
-    <meta name="description" content="{{description}}" />
+    <title>{{.Title}}</title>
+    <meta name="description" content="{{.Description}}" />
     <meta name="author" content="Simon Bracegirdle" />
-    <link rel="canonical" href="{{canonical}}" />
-    <meta property="og:type" content="{{ogtype}}" />
+    <link rel="canonical" href="{{.Canonical}}" />
+    <meta property="og:type" content="{{.OGType}}" />
     <meta property="og:site_name" content="LetsBuild.cloud" />
-    <meta property="og:title" content="{{title}}" />
-    <meta property="og:description" content="{{description}}" />
-    <meta property="og:url" content="{{canonical}}" />
+    <meta property="og:title" content="{{.Title}}" />
+    <meta property="og:description" content="{{.Description}}" />
+    <meta property="og:url" content="{{.Canonical}}" />
     <meta name="twitter:card" content="summary" />
-    {{head_extra}}
+    {{if not .Date.IsZero}}<meta property="article:published_time" content="{{.Date.Format "2006-01-02T15:04:05Z07:00"}}" />{{end}}
+    {{if .NoIndex}}<meta name="robots" content="noindex" />{{end}}
     <link rel="stylesheet" href="/theme.css" />
     <link
       rel="alternate"
@@ -23,42 +24,45 @@
       href="/feed.xml"
     />
   </head>
-  <body>
-    <header>
-      <div class="statusline statusline-stack">
-        <div class="statusline-row">
-          <a class="seg seg-a" href="/">simon@letsbuild</a>
-          <span class="fill"></span>
-          <span class="seg seg-c seg-shrink" title="{{file}}">{{file}}</span>
-          <span class="seg seg-b">utf-8</span>
-        </div>
-        <nav class="statusline-row statusline-nav" aria-label="Primary">
-          <span class="seg seg-cmd" aria-hidden="true">:</span>
-          <a class="seg" href="/">~/blog</a>
-          <a class="seg" href="/posts.html">posts</a>
-          <a class="seg" href="/tags.html">tags</a>
-          <a class="seg" href="/sports.html">sports</a>
-          <a class="seg" href="/about.html">about</a>
-        </nav>
-      </div>
+  <body class="{{.Kind}}" id="top">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header measure">
+      <a class="site-brand" href="/">LetsBuild<span>.cloud</span></a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/posts.html">Writing</a>
+        <a href="/about.html">About</a>
+        <a href="/sports.html">Sports</a>
+        <a href="/about.html#reading">Reading</a>
+      </nav>
     </header>
-    <h1>{{heading}}</h1>
-    <a href="/" class="prompt">Simon's Blog — LetsBuild.cloud<span class="cursor" aria-hidden="true"></span></a>
-    <main>{{content}}</main>
-    <footer>
-      <div class="statusline statusline-stack">
-        <div class="statusline-row">
-          <span class="seg seg-a">eof</span>
-          <a class="seg seg-b seg-note" href="/2025-03-01-simplest-static-site-generator.html">built with the world's simplest static site generator</a>
+    <section class="masthead" aria-labelledby="page-title">
+      <div class="measure">
+        {{if eq .Kind "article"}}<a class="article-back" href="/posts.html">&larr; All writing</a>{{end}}
+        <h1 id="page-title" class="{{.HeadingClass}}">{{.Heading}}</h1>
+        {{if not .HideIntro}}
+        <div class="masthead-intro">
+          <p>{{.Intro}}{{if eq .Kind "home"}}<span class="home-specialties">{{.HomeFocus}}</span>{{end}}</p>
+          {{if eq .Kind "home"}}<a class="home-about" href="/about.html">About Simon &nearr;</a>{{end}}
         </div>
-        <nav class="statusline-row statusline-nav" aria-label="Footer">
-          <span class="seg seg-cmd" aria-hidden="true">:</span>
-          <a class="seg" href="#top">&uarr; top</a>
-          <a class="seg" href="/">~/blog</a>
-          <a class="seg" href="/feed.xml">feed</a>
-          <a class="seg" href="/style-guide.html">style guide</a>
-        </nav>
+        {{end}}
+        {{if not .Date.IsZero}}
+        <div class="article-byline">
+          <span>{{.Author}}</span>
+          <time datetime="{{.Date.Format "2006-01-02"}}">{{.Date.Format "02 Jan 2006"}}</time>
+        </div>
+        {{end}}
       </div>
+    </section>
+    <main id="main" class="page-content measure">{{.Content}}</main>
+    <footer class="site-footer measure">
+      <span>Simon Bracegirdle · Perth</span>
+      <nav aria-label="Footer">
+        <a href="/rust-quick-reference.html">Rust reference</a>
+        <a href="/tags.html">Tags</a>
+        <a href="/feed.xml">RSS</a>
+        <a href="https://github.com/sbracegirdle">GitHub</a>
+        <a href="/style-guide.html">Style guide</a>
+      </nav>
     </footer>
   </body>
 </html>

@@ -49,11 +49,12 @@ go test ./...                 # tests; CI fails on errors
 
 ## Theme
 
-Dark only: night terminal, monospace, square corners.
+Dark only: Dracula palette, purple mastheads, system sans-serif type, square corners. Monospace is reserved for code.
 
 - `static/style-guide.html` is the spec — read before styling.
 - Keep the style guide in step with `theme.css` changes.
 - All CSS in `theme.css`; tokens only, never raw hex.
+- Use native CSS nesting for related selectors, states, and component media queries where possible. Keep nesting shallow and preserve specificity.
 - Each hue has one job; the palette and its decorative tiers live in the style guide.
 - Zero theme JS and external requests.
 - Hierarchy from structure; headings descend one at a time.

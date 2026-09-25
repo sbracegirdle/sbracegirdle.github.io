@@ -21,48 +21,20 @@
       title="LetsBuild.cloud"
       href="/feed.xml"
     />
-    <style>
-      /* Page-specific: smooth anchor scrolling and a column-flowed TOC. */
-      html { scroll-behavior: smooth; }
-      @media (prefers-reduced-motion: reduce) {
-        html { scroll-behavior: auto; }
-      }
-      /* This is an index, so it flows in columns. column-width lets the browser
-         pick the count: four on a wide page, two on the reading measure, one
-         on a phone, with no breakpoint to keep in step. */
-      .toc { columns: 16rem; column-gap: var(--space-4); }
-      /* Every entry keeps its rule, including the last. :last-child is one item
-         in the flow, not one per column, so .post-list's bare last row knocks a
-         single hole in the grid wherever that item happens to land — and it
-         out-specifies a plain `.toc li`, so the last row is named directly. */
-      .toc li { break-inside: avoid; border-bottom: var(--border-width) dashed var(--color-border); }
-      .toc li:last-child { border-bottom: var(--border-width) dashed var(--color-border); }
-    </style>
   </head>
-  <body class="wide">
-    <header>
-      <div class="statusline statusline-stack">
-        <div class="statusline-row">
-          <a class="seg seg-a" href="/">simon@letsbuild</a>
-          <span class="fill"></span>
-          <span class="seg seg-c seg-shrink" title="rust-quick-reference.html">rust-quick-reference.html</span>
-          <span class="seg seg-b">utf-8</span>
-        </div>
-        <nav class="statusline-row statusline-nav" aria-label="Primary">
-          <span class="seg seg-cmd" aria-hidden="true">:</span>
-          <a class="seg" href="/">~/blog</a>
-          <a class="seg" href="/posts.html">posts</a>
-          <a class="seg" href="/tags.html">tags</a>
-          <a class="seg" href="/sports.html">sports</a>
-          <a class="seg" href="/about.html">about</a>
-        </nav>
-      </div>
+  <body class="page wide" id="top">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header measure">
+      <a class="site-brand" href="/">LetsBuild<span>.cloud</span></a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/posts.html">Writing</a>
+        <a href="/about.html">About</a>
+        <a href="/sports.html">Sports</a>
+        <a href="/about.html#reading">Reading</a>
+      </nav>
     </header>
-
-    <h1>Rust quick reference</h1>
-    <a href="/" class="prompt">Simon's Blog — LetsBuild.cloud<span class="cursor" aria-hidden="true"></span></a>
-
-    <main>
+<section class="masthead" aria-labelledby="page-title"><div class="measure"><h1 id="page-title">Rust quick reference</h1><p>Ownership, borrowing, traits and cargo.</p></div></section>
+<main id="main" class="page-content measure">
     <p class="measure">A progressive tour of Rust — ownership, borrowing, traits, and cargo.
     Each section builds on the ones before it, and every example is annotated
     with the gotcha that matters.</p>
@@ -443,20 +415,15 @@ let sum: i32 = (0..1_000_000)
     </div>
     </main>
 
-    <footer>
-      <div class="statusline statusline-stack">
-        <div class="statusline-row">
-          <span class="seg seg-a">eof</span>
-          <span class="seg seg-b seg-note">rust 1.96.0</span>
-        </div>
-        <nav class="statusline-row statusline-nav" aria-label="Footer">
-          <span class="seg seg-cmd" aria-hidden="true">:</span>
-          <a class="seg" href="#top">&uarr; top</a>
-          <a class="seg" href="/">~/blog</a>
-          <a class="seg" href="/feed.xml">feed</a>
-          <a class="seg" href="/style-guide.html">style guide</a>
-        </nav>
-      </div>
+        <footer class="site-footer measure">
+      <span>Simon Bracegirdle · Perth</span>
+      <nav aria-label="Footer">
+        <a href="/rust-quick-reference.html">Rust reference</a>
+        <a href="/tags.html">Tags</a>
+        <a href="/feed.xml">RSS</a>
+        <a href="https://github.com/sbracegirdle">GitHub</a>
+        <a href="/style-guide.html">Style guide</a>
+      </nav>
     </footer>
   </body>
 </html>

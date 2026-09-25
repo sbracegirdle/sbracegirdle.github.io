@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"html"
+	htmltemplate "html/template"
 	"io"
 	"log"
 	"net/http"
@@ -27,6 +28,9 @@ const (
 	siteAuthor      = "Simon Bracegirdle"
 	siteTitle       = "Let's Build"
 	siteDescription = "Notes on building software, shipping it, and the engineering practices in between — by Simon Bracegirdle, a software engineer in Perth, Western Australia."
+	siteHomeHeading = "Let's build something."
+	siteHomeIntro   = siteAuthor + ". Software engineer in Perth."
+	siteHomeFocus   = "AI, web applications and cloud infrastructure."
 )
 
 // FrontMatter represents the metadata at the top of markdown files
@@ -56,50 +60,60 @@ func canonicalURL(outputFile string) string {
 	return siteURL + "/" + strings.TrimPrefix(outputFile, "/")
 }
 
-// pageMeta carries everything template.html needs to render one page. The
-// scalar fields are escaped by renderPage; Content and HeadExtra are inserted
-// verbatim and so must already be valid HTML.
 type pageMeta struct {
 	Title       string // <title> and og:title
 	Heading     string // visible <h1>; defaults to Title
-	File        string // filename shown in the statusline
+	File        string
 	Description string // meta description and og:description
 	Canonical   string // absolute URL of this page
 	OGType      string // og:type; defaults to "website"
-	HeadExtra   string // extra <head> markup, inserted raw
 	Content     string // rendered page body, inserted raw
+	Kind        string
+	Intro       string
+	NoIndex     bool
+	HideIntro   bool
+	Date        time.Time
 }
 
-// renderPage fills the template placeholders for a single page. Titles and
-// descriptions now land in attribute values as well as element text, so every
-// scalar is escaped on the way in — an unescaped quote in a description would
-// otherwise close the meta content attribute early and mangle the head. Content
-// and HeadExtra are substituted last, so a placeholder that happens to appear
-// inside a post (in a code block, say) is never expanded.
-func renderPage(template string, m pageMeta) string {
+func renderPage(source string, m pageMeta) (string, error) {
 	if m.Heading == "" {
 		m.Heading = m.Title
 	}
 	if m.OGType == "" {
 		m.OGType = "website"
 	}
-
-	scalars := []struct{ placeholder, value string }{
-		{"{{title}}", m.Title},
-		{"{{heading}}", m.Heading},
-		{"{{file}}", m.File},
-		{"{{description}}", m.Description},
-		{"{{canonical}}", m.Canonical},
-		{"{{ogtype}}", m.OGType},
+	if m.Kind == "" {
+		m.Kind = "page"
 	}
-
-	out := template
-	for _, s := range scalars {
-		out = strings.ReplaceAll(out, s.placeholder, html.EscapeString(s.value))
+	if m.Intro == "" {
+		m.Intro = m.Description
 	}
-	out = strings.ReplaceAll(out, "{{head_extra}}", m.HeadExtra)
-	out = strings.ReplaceAll(out, "{{content}}", m.Content)
-	return out
+	headingClass := ""
+	if utf8.RuneCountInString(m.Heading) > 45 {
+		headingClass = "long-title"
+	}
+	page, err := htmltemplate.New("page").Option("missingkey=error").Parse(source)
+	if err != nil {
+		return "", fmt.Errorf("parsing page template: %w", err)
+	}
+	data := struct {
+		pageMeta
+		Content      htmltemplate.HTML
+		Author       string
+		HomeFocus    string
+		HeadingClass string
+	}{
+		pageMeta:     m,
+		Content:      htmltemplate.HTML(m.Content),
+		Author:       siteAuthor,
+		HomeFocus:    siteHomeFocus,
+		HeadingClass: headingClass,
+	}
+	var output strings.Builder
+	if err := page.Execute(&output, data); err != nil {
+		return "", fmt.Errorf("rendering %q: %w", m.Title, err)
+	}
+	return output.String(), nil
 }
 
 // defaultGoodreadsUserID is Simon's public Goodreads user ID. The "What I'm
@@ -111,42 +125,26 @@ const defaultGoodreadsUserID = "28429269"
 // maxBooksPerShelf caps how many books are shown under each shelf heading.
 const maxBooksPerShelf = 3
 
-// readingShelf describes one Goodreads shelf to feature, with the label shown
-// on the page, the RSS sort key used to pick the most relevant books, and the
-// theme hue that tints its card.
 type readingShelf struct {
 	shelf string // Goodreads shelf slug
 	label string // heading shown on the page
 	sort  string // Goodreads RSS sort key ("" = feed default)
-	hue   string // theme.css hue modifier ("gold", "foam", "iris")
 }
 
-// featuredShelves are the shelves rendered in the "What I'm reading" block, in
-// display order. "to-read" is sorted by when it was added and "read" by when it
-// was finished, so each group shows the most recent few. Each shelf carries a
-// distinct hue so the three cards read as three groups; the hue only repeats
-// the label, which is always on the card, so nothing is carried by colour alone.
 var featuredShelves = []readingShelf{
-	{shelf: "currently-reading", label: "Currently reading", sort: "", hue: "gold"},
-	{shelf: "to-read", label: "Want to read", sort: "date_added", hue: "foam"},
-	{shelf: "read", label: "Recently finished", sort: "date_read", hue: "iris"},
+	{shelf: "currently-reading", label: "Currently reading", sort: ""},
+	{shelf: "to-read", label: "Want to read", sort: "date_added"},
+	{shelf: "read", label: "Recently finished", sort: "date_read"},
 }
 
-// Book is a single book pulled from a public Goodreads shelf. Covers are
-// deliberately not carried: the page draws a CSS book glyph instead of
-// hot-linking Goodreads artwork, which ran to hundreds of kilobytes a cover for
-// a 26px slot.
 type Book struct {
 	Title  string
 	Author string
 	Link   string
 }
 
-// ShelfBooks is a labelled group of books from one shelf, with the hue that
-// tints its card.
 type ShelfBooks struct {
 	Label string
-	Hue   string
 	Books []Book
 }
 
@@ -176,7 +174,7 @@ func fetchFeaturedShelves(userID string) []ShelfBooks {
 		if len(books) == 0 {
 			continue
 		}
-		groups = append(groups, ShelfBooks{Label: s.label, Hue: s.hue, Books: books})
+		groups = append(groups, ShelfBooks{Label: s.label, Books: books})
 	}
 	return groups
 }
@@ -248,71 +246,48 @@ func parseShelf(data []byte) ([]Book, error) {
 	return books, nil
 }
 
-// renderReadingSection builds the "What I'm reading" HTML block from one or more
-// labelled shelves. It returns an empty string when there are no books at all,
-// so an unavailable feed simply omits the section instead of leaving an empty
-// heading behind.
 func renderReadingSection(groups []ShelfBooks) string {
-	hasBooks := false
-	for _, g := range groups {
-		if len(g.Books) > 0 {
-			hasBooks = true
-			break
-		}
-	}
-	if !hasBooks {
-		return ""
-	}
-
-	// No heading: the shelf cards carry their own titles, so a section heading
-	// would just repeat them. The aria-label keeps the landmark named.
 	var b strings.Builder
-	b.WriteString("<section class=\"reading\" aria-label=\"What I'm reading\">")
-	b.WriteString("<div class=\"card-grid\">")
 	for _, group := range groups {
 		if len(group.Books) == 0 {
 			continue
 		}
-		cardClass := "card"
-		if group.Hue != "" {
-			cardClass += " shelf-" + html.EscapeString(group.Hue)
-		}
-		b.WriteString(fmt.Sprintf("<div class=\"%s\">", cardClass))
-		b.WriteString(fmt.Sprintf("<span class=\"card-title\">%s</span>", html.EscapeString(group.Label)))
-		b.WriteString("<ul class=\"book-list\">")
+		b.WriteString("<div class=\"reading-shelf\">")
+		b.WriteString(fmt.Sprintf("<h3>%s</h3><ul class=\"book-list\">", html.EscapeString(group.Label)))
 		for _, book := range group.Books {
-			b.WriteString("<li class=\"book\">")
-
-			openLink := book.Link != ""
-			if openLink {
-				b.WriteString(fmt.Sprintf("<a href=\"%s\" class=\"book-link\">", html.EscapeString(book.Link)))
+			b.WriteString("<li>")
+			title := html.EscapeString(book.Title)
+			if book.Link != "" {
+				b.WriteString(fmt.Sprintf("<a href=\"%s\" class=\"book-title\">%s</a>", html.EscapeString(book.Link), title))
+			} else {
+				b.WriteString(fmt.Sprintf("<span class=\"book-title\">%s</span>", title))
 			}
-			// A CSS-drawn book, not an image: no request, no third party, and
-			// nothing to announce, so it stays out of the accessibility tree.
-			b.WriteString("<span class=\"book-glyph\" aria-hidden=\"true\"></span>")
-
-			b.WriteString("<div class=\"book-meta\">")
-			b.WriteString(fmt.Sprintf("<span class=\"book-title\">%s</span>", html.EscapeString(book.Title)))
 			if book.Author != "" {
 				b.WriteString(fmt.Sprintf("<span class=\"book-author\">%s</span>", html.EscapeString(book.Author)))
 			}
-			b.WriteString("</div>")
-			if openLink {
-				b.WriteString("</a>")
-			}
-
 			b.WriteString("</li>")
 		}
-		b.WriteString("</ul>")
-		b.WriteString("</div>")
+		b.WriteString("</ul></div>")
 	}
-	b.WriteString("</div>")
-	b.WriteString("</section>")
 	return b.String()
+}
+
+func renderAboutReading(shelves []ShelfBooks) string {
+	userID := os.Getenv("GOODREADS_USER_ID")
+	if userID == "" {
+		userID = defaultGoodreadsUserID
+	}
+	return "<section class=\"reading\" id=\"reading\" aria-labelledby=\"reading-title\"><h2 id=\"reading-title\">What I'm reading</h2>" +
+		renderReadingSection(shelves) +
+		fmt.Sprintf("<p class=\"reading-profile\"><a href=\"https://www.goodreads.com/review/list/%s\">My books on Goodreads &rarr;</a></p></section>", html.EscapeString(userID))
 }
 
 // processMarkdownFile processes a single markdown file and returns the generated HTML
 func processMarkdownFile(filePath, template string) (string, string, *BlogPost, error) {
+	return processMarkdownFileWithAppendix(filePath, template, "")
+}
+
+func processMarkdownFileWithAppendix(filePath, template, appendix string) (string, string, *BlogPost, error) {
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", "", nil, fmt.Errorf("error reading file %s: %v", filePath, err)
@@ -390,25 +365,28 @@ func processMarkdownFile(filePath, template string) (string, string, *BlogPost, 
 	// Dated posts are articles; undated pages (about, and anything else) are
 	// ordinary pages. Only articles carry a published time.
 	ogType := "website"
-	headExtra := ""
+	kind := "page"
 	if !postDate.IsZero() {
 		ogType = "article"
-		headExtra = fmt.Sprintf("<meta property=\"article:published_time\" content=\"%s\" />",
-			html.EscapeString(postDate.Format(time.RFC3339)))
+		kind = "article"
 	}
 
-	output := renderPage(template, pageMeta{
+	output, err := renderPage(template, pageMeta{
 		Title:       title,
 		File:        outputFilename,
 		Description: description,
 		Canonical:   canonicalURL(outputFilename),
 		OGType:      ogType,
-		HeadExtra:   headExtra,
+		Kind:        kind,
+		Date:        postDate,
 		// Tag chips sit at the top of the body, above the prose, the way a
 		// file header states what a document is about.
-		Content: renderTagChips(blogPost.Tags) + string(htmlContent),
+		Content: renderTagChips(blogPost.Tags) + string(htmlContent) + appendix,
 	})
 
+	if err != nil {
+		return "", "", nil, err
+	}
 	return outputFilename, output, blogPost, nil
 }
 
@@ -473,72 +451,51 @@ func datedPostsNewestFirst(posts []*BlogPost) []*BlogPost {
 	return dated
 }
 
-// renderPostList renders posts as ul.post-list, newest first: gold ISO date,
-// linked title, one-line description. Callers pass an already-filtered,
-// already-sorted slice. Links are root-absolute so the same markup works from
-// the site root and from pages nested under /tags/.
 func renderPostList(posts []*BlogPost) string {
 	var b strings.Builder
 	b.WriteString("<ul class=\"post-list\">")
 	for _, post := range posts {
-		formattedDate := post.Date.Format("2006-01-02")
-		b.WriteString(fmt.Sprintf("<li><span class=\"date\">%s</span><a href=\"/%s\">%s</a><p>%s</p></li>\n",
-			formattedDate, post.OutputFile, html.EscapeString(post.Title), html.EscapeString(post.Description)))
+		b.WriteString(fmt.Sprintf("<li><time class=\"date\" datetime=\"%s\">%s</time><a href=\"/%s\">%s</a><p>%s</p></li>\n",
+			post.Date.Format("2006-01-02"), post.Date.Format("02 Jan 2006"), html.EscapeString(post.OutputFile), html.EscapeString(post.Title), html.EscapeString(post.Description)))
 	}
 	b.WriteString("</ul>")
 	return b.String()
 }
 
-// indexContentPath is the landing page's static markup — the intro, the skills
-// list and the reference pages — kept out of the generator so it can be edited
-// without touching Go. It is raw HTML because the reference list uses the styled
-// .post-list markup that markdown cannot express.
-const indexContentPath = "content/home.html"
-
-// homeSpliceMarker is where generateIndex inserts the reading section into the
-// static fragment. It shares the template's {{placeholder}} syntax, so a stale
-// marker left behind by an edit is visible on inspection.
-const homeSpliceMarker = "{{reading}}"
-
-// generateIndex generates the landing page: the static intro from
-// content/home.html, the latest posts, and a link to the full archive when
-// there are more.
-func generateIndex(posts []*BlogPost, template string, buildDir string, shelves []ShelfBooks) error {
+func generateIndex(posts []*BlogPost, template string, buildDir string, _ []ShelfBooks) error {
 	dated := datedPostsNewestFirst(posts)
 
 	var contentBuilder strings.Builder
 
-	if static, err := os.ReadFile(indexContentPath); err != nil {
-		// A missing fragment is not fatal — the rest of the page still builds.
-		// This mirrors copyStaticDir's no-op when static/ doesn't exist.
-		log.Printf("warning: could not read home page content %s: %v", indexContentPath, err)
-	} else {
-		contentBuilder.WriteString(strings.ReplaceAll(string(static), homeSpliceMarker, renderReadingSection(shelves)))
-	}
-
-	contentBuilder.WriteString("<h2>Latest posts</h2>")
+	contentBuilder.WriteString("<div class=\"list-heading\"><h2>Latest posts</h2>")
 
 	latest := dated
 	if len(latest) > latestPostCount {
 		latest = latest[:latestPostCount]
 	}
+	if len(dated) > len(latest) {
+		contentBuilder.WriteString("<a href=\"/posts.html\">All posts &rarr;</a>")
+	}
+	contentBuilder.WriteString("</div>")
 	contentBuilder.WriteString(renderPostList(latest))
 
-	if len(dated) > len(latest) {
-		contentBuilder.WriteString("<p><a href=\"/posts.html\">All posts &rarr;</a> &middot; <a href=\"/tags.html\">browse by tag &rarr;</a></p>")
-	}
-
-	output := renderPage(template, pageMeta{
+	output, err := renderPage(template, pageMeta{
 		Title:       siteTitle,
+		Heading:     siteHomeHeading,
+		Kind:        "home",
+		Intro:       siteHomeIntro,
 		File:        "index.html",
 		Description: siteDescription,
 		Canonical:   canonicalURL("index.html"),
 		Content:     contentBuilder.String(),
 	})
+	if err != nil {
+		return err
+	}
 
 	// Write the index file
 	outputPath := filepath.Join(buildDir, "index.html")
-	err := os.WriteFile(outputPath, []byte(output), 0644)
+	err = os.WriteFile(outputPath, []byte(output), 0644)
 	if err != nil {
 		return fmt.Errorf("error writing index file: %v", err)
 	}
@@ -555,13 +512,17 @@ func generateArchive(posts []*BlogPost, template string, buildDir string) error 
 	contentBuilder.WriteString(renderPostList(dated))
 	contentBuilder.WriteString("<p><a href=\"/\">&larr; Home</a> &middot; <a href=\"/tags.html\">browse by tag &rarr;</a></p>")
 
-	output := renderPage(template, pageMeta{
+	output, err := renderPage(template, pageMeta{
 		Title:       "All posts",
 		File:        "posts.html",
-		Description: fmt.Sprintf("Every post on %s — %d of them, newest first.", siteName, len(dated)),
+		Description: "Posts by " + siteAuthor + ".",
+		HideIntro:   true,
 		Canonical:   canonicalURL("posts.html"),
 		Content:     contentBuilder.String(),
 	})
+	if err != nil {
+		return err
+	}
 
 	outputPath := filepath.Join(buildDir, "posts.html")
 	if err := os.WriteFile(outputPath, []byte(output), 0644); err != nil {
@@ -583,15 +544,18 @@ func generateNotFound(template, buildDir string) error {
 	contentBuilder.WriteString("<li><a href=\"/tags.html\">Browse by tag</a></li>")
 	contentBuilder.WriteString("</ul>")
 
-	output := renderPage(template, pageMeta{
+	output, err := renderPage(template, pageMeta{
 		Title:       "404 — page not found",
 		Heading:     "404",
 		File:        "404.html",
 		Description: "That page isn't here.",
 		Canonical:   canonicalURL("404.html"),
-		HeadExtra:   "<meta name=\"robots\" content=\"noindex\" />",
+		NoIndex:     true,
 		Content:     contentBuilder.String(),
 	})
+	if err != nil {
+		return err
+	}
 
 	outputPath := filepath.Join(buildDir, "404.html")
 	if err := os.WriteFile(outputPath, []byte(output), 0644); err != nil {
@@ -676,6 +640,9 @@ func generateSite(contentDir, buildDir, templatePath string, shelves []ShelfBook
 		return fmt.Errorf("error reading template: %v", readErr)
 	}
 	template := string(templateBytes)
+	if _, err := renderPage(template, pageMeta{}); err != nil {
+		return err
+	}
 
 	// Check content directory
 	if _, err := os.Stat(contentDir); os.IsNotExist(err) {
@@ -700,7 +667,11 @@ func generateSite(contentDir, buildDir, templatePath string, shelves []ShelfBook
 		}
 
 		filePath := filepath.Join(contentDir, file.Name())
-		outputFilename, outputContent, blogPost, err := processMarkdownFile(filePath, template)
+		appendix := ""
+		if strings.TrimSuffix(file.Name(), filepath.Ext(file.Name())) == "about" {
+			appendix = renderAboutReading(shelves)
+		}
+		outputFilename, outputContent, blogPost, err := processMarkdownFileWithAppendix(filePath, template, appendix)
 		if err != nil {
 			log.Printf("%v", err)
 			continue

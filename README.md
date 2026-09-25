@@ -54,10 +54,17 @@ chmod +x ./local-serve.sh
 
 ## Template Syntax
 
-The template uses simple placeholders:
-- `{{title}}`: Will be replaced with the title from frontmatter (or filename if not specified) — used in the `<title>` tag
-- `{{heading}}`: Will be replaced with the page heading — used in the visible `<h1>` (empty on the home page)
-- `{{content}}`: Will be replaced with the HTML converted from markdown
+The site uses Go's standard `html/template` package. Page structure, conditional introductions and article bylines live in `template.html`; Go supplies the data.
+
+- `{{.Title}}` and `{{.Heading}}`: document title and visible page heading
+- `{{.Kind}}`: page layout (`home`, `article` or `page`)
+- `{{.Intro}}` and `{{.HideIntro}}`: masthead description and its visibility
+- `{{.Author}}` and `{{.Date}}`: article author and publication date
+- `{{.Content}}`: rendered Markdown and generated page content
+
+Scalar values are escaped automatically. Only the rendered body is passed as trusted HTML. Template parsing and rendering errors are returned to the generator.
+
+The homepage lists the five newest posts. Reading is a compact section at `/about.html#reading`. Writing, About, Sports and Reading are in the header; reference pages and tags are in the footer. Shared styles are in `static/theme.css`, with the design documented in `static/style-guide.html`.
 
 ## Markdown Frontmatter
 

@@ -1,6 +1,6 @@
 ---
 title: About me
-description: A software engineer in Perth with experience across product development, cloud, data, and AI.
+description: I'm Simon, a software engineer in Perth.
 ---
 
 I'm Simon Bracegirdle — a software engineer in Perth, Western Australia. I've spent 20+ years in product and consulting roles across education, government relations, resources, and the public sector.
@@ -33,4 +33,4 @@ I've led engineering practice across product and consulting teams, including arc
 
 ## Elsewhere
 
-My code is on [GitHub](https://github.com/sbracegirdle) and the rest of my writing is on the [blog](index.html). The home page has what I'm reading.
+My code is on [GitHub](https://github.com/sbracegirdle) and the rest of my writing is on the [blog](/).

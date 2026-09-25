@@ -20,11 +20,11 @@ const (
 	testTemplate = `<!DOCTYPE html>
 <html>
 <head>
-    <title>{{title}}</title>
+    <title>{{.Title}}</title>
 </head>
 <body>
-    <h1>{{title}}</h1>
-    <div>{{content}}</div>
+    <h1>{{.Title}}</h1>
+    <div>{{.Content}}</div>
     <footer>Created by: sbracegirdle on 2025-02-28 12:29:25</footer>
 </body>
 </html>`
@@ -148,8 +148,10 @@ func processFile(t *testing.T, filePath string, template string) (string, string
 	}
 
 	htmlContent := markdown.ToHTML(content, nil, nil)
-	output := strings.Replace(template, "{{title}}", title, -1)
-	output = strings.Replace(output, "{{content}}", string(htmlContent), -1)
+	output, err := renderPage(template, pageMeta{Title: title, Content: string(htmlContent)})
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	return title, output
 }
@@ -554,8 +556,6 @@ func TestParseShelfEmpty(t *testing.T) {
 	}
 }
 
-// TestRenderReadingSection checks that labelled shelves render into the index
-// and that no books at all produces no section.
 func TestRenderReadingSection(t *testing.T) {
 	if got := renderReadingSection(nil); got != "" {
 		t.Errorf("expected empty string for no shelves, got %q", got)
@@ -567,7 +567,6 @@ func TestRenderReadingSection(t *testing.T) {
 	shelves := []ShelfBooks{
 		{
 			Label: "Currently reading",
-			Hue:   "gold",
 			Books: []Book{{
 				Title:  "Oathbringer",
 				Author: "Brandon Sanderson",
@@ -576,24 +575,18 @@ func TestRenderReadingSection(t *testing.T) {
 		},
 		{
 			Label: "Want to read",
-			Hue:   "foam",
 			Books: []Book{{Title: "Wind and Truth", Author: "Brandon Sanderson"}},
 		},
 	}
 	html := renderReadingSection(shelves)
 
 	for _, want := range []string{
-		"What I'm reading",
 		"Currently reading",
 		"Want to read",
 		"Oathbringer",
 		"Wind and Truth",
 		"https://www.goodreads.com/book/show/34002132",
-		// The CSS book glyph replaces the cover, and is decoration only.
-		`<span class="book-glyph" aria-hidden="true"></span>`,
-		// Each shelf card carries its hue modifier.
-		`class="card shelf-gold"`,
-		`class="card shelf-foam"`,
+		"Brandon Sanderson",
 	} {
 		if !strings.Contains(html, want) {
 			t.Errorf("rendered section missing %q\ngot: %s", want, html)
@@ -606,41 +599,43 @@ func TestRenderReadingSection(t *testing.T) {
 	}
 }
 
-// TestGenerateIndexWithBooks confirms the reading section lands in the index
-// when books are supplied, ahead of the "Latest posts" heading.
-func TestGenerateIndexWithBooks(t *testing.T) {
+func TestGenerateAboutReading(t *testing.T) {
 	testDir, cleanup := setupTestEnv(t)
 	defer cleanup()
 	buildDir := filepath.Join(testDir, "build")
 
-	date, _ := time.Parse("2006-01-02", "2023-01-15")
-	posts := []*BlogPost{{
-		Title:      "First Post",
-		Date:       date,
-		OutputFile: "2023-01-15-first-post.html",
-	}}
+	if err := os.WriteFile(filepath.Join(testDir, "content", "about.md"), []byte("---\ntitle: About me\n---\nAbout Simon."), 0644); err != nil {
+		t.Fatal(err)
+	}
+
 	shelves := []ShelfBooks{{
 		Label: "Currently reading",
 		Books: []Book{{Title: "Oathbringer", Author: "Brandon Sanderson"}},
 	}}
 
-	if err := generateIndex(posts, testTemplate, buildDir, shelves); err != nil {
-		t.Fatalf("Error generating index: %v", err)
+	if err := generateSite(filepath.Join(testDir, "content"), buildDir, filepath.Join(testDir, "template.html"), shelves); err != nil {
+		t.Fatalf("Error generating site: %v", err)
 	}
 
-	content, err := os.ReadFile(filepath.Join(buildDir, "index.html"))
-	if err != nil {
-		t.Fatalf("Error reading index file: %v", err)
+	index := readFile(t, filepath.Join(buildDir, "index.html"))
+	if !strings.Contains(index, "Latest posts") || strings.Contains(index, "Oathbringer") || strings.Contains(index, `class="reading"`) {
+		t.Error("home should contain recent posts without reading shelves")
 	}
-	body := string(content)
-
-	readingIdx := strings.Index(body, "What I'm reading")
-	postsIdx := strings.Index(body, "Latest posts")
-	if readingIdx == -1 {
-		t.Fatal("reading section not found in index")
+	reading := readFile(t, filepath.Join(buildDir, "about.html"))
+	for _, want := range []string{`id="reading"`, "About Simon.", "Currently reading", "Oathbringer", "Brandon Sanderson"} {
+		if !strings.Contains(reading, want) {
+			t.Errorf("About reading section is missing %q", want)
+		}
 	}
-	if postsIdx == -1 || readingIdx > postsIdx {
-		t.Error("reading section should appear before the Latest posts heading")
+	if strings.Contains(readFile(t, filepath.Join(buildDir, "sitemap.xml")), siteURL+"/reading.html") {
+		t.Error("reading should not have a standalone sitemap entry")
+	}
+	if err := generateSite(filepath.Join(testDir, "content"), buildDir, filepath.Join(testDir, "template.html"), nil); err != nil {
+		t.Fatalf("Error generating About with unavailable shelves: %v", err)
+	}
+	fallback := readFile(t, filepath.Join(buildDir, "about.html"))
+	if !strings.Contains(fallback, "My books on Goodreads") || !strings.Contains(fallback, `id="reading"`) || strings.Contains(fallback, `class="reading-shelf"`) {
+		t.Error("unavailable shelves should leave a useful Goodreads link")
 	}
 }
 
@@ -713,19 +708,20 @@ func TestFullSiteGeneration(t *testing.T) {
 const testMetaTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>
-<title>{{title}}</title>
-<meta name="description" content="{{description}}" />
-<link rel="canonical" href="{{canonical}}" />
-<meta property="og:type" content="{{ogtype}}" />
-<meta property="og:title" content="{{title}}" />
-<meta property="og:description" content="{{description}}" />
-<meta property="og:url" content="{{canonical}}" />
-{{head_extra}}
+<title>{{.Title}}</title>
+<meta name="description" content="{{.Description}}" />
+<link rel="canonical" href="{{.Canonical}}" />
+<meta property="og:type" content="{{.OGType}}" />
+<meta property="og:title" content="{{.Title}}" />
+<meta property="og:description" content="{{.Description}}" />
+<meta property="og:url" content="{{.Canonical}}" />
+{{if not .Date.IsZero}}<meta property="article:published_time" content="{{.Date.Format "2006-01-02T15:04:05Z07:00"}}" />{{end}}
+    {{if .NoIndex}}<meta name="robots" content="noindex" />{{end}}
 </head>
 <body>
-<span class="seg seg-c">{{file}}</span>
-<h1>{{heading}}</h1>
-<main>{{content}}</main>
+<span class="seg seg-c">{{.File}}</span>
+<h1>{{.Heading}}</h1>
+<main>{{.Content}}</main>
 </body>
 </html>`
 
@@ -750,14 +746,17 @@ func TestCanonicalURL(t *testing.T) {
 // attribute values an unescaped one would close the attribute early and break
 // the whole head.
 func TestRenderPageEscaping(t *testing.T) {
-	out := renderPage(testMetaTemplate, pageMeta{
+	out, err := renderPage(testMetaTemplate, pageMeta{
 		Title:       `Ampersands & "quotes"`,
 		File:        "post.html",
 		Description: `Do you slap the trusty "LGTM!" on pull requests? Tom & Jerry <script>`,
 		Canonical:   "https://letsbuild.cloud/post.html",
 		OGType:      "article",
-		Content:     "<p>Body &amp; content</p>",
+		Content:     "<p>Body &amp; content</p><code>{{.Title}}</code>",
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if strings.Contains(out, `content="Do you slap the trusty "LGTM!"`) {
 		t.Error("description was inserted unescaped and broke out of the attribute")
@@ -772,6 +771,9 @@ func TestRenderPageEscaping(t *testing.T) {
 	if !strings.Contains(out, "<p>Body &amp; content</p>") {
 		t.Error("page content should be inserted raw")
 	}
+	if !strings.Contains(out, "<code>{{.Title}}</code>") {
+		t.Error("template syntax in body content must remain literal")
+	}
 	// Heading defaults to the title.
 	if !strings.Contains(out, `<h1>Ampersands &amp; &#34;quotes&#34;</h1>`) {
 		t.Errorf("heading should default to the title, got:\n%s", out)
@@ -783,7 +785,10 @@ func TestRenderPageEscaping(t *testing.T) {
 
 // TestRenderPageDefaults checks the two fields that fall back.
 func TestRenderPageDefaults(t *testing.T) {
-	out := renderPage(testMetaTemplate, pageMeta{Title: "Plain", Content: "x"})
+	out, err := renderPage(testMetaTemplate, pageMeta{Title: "Plain", Content: "x"})
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if !strings.Contains(out, "<h1>Plain</h1>") {
 		t.Error("heading should default to the title")
@@ -793,6 +798,12 @@ func TestRenderPageDefaults(t *testing.T) {
 	}
 	if strings.Contains(out, "{{") {
 		t.Errorf("template placeholders were left unfilled:\n%s", out)
+	}
+	for _, source := range []string{"{{if .Title}}", "{{.MissingField}}"} {
+		output, err := renderPage(source, pageMeta{Title: "Invalid"})
+		if err == nil || output != "" {
+			t.Errorf("invalid template %q returned output %q and error %v", source, output, err)
+		}
 	}
 }
 

@@ -6,6 +6,7 @@ I try to follow these guidelines in my writing:
 - **Approachable**: Avoid complex jargon or elaborate language to ensure my writing is understandable.
 - **Informal**: Maintain a casual tone, refraining from expressing strong or polarizing opinions.
 - **Professional**: Be respectful and courteous, avoid any form of rudeness or offensive language.
+- **About page voice**: Keep the page brief and summarise the breadth of my career in the first person singular, organised by kind of work. Skip employer-by-employer and project lists. Avoid collective terms such as "we", "our", and "us"; name the team, company, or product when that context matters.
 
 I also generally follow the "write-good" linting practices, which means avoiding the following:
 
@@ -17,4 +18,3 @@ I also generally follow the "write-good" linting practices, which means avoiding
 - *Clichés*: These are phrases that are overused and therefore may lack impact. The linter identifies clichés to encourage more original writing.
 - *Repetition*: Repeating words or phrases can make writing redundant or boring. The linter flags repetition to encourage more varied and interesting prose.
 - *Long Sentences*: Long sentences can be hard to read and understand. The linter flags sentences that are too long to encourage more concise and readable writing.
-

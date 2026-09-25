@@ -151,14 +151,18 @@ func generateTagPages(posts []*BlogPost, template, buildDir string) ([]string, e
 		body.WriteString("<p><a href=\"/tags.html\">&larr; All tags</a></p>")
 
 		outputPath := tagPagePath(group.Tag)
-		page := renderPage(template, pageMeta{
+		page, err := renderPage(template, pageMeta{
 			Title:   "Tagged: " + group.Tag,
 			File:    filepath.Base(outputPath),
 			Content: body.String(),
 			Description: fmt.Sprintf("%s tagged %q on %s.",
 				pluralPosts(len(group.Posts)), group.Tag, siteName),
 			Canonical: canonicalURL(outputPath),
+			HideIntro: true,
 		})
+		if err != nil {
+			return written, err
+		}
 
 		if err := os.WriteFile(filepath.Join(buildDir, filepath.FromSlash(outputPath)), []byte(page), 0644); err != nil {
 			return written, fmt.Errorf("writing tag page %s: %w", outputPath, err)
@@ -179,7 +183,6 @@ func generateTagPages(posts []*BlogPost, template, buildDir string) ([]string, e
 // count, most-used first.
 func generateTagIndex(groups []tagCount, template, buildDir string) error {
 	var body strings.Builder
-	body.WriteString("<p>Every tag across the archive, most-used first.</p>")
 	body.WriteString("<nav class=\"tag-cloud\" aria-label=\"All tags\">")
 	for _, group := range groups {
 		body.WriteString(fmt.Sprintf("<a class=\"tag\" href=\"/%s\">%s<span class=\"tag-count\">%d</span></a>",
@@ -188,13 +191,17 @@ func generateTagIndex(groups []tagCount, template, buildDir string) error {
 	body.WriteString("</nav>")
 	body.WriteString("<p><a href=\"/posts.html\">&larr; All posts</a></p>")
 
-	page := renderPage(template, pageMeta{
+	page, err := renderPage(template, pageMeta{
 		Title:       "Tags",
 		File:        "tags.html",
-		Description: fmt.Sprintf("Browse %s by topic — %d tags across the archive.", siteName, len(groups)),
+		Description: "Posts grouped by tag.",
+		HideIntro:   true,
 		Canonical:   canonicalURL("tags.html"),
 		Content:     body.String(),
 	})
+	if err != nil {
+		return err
+	}
 
 	outputPath := filepath.Join(buildDir, "tags.html")
 	if err := os.WriteFile(outputPath, []byte(page), 0644); err != nil {

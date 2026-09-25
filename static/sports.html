@@ -17,29 +17,19 @@
 <link rel="stylesheet" href="/theme.css" />
 <link rel="alternate" type="application/rss+xml" title="LetsBuild.cloud" href="/feed.xml" />
 </head>
-<body>
-
-<header class="statusline statusline-stack">
-  <div class="statusline-row">
-    <a class="seg seg-a" href="/">simon@letsbuild</a>
-    <span class="fill"></span>
-    <span class="seg seg-c seg-shrink" title="sports.html">sports.html</span>
-    <span class="seg seg-b">utf-8</span>
-  </div>
-  <nav class="statusline-row statusline-nav" aria-label="Primary">
-    <span class="seg seg-cmd" aria-hidden="true">:</span>
-    <a class="seg" href="/">~/blog</a>
-    <a class="seg" href="/posts.html">posts</a>
-    <a class="seg" href="/tags.html">tags</a>
-    <a class="seg" href="/sports.html">sports</a>
-    <a class="seg" href="/about.html">about</a>
-  </nav>
-</header>
-
-<h1>Sports</h1>
-<p class="prompt">Sports I'm following this year:<span class="cursor" aria-hidden="true"></span></p>
-
-<main>
+<body class="page" id="top">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header measure">
+      <a class="site-brand" href="/">LetsBuild<span>.cloud</span></a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/posts.html">Writing</a>
+        <a href="/about.html">About</a>
+        <a href="/sports.html">Sports</a>
+        <a href="/about.html#reading">Reading</a>
+      </nav>
+    </header>
+<section class="masthead" aria-labelledby="page-title"><div class="measure"><h1 id="page-title">Sports</h1><p>Sports I'm following this year.</p></div></section>
+<main id="main" class="page-content measure">
 
 <nav class="filters" aria-label="Filter by sport">
   <button class="tag" type="button" aria-pressed="true" data-sport="all">all</button>
@@ -354,19 +344,16 @@
 </section>
 
 </main>
-<footer class="statusline statusline-stack">
-  <div class="statusline-row">
-    <span class="seg seg-a">eof</span>
-    <span class="seg seg-b seg-note">compiled 2026-07-25</span>
-  </div>
-  <nav class="statusline-row statusline-nav" aria-label="Footer">
-    <span class="seg seg-cmd" aria-hidden="true">:</span>
-    <a class="seg" href="#top">&uarr; top</a>
-    <a class="seg" href="/">~/blog</a>
-    <a class="seg" href="/feed.xml">feed</a>
-    <a class="seg" href="/style-guide.html">style guide</a>
-  </nav>
-</footer>
+    <footer class="site-footer measure">
+      <span>Simon Bracegirdle · Perth</span>
+      <nav aria-label="Footer">
+        <a href="/rust-quick-reference.html">Rust reference</a>
+        <a href="/tags.html">Tags</a>
+        <a href="/feed.xml">RSS</a>
+        <a href="https://github.com/sbracegirdle">GitHub</a>
+        <a href="/style-guide.html">Style guide</a>
+      </nav>
+    </footer>
 
 <script>
 (function () {
