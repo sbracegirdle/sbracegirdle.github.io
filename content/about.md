@@ -1,49 +1,35 @@
 ---
 title: About me
-description: A mini CV — the work I keep coming back to, and the skills behind it.
+description: A software engineer in Perth with experience across product development, cloud, data, and AI.
 ---
 
-I'm Simon Bracegirdle — a software engineer in Perth, Western Australia. I've spent 20+ years building products: education software at [SEQTA](https://seqta.com.au), cloud consulting at [Mechanical Rock](https://mechanicalrock.io), and now government-relations tooling at [GovConnex](https://govconnex.com/).
+I'm Simon Bracegirdle — a software engineer in Perth, Western Australia. I've spent 20+ years in product and consulting roles across education, government relations, resources, and the public sector.
 
 ## AI engineering
 
-Since 2024 most of my work has been AI features that ship to paying customers. The biggest is a research assistant that orchestrates agents and tools, with a deep-research mode for longer questions. I also built the automated briefings that read the day's political events and write a summary overnight, and the embeddings pipeline behind semantic search.
-
-I've built the parts around them too: per-user cost caps and usage reporting, [evals](2025-05-22-write-evals.html) to catch regressions, prompt caching to hold down latency and spend, and hardening against prompt injection.
+I've worked on LLM agents, tool orchestration, semantic search, automated briefings, and MCP endpoints. I took a research tool from prototype to production, then built [evals](2025-05-22-write-evals.html), prompt-injection controls, cost caps, usage reporting, and prompt caching.
 
 <p><span class="tag">LLM agents</span> <span class="tag">tool use</span> <span class="tag">embeddings</span> <span class="tag">evals</span> <span class="tag">prompt design</span></p>
 
-## Web applications
+## Product and platform engineering
 
-React and TypeScript on the front end, Node with NestJS and GraphQL behind it, and MySQL and Elasticsearch for storage and search. I've shipped a Microsoft 365 email integration for our CRM, and realtime alerting built on Elasticsearch percolation queries. I also look after the newsletter and monitoring pipelines, and the scrapers that collect parliamentary data.
+I've built web applications with React and TypeScript, backend services with Node, NestJS, GraphQL, and REST, and search features with Elasticsearch. The work has included education software, political intelligence products, and a SaaS platform built from scratch.
 
-<p><span class="tag">TypeScript</span> <span class="tag">React</span> <span class="tag">NestJS</span> <span class="tag">GraphQL</span> <span class="tag">Elasticsearch</span> <span class="tag">MySQL</span></p>
+I've also modernised production systems by moving JavaScript to TypeScript, Cypress tests to Playwright, and legacy services into containers.
 
-## Cloud and observability
+<p><span class="tag">TypeScript</span> <span class="tag">React</span> <span class="tag">Node.js</span> <span class="tag">GraphQL</span> <span class="tag">REST</span> <span class="tag">Elasticsearch</span></p>
 
-I work in AWS most days: ECS services, Lambda and SAM stacks, SQS pipelines, Cognito for auth. In 2022 I rolled out OpenTelemetry across the platform, including the tail-based sampling that brought our trace ingestion bill down. I want systems that [tell you what's wrong](2023-05-18-important-logs.html) while there's still time to fix it. I've also written up [my take on OpenTelemetry](2023-03-23-opentel-thoughts.html).
+## Cloud and data
 
-<p><span class="tag">AWS</span> <span class="tag">serverless</span> <span class="tag">OpenTelemetry</span> <span class="tag">Datadog</span> <span class="tag">CI/CD</span></p>
+I've worked across AWS and GCP. My cloud and data work has included serverless applications, containerised services, ETL and replication pipelines, data lakes, and edge deployments for robotics. I've used AWS Glue, dbt, and Snowflake for data platforms, and OpenTelemetry and Datadog for observability.
 
-## Migrations
+I've written about [useful logs](2023-05-18-important-logs.html) and [OpenTelemetry](2023-03-23-opentel-thoughts.html).
 
-A lot of my better work has been deletions. I moved a production webapp from JavaScript to TypeScript without pausing feature work. Since then I've taken the e2e suite from Cypress to Playwright, swapped ad-hoc SCSS for design tokens, and removed legacy features once their replacements proved out. I've found this kind of work goes better done continuously than saved up for a scheduled project.
+<p><span class="tag">AWS</span> <span class="tag">GCP</span> <span class="tag">serverless</span> <span class="tag">data pipelines</span> <span class="tag">Snowflake</span> <span class="tag">OpenTelemetry</span></p>
 
-## Team tooling
+## Engineering practice
 
-I spend a fair bit of time on the things that make a team faster: CI/CD pipelines, load testing, [parallel test jobs](2023-07-21-parallel-test-jobs.html), and [code review that goes past LGTM](2022-03-08-dont-lgtm-code-reviews.html). Lately that's meant agent-assisted workflows too — review agents, definition-of-done gates, and docs written so both people and machines can follow them. The habit under all of it is to [ship the thing](2023-05-17-ship-the-thing.html).
-
-## Selected work
-
-The last five years, most recent first:
-
-<ul class="post-list">
-<li><span class="date">2026</span>Agent workflows, deep-research mode, and prompt-injection hardening</li>
-<li><span class="date">2025</span>AI research assistant from prototype to production<p>Report generation, usage caps and admin reporting, and a vector-search service.</p></li>
-<li><span class="date">2024</span>Webapp to TypeScript, and the first embeddings work<p>The migration ran to about 30,000 lines.</p></li>
-<li><span class="date">2023</span>Realtime alerting and CRM email integration<p>Elasticsearch percolation for instant matching, plus search-term tokenisation.</p></li>
-<li><span class="date">2022</span>OpenTelemetry rollout — collector sidecars and tail-based sampling</li>
-</ul>
+I've led engineering practice across product and consulting teams, including architecture, mentoring, CI/CD, trunk-based development, code review, and testing. More recently, I've built coding-agent skills, review agents, and definition-of-done checks. I've also written about [parallel test jobs](2023-07-21-parallel-test-jobs.html) and [code review guidelines](2022-03-08-dont-lgtm-code-reviews.html).
 
 ## Elsewhere
 
