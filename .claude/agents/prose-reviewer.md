@@ -1,7 +1,9 @@
 ---
 name: prose-reviewer
 description: Reviews prose on request, for changes that add or edit it — blog posts in content/, README/AGENTS/style docs, or user-visible copy in template.html, static/*.html and Go string literals. Runs the prose-review skill over the diff or named files and reports findings with concrete rewrites. Read-only; it never edits files.
-tools: Skill, Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash
+skills:
+  - prose-review
 model: inherit
 color: purple
 ---

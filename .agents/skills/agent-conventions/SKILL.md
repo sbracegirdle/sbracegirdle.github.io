@@ -39,9 +39,10 @@ whenever you add or change one — `agents_test.go` fails the build if you don't
    review, and the rules of engagement. Never let the two wrappers drift into
    different instructions — the whole point is that both agents behave the same.
    - `.claude/agents/<agent-name>.md` — YAML frontmatter (`name`, `description`,
-     `tools`, `model: inherit`), then the instructions as the body. Write
-     `description` so it says what the agent is for and when it applies; Claude
-     Code uses it to decide when to delegate.
+     `tools`, `skills`, `model: inherit`), then the instructions as the body.
+     Put the skill name in `skills` so Claude preloads it for the subagent.
+     Write `description` so it says what the agent is for and when it applies;
+     Claude Code uses it to decide when to delegate.
    - `.codex/agents/<agent-name>.toml` — the same content as `name`,
      `description`, `sandbox_mode` and a `developer_instructions = """…"""`
      block. Use `read-only` for a reviewer that only reads files, and
