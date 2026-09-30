@@ -2,11 +2,14 @@
 
 I try to follow these guidelines in my writing:
 
-- **Concise**: Be succinct and to the point, avoiding unnecessary verbosity.
-- **Approachable**: Avoid complex jargon or elaborate language to ensure my writing is understandable.
+- **Concise**: Give enough context to understand the point, then stop. Cut repeated explanations and details the reader doesn't need. An overview should give the gist without walking through every implementation detail.
+- **Approachable**: Use familiar words and concrete examples. Explain new technical concepts as you would to a junior developer, including what they do and how they relate to concepts already introduced.
+- **Warm**: Write as a helpful colleague. Use contractions, direct "you" and "your" phrasing, and relatable examples where natural. Add warmth through phrasing, without adding words or filler.
+- **Flow**: Let each section build on the last and connect it to the reader's goal. Explain why a feature matters before describing its APIs or fields. Prefer straightforward sentences over chains of clauses.
+- **Consistent**: Use the same name for the same concept throughout. Introduce a new term before relying on it.
+- **Endings**: Return to the article's purpose and what the reader can do with the ideas. Give the closing paragraph a sense of completion.
 - **Informal**: Maintain a casual tone, refraining from expressing strong or polarizing opinions.
 - **Professional**: Be respectful and courteous, avoid any form of rudeness or offensive language.
-- **About page voice**: Keep the page brief and summarise the breadth of my career in the first person singular, organised by kind of work. Skip employer-by-employer and project lists. Avoid collective terms such as "we", "our", and "us"; name the team, company, or product when that context matters.
 
 I also generally follow the "write-good" linting practices, which means avoiding the following:
 
