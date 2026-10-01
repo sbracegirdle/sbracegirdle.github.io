@@ -2,8 +2,9 @@
 
 I try to follow these guidelines in my writing:
 
+- **Audience**: Write for senior software engineers. Assume familiarity with common engineering concepts and tools. Focus on practical guidance, concrete examples and tradeoffs rather than introductory mechanics. Explain unfamiliar terms when they're needed.
 - **Concise**: Give enough context to understand the point, then stop. Cut repeated explanations and details the reader doesn't need. An overview should give the gist without walking through every implementation detail.
-- **Approachable**: Use familiar words and concrete examples. Explain new technical concepts as you would to a junior developer, including what they do and how they relate to concepts already introduced.
+- **Approachable**: Use plain language without talking down to the reader. Explain unfamiliar concepts through examples and connect them to decisions the reader needs to make.
 - **Warm**: Write as a helpful colleague. Use contractions, direct "you" and "your" phrasing, and relatable examples where natural. Add warmth through phrasing, without adding words or filler.
 - **Flow**: Let each section build on the last and connect it to the reader's goal. Explain why a feature matters before describing its APIs or fields. Prefer straightforward sentences over chains of clauses.
 - **Consistent**: Use the same name for the same concept throughout. Introduce a new term before relying on it.
